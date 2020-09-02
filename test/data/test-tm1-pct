@@ -1,0 +1,4 @@
+# test pattern for tm1 - translation memory - pct are penalties
+
+# difference with or without separator before .
+PCT0a	aa bb cc dd.	0.9	true	5	0.99	1=aa bb cc dd

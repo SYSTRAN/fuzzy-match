@@ -1,0 +1,3 @@
+# variant in number
+NUM1	aa bb 14 dd	1	false	5
+NUM2	aa bb 14 dd	0.7	false	5	0.75	1=aa bb cc dd	0.75	4=aa bb 13 dd

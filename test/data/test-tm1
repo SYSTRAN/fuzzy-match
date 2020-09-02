@@ -1,0 +1,35 @@
+# test pattern for tm1 - translation memory
+# expected format (tab-separated):
+# (TEST_ID, pattern, fuzzy_threshold (float), non perfect (bool), nmatch, fuzzy1, match1, fuzzy2, match2)
+
+# perfect matches
+PERFECT1	aa bb cc dd	1	false	5	1	1=aa bb cc dd
+PERFECT1np	aa bb cc dd	1	true	5
+PERFECT2	aa bb bb aa cc dd	1	false	5	1	2=aa bb bb aa cc dd
+
+# simple fuzzies
+FUZZY1	aa bb cc	1	false	5
+FUZZY2	aa bb cc	0.7	false	5
+FUZZY3	aa bb cc	0.6	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee	0.74	3=aa ｟it｠ bb cc dd
+FUZZY4	aa bb aa cc dd	0.75	false	5	0.83	2=aa bb bb aa cc dd	0.8	1=aa bb cc dd	0.79	3=aa ｟it｠ bb cc dd
+FUZZY5	aa bb cc ff	0.75	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee
+
+FUZZY6	aa bb cc ff	0.5	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee	0.74	3=aa ｟it｠ bb cc dd	0.60	6=aa bb cc dd.	0.60	7=aa bb cc dd .
+# only 4 matches
+FUZZY6b	aa bb cc ff	0.5	false	4	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee	0.74	3=aa ｟it｠ bb cc dd	0.60	6=aa bb cc dd.
+
+# variant in case
+CASE1	aa bb cc Dd	1	false	5
+CASE2	aa bb cc Dd	0.8	false	5	0.99	1=aa bb cc dd	0.98	3=aa ｟it｠ bb cc dd
+
+# variant in number
+NUM1	aa bb 14 dd	1	false	5
+NUM2	aa bb 14 dd	0.8	false	5	0.98	4=aa bb 13 dd
+
+# no difference with or without separator before .
+SEP0a	aa bb cc dd.	1	true	5
+SEP0b	aa bb cc dd .	1	true	5
+SEP1	aa bb cc dd	0.7	true	5	0.99	3=aa ｟it｠ bb cc dd	0.8	6=aa bb cc dd.	0.8	7=aa bb cc dd .	0.75	4=aa bb 13 dd	0.75	5=aa bb cc ee
+
+# no limit
+NOLIMIT	aa bb cc dd	0.5	true	0	0.99	3=aa ｟it｠ bb cc dd	0.80	6=aa bb cc dd.	0.80	7=aa bb cc dd .	0.75	4=aa bb 13 dd	0.75	5=aa bb cc ee	0.66	2=aa bb bb aa cc dd

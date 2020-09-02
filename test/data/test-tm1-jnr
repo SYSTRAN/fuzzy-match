@@ -1,0 +1,8 @@
+# test pattern for tm1 - translation memory - separators are penalties
+
+# difference with or without separator before .
+SEP0a	aa bb cc dd.	0.9	true	5	0.99	7=aa bb cc dd .
+SEP0b	aa bb cc dd .	0.9	true	5	0.99	6=aa bb cc dd.
+SEP1	aa bb cc dd	0.7	true	5	0.99	3=aa ｟it｠ bb cc dd	0.80	7=aa bb cc dd .	0.79	6=aa bb cc dd.	0.75	4=aa bb 13 dd	0.75	5=aa bb cc ee
+SEP2	aa ｟it｠｟it｠ bb cc dd	0.9	false	5	0.98	3=aa ｟it｠ bb cc dd	0.97	1=aa bb cc dd
+SEP2	aa ｟it｠ ｟it｠ bb cc dd	0.9	false	5	0.99	3=aa ｟it｠ bb cc dd	0.98	1=aa bb cc dd
