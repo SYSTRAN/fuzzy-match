@@ -39,14 +39,37 @@ namespace fuzzy
   }
 
   template<class Archive>
-  void SuffixArray::load(Archive& archive, unsigned int)
+  void SuffixArray::load(Archive& archive, unsigned int version)
   {
-    archive
-    & _sorted
-    & _suffixes
-    & _sentence_buffer
-    & _sentence_pos
-    & _quickVocabAccess;
+    if (version >= 1)
+    {
+      archive
+      & _sorted
+      & _suffixes
+      & _sentence_buffer
+      & _sentence_pos
+      & _quickVocabAccess;
+    }
+    else // Old format using std::pair
+    {
+      std::vector<std::pair<unsigned, unsigned short>> suffixes;
+
+      archive
+      & _sorted
+      & suffixes
+      & _sentence_buffer
+      & _sentence_pos
+      & _quickVocabAccess;
+
+      _suffixes.reserve(suffixes.size());
+      for (const auto& suffix : suffixes)
+      {
+        SuffixView suffixView;
+        suffixView.sentence_id = suffix.first;
+        suffixView.subsentence_pos = suffix.second;
+        _suffixes.push_back(suffixView);
+      }
+    }
 
     compute_sentence_length();
   }

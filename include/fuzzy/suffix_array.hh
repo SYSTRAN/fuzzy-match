@@ -9,6 +9,7 @@
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/version.hpp>
 
 namespace fuzzy
 {
@@ -96,5 +97,7 @@ namespace fuzzy
     BOOST_SERIALIZATION_SPLIT_MEMBER()
   };
 }
+
+BOOST_CLASS_VERSION(fuzzy::SuffixArray, 1)
 
 #include "fuzzy/suffix_array.hxx"
