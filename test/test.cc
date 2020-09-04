@@ -208,6 +208,12 @@ TEST(FuzzyMatchTest, prebuild_tm1_oldapi) {
   _fuzzyMatcher.match(sentence_split, fuzzy, nmatches, matches);
 }
 
+TEST(FuzzyMatchTest, prebuild_old_tm1) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.old.fmi"), _fuzzyMatcher);
+  tests_matches(_fuzzyMatcher, "test-tm1");
+}
+
 TEST(FuzzyMatchTest, tm2) {
   fuzzy::FuzzyMatch _fuzzyMatcher;
   fuzzy::import_binarized_fuzzy_matcher(get_data("tm2.en.gz.fmi"), _fuzzyMatcher);
