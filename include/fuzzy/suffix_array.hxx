@@ -41,7 +41,7 @@ namespace fuzzy
   template<class Archive>
   void SuffixArray::load(Archive& archive, unsigned int version)
   {
-    if (version >= 1)
+    if (version == 1)
     {
       archive
       & _sorted
@@ -50,7 +50,7 @@ namespace fuzzy
       & _sentence_pos
       & _quickVocabAccess;
     }
-    else // Old format using std::pair
+    else if (version == 0) // Old format using std::pair
     {
       std::vector<std::pair<unsigned, unsigned short>> suffixes;
 
@@ -70,6 +70,8 @@ namespace fuzzy
         _suffixes.push_back(suffixView);
       }
     }
+    else
+      throw std::invalid_argument("Unsupported FMI format");
 
     compute_sentence_length();
   }
