@@ -3,6 +3,7 @@
 #include <queue>
 #include <vector>
 #include <cmath>
+#include <set>
 
 #include <fuzzy/ngram_matches.hh>
 #include <fuzzy/edit_distance.hh>
