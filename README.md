@@ -203,6 +203,12 @@ cmake ..
 make
 ```
 
+Custom library locations can be provided with the following cmake variables:
++ `OPENNMT_TOKENIZER_ROOT` for **OpenNMT_Tokenize** path.
++ `CMAKE_PREFIX_PATH` for **ICU** path, _prefer this over `ICU_ROOT` as it will properly use your path over system paths_.
++ `BOOST_ROOT` for **Boost** path.
++ `GTEST_ROOT` for **Google Test** path.
+
 By default you compile the library + CLI (Command Line Interface) + tests.
 + To compile only the CLI (without the tests), use the `-DCLI_ONLY=ON` flag.
 + To compile only the library (without the tests, without the CLI), use the `-DLIB_ONLY=ON` flag.

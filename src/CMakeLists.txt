@@ -22,15 +22,19 @@ find_package(Boost COMPONENTS serialization iostreams system REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+if(NOT DEFINED ICU_INCLUDE_DIRS OR NOT DEFINED ICU_LIBRARIES)
+  find_package(ICU COMPONENTS uc i18n data REQUIRED)
+endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC
-  "${ICU_ROOT}/include"
+  ${ICU_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${OPENNMT_TOKENIZER_INCLUDE}
   )
 
 target_link_libraries(${PROJECT_NAME}
   ${OPENNMT_TOKENIZER_LIB}
-  icuuc icui18n
+  ${ICU_LIBRARIES}
   ${Boost_LIBRARIES}
   Threads::Threads
   )
