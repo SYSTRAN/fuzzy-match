@@ -95,6 +95,6 @@ TEST93	One might as well try to make murder , plunder or abduction more ethical 
 TEST94	The simple fact that the great powers are wasting enormous sums of money on weapons of mass destruction shows that the present organisation of society is barbaric .	0.5	true	2	
 TEST95	Even that , however , is proving impossible .	0.5	true	2	
 TEST96	In an economy where arms dealers are willing to sell the rope to hang themselves if it makes them a profit , how can they be prevented from bypassing government controls ?	0.5	true	2	
-TEST97	( Explanation of vote abbreviated in accordance with Rule 137 ( 1 ) of the Rules of Procedure )	0.5	true	2	
-TEST98	I declare adjourned the session of the European Parliament .	0.5	true	2	
+TEST97	( Explanation of vote abbreviated in accordance with Rule 137 ( 1 ) of the Rules of Procedure )	0.5	true	2	0.504700005	18214=Je vous communique que j ' ai reçu une proposition de résolution , conformément à l ' article 37 , paragraphe 2 , du règlement .
+TEST98	I declare adjourned the session of the European Parliament .	0.5	true	2	0.606599987	7668=Je déclare reprise la session du Parlement européen , qui avait été interrompue le jeudi 9 mai 1996 .	0.549000025	12874=Deuxième réflexion : la fonction du Parlement européen .
 TEST99	( The sitting was closed at 4.40 p.m. )	0.5	true	2	0.980000019	10446=( La séance est levée à 19 h 40 )	0.959999979	568=( La séance est levée à 19 h 50 )
