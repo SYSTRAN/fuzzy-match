@@ -63,7 +63,7 @@ namespace fuzzy
     UErrorCode status = U_ZERO_ERROR;
     UParseError error;
     delete _ptrans;
-    _ptrans = Transliterator::createFromRules(
+    _ptrans = icu::Transliterator::createFromRules(
                 "NFC",
                 "::NFC;",
                 UTRANS_FORWARD, error, status);
@@ -92,7 +92,7 @@ namespace fuzzy
                                       std::vector<std::string> &tokens,
                                       std::vector<std::vector<std::string>> &features) {
     /* ICU basic normalization */
-    UnicodeString u_sentence = icu::UnicodeString::fromUTF8(sentence);
+    icu::UnicodeString u_sentence = icu::UnicodeString::fromUTF8(sentence);
     std::string sentence_norm;
     _ptrans->transliterate(u_sentence);
     u_sentence.toUTF8String(sentence_norm);
