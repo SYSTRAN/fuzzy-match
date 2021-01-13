@@ -590,7 +590,8 @@ namespace fuzzy
         costs.diff_word = 100. / std::max(suffix_wids.size(), p_length);
 
         /* let us check the candidates */
-        float cost = _edit_distance(suffix_wids, _suffixArrayIndex->real_tokens(s_id), //TODO we need to change the wids and real
+        const auto suffix_realtok = _suffixArrayIndex->real_tokens(s_id);
+        float cost = _edit_distance(suffix_wids, suffix_realtok,
                                     pattern_wids, pattern_realtok,
                                     p_length, st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
