@@ -557,11 +557,11 @@ namespace fuzzy
 
     real.get_itoks(st, sn);
 
-    for (auto paIt = nGramMatches.get_psentences().begin(); paIt != nGramMatches.get_psentences().end(); ++paIt)
+    for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
     {
-      auto& pa = paIt.value();
-      int s_id = pa.s_id;
-      const auto suffix_wids = nGramMatches.sentence(s_id);
+      auto& agendaItem = agendaItemIt.value();
+      int s_id = agendaItem.s_id;
+      const auto suffix_wids = nGramMatches.sentence(s_id); //TODO we may have to update this
 
       /* time to add unigram now */
       /* we just need to add matches when matching free slot in the sentence */
@@ -575,16 +575,16 @@ namespace fuzzy
           const auto& unigram_list = it->second;
           for (const auto i : unigram_list)
           {
-            if (!pa.map_pattern[i]) {
-              pa.map_pattern[i] = true;
-              pa.coverage++;
+            if (!agendaItem.map_pattern[i]) {
+              agendaItem.map_pattern[i] = true;
+              agendaItem.coverage++;
             }
           }
         }
       }
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      if (p_length <= pa.coverage + nGramMatches.max_differences_with_pattern)
+      if (p_length <= agendaItem.coverage + nGramMatches.max_differences_with_pattern)
       {
         Costs costs;
         costs.diff_word = 100. / std::max(suffix_wids.size(), p_length);
@@ -604,7 +604,7 @@ namespace fuzzy
             (!no_perfect || score != 1)) {
           Match m;
           m.score = score;
-          m.max_subseq = pa.maxmatch;
+          m.max_subseq = agendaItem.maxmatch;
           m.s_id = s_id;
           m.id = _suffixArrayIndex->id(s_id);
           result.push(m);
