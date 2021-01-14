@@ -559,7 +559,7 @@ namespace fuzzy
 
     for (auto paIt = nGramMatches.get_psentences().begin(); paIt != nGramMatches.get_psentences().end(); ++paIt)
     {
-      auto& pa = paIt->second;
+      auto& pa = paIt.value();
       int s_id = pa.s_id;
       const auto suffix_wids = nGramMatches.sentence(s_id);
 
@@ -576,8 +576,8 @@ namespace fuzzy
           for (const auto i : unigram_list)
           {
             if (!pa.map_pattern[i]) {
-              nGramMatches.get_psentences()[s_id].map_pattern[i] = true;
-              nGramMatches.get_psentences()[s_id].coverage++;
+              pa.map_pattern[i] = true;
+              pa.coverage++;
             }
           }
         }
