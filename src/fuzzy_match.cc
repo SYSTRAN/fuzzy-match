@@ -576,8 +576,8 @@ namespace fuzzy
           for (const auto i : unigram_list)
           {
             if (!pa.map_pattern[i]) {
-              paIt.value().coverage++;
-              // We do not need to update map_pattern as it will not be read again
+              nGramMatches.get_psentences()[s_id].map_pattern[i] = true;
+              nGramMatches.get_psentences()[s_id].coverage++;
             }
           }
         }
