@@ -553,15 +553,15 @@ namespace fuzzy
 
     std::vector<const char*> st(p_length+1);
     std::vector<int> sn(p_length+1);
-    Tokens realtok = (Tokens)real;
+    Tokens pattern_realtok = (Tokens)real;
 
     real.get_itoks(st, sn);
 
-    for (auto paIt = nGramMatches.get_psentences().begin(); paIt != nGramMatches.get_psentences().end(); ++paIt)
+    for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
     {
-      auto& pa = paIt->second;
-      int s_id = pa.s_id;
-      const auto suffix_wids = nGramMatches.sentence(s_id);
+      auto& agendaItem = agendaItemIt.value();
+      int s_id = agendaItem.s_id;
+      const auto suffix_wids = nGramMatches.sentence(s_id); //TODO we may have to update this
 
       /* time to add unigram now */
       /* we just need to add matches when matching free slot in the sentence */
@@ -575,23 +575,24 @@ namespace fuzzy
           const auto& unigram_list = it->second;
           for (const auto i : unigram_list)
           {
-            if (!pa.map_pattern[i]) {
-              paIt.value().coverage++;
-              // We do not need to update map_pattern as it will not be read again
+            if (!agendaItem.map_pattern[i]) {
+              agendaItem.map_pattern[i] = true;
+              agendaItem.coverage++;
             }
           }
         }
       }
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      if (p_length <= pa.coverage + nGramMatches.max_differences_with_pattern)
+      if (p_length <= agendaItem.coverage + nGramMatches.max_differences_with_pattern)
       {
         Costs costs;
         costs.diff_word = 100. / std::max(suffix_wids.size(), p_length);
 
         /* let us check the candidates */
-        float cost = _edit_distance(suffix_wids, _suffixArrayIndex->real_tokens(s_id),
-                                    pattern_wids, realtok,
+        const auto suffix_realtok = _suffixArrayIndex->real_tokens(s_id);
+        float cost = _edit_distance(suffix_wids, suffix_realtok,
+                                    pattern_wids, pattern_realtok,
                                     p_length, st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
                                     costs, 100-fuzzy);
@@ -604,7 +605,7 @@ namespace fuzzy
             (!no_perfect || score != 1)) {
           Match m;
           m.score = score;
-          m.max_subseq = pa.maxmatch;
+          m.max_subseq = agendaItem.maxmatch;
           m.s_id = s_id;
           m.id = _suffixArrayIndex->id(s_id);
           result.push(m);
