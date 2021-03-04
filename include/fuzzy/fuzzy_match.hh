@@ -7,6 +7,7 @@
 #include <fuzzy/edit_distance.hh>
 
 #include <unicode/translit.h>
+#include <onmt/Tokenizer.h>
 
 namespace onmt {
   class Tokenizer;
@@ -38,7 +39,6 @@ namespace fuzzy
     };
 
     FuzzyMatch(int pt=penalty_token::pt_none);
-    ~FuzzyMatch();
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);
     bool add_tm(const std::string& id, const Sentence& source, const Tokens& norm, bool sort = true);
@@ -101,7 +101,12 @@ namespace fuzzy
     void _update_tokenizer();
 
     template<class Archive>
-    void serialize(Archive& ar, const unsigned int version);
+    void save(Archive&, unsigned int version) const;
+
+    template<class Archive>
+    void load(Archive&, unsigned int version);
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     float compute_max_idf_penalty() const;
 
@@ -111,11 +116,11 @@ namespace fuzzy
     /* penalty tokens */
     int                    _pt;
     /* open-nmt tokenizer */
-    onmt::Tokenizer        *_ptokenizer;
+    std::unique_ptr<onmt::Tokenizer> _ptokenizer;
     /* icu transliterator */
-    icu::Transliterator *_ptrans;
+    std::unique_ptr<icu::Transliterator> _ptrans;
     /* Suffix-Array Index */
-    SuffixArrayIndex                *_suffixArrayIndex;
+    std::unique_ptr<SuffixArrayIndex> _suffixArrayIndex;
   };
 }
 

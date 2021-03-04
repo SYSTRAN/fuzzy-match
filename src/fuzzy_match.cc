@@ -9,7 +9,7 @@
 #include <fuzzy/edit_distance.hh>
 
 #include <onmt/unicode/Unicode.h>
-#include <onmt/Tokenizer.h>
+#include <boost/make_unique.hpp>
 
 namespace fuzzy
 {
@@ -27,16 +27,10 @@ namespace fuzzy
 
 
   FuzzyMatch::FuzzyMatch(int pt)
-    : _pt(pt), _ptokenizer(0), _ptrans(0), _suffixArrayIndex(new SuffixArrayIndex())
+  : _pt(pt)
+  , _suffixArrayIndex(boost::make_unique<SuffixArrayIndex>())
   {
     _update_tokenizer();
-  }
-
-  FuzzyMatch::~FuzzyMatch()
-  {
-    delete _ptokenizer;
-    delete _ptrans;
-    delete _suffixArrayIndex;
   }
 
   void FuzzyMatch::_update_tokenizer() {
@@ -52,9 +46,7 @@ namespace fuzzy
       flags_tokenizer |= onmt::Tokenizer::Flags::SpacerNew
                          | onmt::Tokenizer::Flags::SpacerAnnotate;
 
-    delete _ptokenizer;
-    _ptokenizer = new onmt::Tokenizer(onmt::Tokenizer::Mode::Aggressive,
-                                      flags_tokenizer, "");
+    _ptokenizer = boost::make_unique<decltype(_ptokenizer)::element_type>(onmt::Tokenizer::Mode::Aggressive, flags_tokenizer, "");
     /* segment on following alphabets */
     _ptokenizer->add_alphabet_to_segment("Han");
     _ptokenizer->add_alphabet_to_segment("Kanbun");
@@ -62,11 +54,8 @@ namespace fuzzy
     _ptokenizer->add_alphabet_to_segment("Hiragana");
     UErrorCode status = U_ZERO_ERROR;
     UParseError error;
-    delete _ptrans;
-    _ptrans = icu::Transliterator::createFromRules(
-                "NFC",
-                "::NFC;",
-                UTRANS_FORWARD, error, status);
+
+    _ptrans = std::unique_ptr<decltype(_ptrans)::element_type>(icu::Transliterator::createFromRules("NFC", "::NFC;", UTRANS_FORWARD, error, status));
   }
 
   void
