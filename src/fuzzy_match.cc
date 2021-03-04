@@ -450,6 +450,9 @@ namespace fuzzy
     if (!p_length)
       return false;
 
+    if ((std::size_t)(min_subseq_length) > pattern.size())
+      min_subseq_length = pattern.size();
+
     if ((int)(min_subseq_ratio*p_length) > min_subseq_length)
       min_subseq_length = min_subseq_ratio*p_length;
 

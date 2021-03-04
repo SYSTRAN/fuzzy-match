@@ -220,6 +220,47 @@ TEST(FuzzyMatchTest, tm2) {
   tests_matches(_fuzzyMatcher, "test-tm2", 3, 0.3);
 }
 
+TEST(FuzzyMatchTest, small_sentence_matches) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  _fuzzyMatcher.add_tm("", "single");
+  _fuzzyMatcher.add_tm("", "two words");
+  _fuzzyMatcher.add_tm("", "three kind words");
+  _fuzzyMatcher.sort();
+
+  {
+    std::string sentence = "single";
+    std::vector<std::string> sentence_split;
+    boost::split(sentence_split, sentence, boost::is_any_of(" "));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    int min_subseq_length = 3; // min_subseq_length > pattern length
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    EXPECT_EQ(matches.size(), 1);
+    EXPECT_EQ(matches[0].s_id, 0);
+  }
+
+  {
+    std::string sentence = "two words";
+    std::vector<std::string> sentence_split;
+    boost::split(sentence_split, sentence, boost::is_any_of(" "));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    int min_subseq_length = 3; // min_subseq_length > pattern length
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    EXPECT_EQ(matches.size(), 1);
+    EXPECT_EQ(matches[0].s_id, 1);
+  }
+
+  {
+    std::string sentence = "three kind words";
+    std::vector<std::string> sentence_split;
+    boost::split(sentence_split, sentence, boost::is_any_of(" "));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    int min_subseq_length = 3; // min_subseq_length == pattern length
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    EXPECT_EQ(matches.size(), 1);
+    EXPECT_EQ(matches[0].s_id, 2);
+  }
+}
+
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);
   assert(argc == 2);
