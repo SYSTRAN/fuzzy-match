@@ -1,14 +1,26 @@
 #include <boost/serialization/version.hpp>
+#include <boost/make_unique.hpp>
 
 namespace fuzzy
 {
   template<class Archive>
-  void
-  FuzzyMatch::serialize(Archive& ar, const unsigned int version)
+  void FuzzyMatch::save(Archive& archive, unsigned int) const
   {
-    ar &
+    archive
+    & _pt
+    & _suffixArrayIndex.get();
+  }
+
+  template<class Archive>
+  void FuzzyMatch::load(Archive& archive, unsigned int)
+  {
+    SuffixArrayIndex* suffixArrayIndex = nullptr;
+
+    archive &
     _pt &
-    _suffixArrayIndex;
+    suffixArrayIndex;
+
+    _suffixArrayIndex = std::unique_ptr<SuffixArrayIndex>(suffixArrayIndex);
   }
 }
 
