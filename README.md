@@ -26,7 +26,7 @@ FuzzyMatch-cli -i CORPUS.fmi -a match -f FUZZY -N NTHREAD -n NMATCH [--ml ML] [-
 * `FUZZY`, the fuzzy threshold in [0,1]. Not really relevant < 0.5.
 * `NTHREAD` number of thread to use - default 4. Scales well with the number of threads.
 * `NMATCH` number of match to return
-* `ML` minimal length of the longest subsequence (in tokens) - defaut 3
+* `ML` minimal length of the longest subsequence (in tokens) - defaut 3. If the pattern size is strictly less than `ML`, then this parameter is ignored.
 * `MR` minimal ratio of the longest subsequence (in tokens) - default 0. Interesting to use for lowest fuzzy - for instance a value of 0.5, used with fuzzy threshold 0.5, will guarantee the presence of at least 50% of the sentence length
 * `IDFPENALTYRATIO` if not null, gives extra penalty to word missing weighted on IDF: a value of 1 is equivalent to give a penalty of one additional missing word for a word appearing only once in all the translation memory.
 
