@@ -10,9 +10,7 @@ namespace fuzzy
     std::string accu;
     for (const auto c : str) {
       if (c == token) {
-        if (!accu.empty()) {
-          parts.emplace_back(std::move(accu));
-        }
+        parts.emplace_back(std::move(accu));
       } else {
         accu += c;
       }
