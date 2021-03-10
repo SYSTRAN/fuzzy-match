@@ -11,6 +11,7 @@ namespace fuzzy
     for (const auto c : str) {
       if (c == token) {
         parts.emplace_back(std::move(accu));
+        accu.clear();
       } else {
         accu += c;
       }
