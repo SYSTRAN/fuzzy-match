@@ -261,6 +261,15 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
   }
 }
 
+TEST(FuzzyMatchTest, empty_token) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  _fuzzyMatcher.add_tm("", {"NMT", "", "", "neural", "machine", "translation"}); // The empty token produced a visible InvalidRead when launching the tests with Valgrind
+  _fuzzyMatcher.sort();
+
+  std::vector<fuzzy::FuzzyMatch::Match> matches;
+  ASSERT_NO_THROW(_fuzzyMatcher.match("NMT neural machine translation", 0.1, 1, false, matches));
+}
+
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);
   assert(argc == 2);
