@@ -61,7 +61,7 @@ namespace fuzzy
   void
   FuzzyMatch::_tokenize_and_normalize(const std::string &sentence,
                                       Sentence& real,
-                                      Tokens& pattern) {
+                                      Tokens& pattern) const {
     std::vector<std::string> tokens;
     std::vector<std::vector<std::string> > features;
     std::vector<unsigned> map_tokens;
@@ -79,7 +79,7 @@ namespace fuzzy
                                       Tokens& pattern,
                                       std::vector<unsigned> &map_tokens,
                                       std::vector<std::string> &tokens,
-                                      std::vector<std::vector<std::string>> &features) {
+                                      std::vector<std::vector<std::string>> &features) const {
     /* ICU basic normalization */
     icu::UnicodeString u_sentence = icu::UnicodeString::fromUTF8(sentence);
     std::string sentence_norm;
@@ -232,7 +232,7 @@ namespace fuzzy
                          std::vector<Match>& matches,
                          int min_subseq_length,
                          float min_subseq_ratio,
-                         bool idf_weighting) {
+                         bool idf_weighting) const {
 
     Sentence real;
     Tokens pattern;
@@ -392,7 +392,7 @@ namespace fuzzy
                          std::vector<Match>& matches,
                          int min_subseq_length,
                          float min_subseq_ratio,
-                         float vocab_idf_penalty) {
+                         float vocab_idf_penalty) const {
 
     Sentence real;
     Tokens norm;
@@ -409,7 +409,7 @@ namespace fuzzy
                     std::vector<Match>& matches,
                     int min_subseq_length,
                     float min_subseq_ratio,
-                    float vocab_idf_penalty)
+                    float vocab_idf_penalty) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
@@ -426,7 +426,7 @@ namespace fuzzy
                     std::vector<Match>& matches,
                     int min_subseq_length,
                     float min_subseq_ratio,
-                    float vocab_idf_penalty)
+                    float vocab_idf_penalty) const
   {
     size_t p_length = pattern.size();
 
