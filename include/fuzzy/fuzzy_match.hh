@@ -53,7 +53,7 @@ namespace fuzzy
                std::vector<Match> &matches,
                int min_subseq_length=2,
                float min_subseq_ratio=0,
-               float vocab_idf_penalty=0);
+               float vocab_idf_penalty=0) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -62,7 +62,7 @@ namespace fuzzy
                std::vector<Match>& matches,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
-               float vocab_idf_penalty=0);
+               float vocab_idf_penalty=0) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -71,19 +71,19 @@ namespace fuzzy
                std::vector<Match>& matches,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
-               float vocab_idf_penalty=0);
+               float vocab_idf_penalty=0) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,
                std::vector<Match>& matches,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
-               bool idf_weighting=false);
+               bool idf_weighting=false) const;
     /* tokenize and normalize a sentence - with options defined when creating the
        fuzzyMatcher */
     void _tokenize_and_normalize(const std::string &sentence,
                                  Sentence& real,
-                                 Tokens& pattern);
+                                 Tokens& pattern) const;
     /* tokenize and normalize a sentence, and preserve the actual 
        tokens and features list, together with mapping between ID in the sentence
        and original token IDs */
@@ -92,7 +92,7 @@ namespace fuzzy
                                  Tokens& pattern,
                                  std::vector<unsigned> &map_tokens,
                                  std::vector<std::string> &tokens,
-                                 std::vector<std::vector<std::string>> &features);
+                                 std::vector<std::vector<std::string>> &features) const;
     std::ostream& dump(std::ostream& os) const;
   private:
     friend class boost::serialization::access;
