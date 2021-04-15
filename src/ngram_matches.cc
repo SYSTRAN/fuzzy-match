@@ -63,8 +63,8 @@ namespace fuzzy
   void
   NGramMatches::register_ranges(bool create, Range range)
   {
-    // For each suffix that matches at least r._match_length
-    for (auto i = range._suffix_first; i < range._suffix_last; i++)
+    // For each suffix that matches at least r.match_length
+    for (auto i = range.suffix_first; i < range.suffix_last; i++)
     {
       // The size difference between the suffix and the pattern is too large for the suffix to be accepted
       const auto sizeDifference = std::abs((long int)_p_length - (long int)_suffixArray.sentence_length(i));
@@ -83,23 +83,23 @@ namespace fuzzy
       }
 
       // Update the AgendaItem with the match
-      for(size_t j=0; j < range._match_length; j++)
+      for(size_t j=0; j < range.match_length; j++)
         if (!agendaItem->map_pattern[j])
         {
           agendaItem->map_pattern[j] = true;
           agendaItem->coverage++;
         }
 
-      agendaItem->maxmatch = std::max<int>(agendaItem->maxmatch, range._match_length);
+      agendaItem->maxmatch = std::max<int>(agendaItem->maxmatch, range.match_length);
     }
   }
 
   void
   NGramMatches::register_ranges(Range r, unsigned min_seq_len) {
-    if (r._match_length < min_exact_match)
+    if (r.match_length < min_exact_match)
       return;
 
-    if (r._match_length >= min_seq_len)
+    if (r.match_length >= min_seq_len)
       register_ranges(true, r);
     else
       _ranges_toprocess.emplace_back(std::move(r));
