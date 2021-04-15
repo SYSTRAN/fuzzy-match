@@ -9,17 +9,10 @@
 
 namespace fuzzy
 {
-  class Range {
-  public:
-    Range(size_t p_start,
-          size_t suffix_first, size_t suffix_last,
-          size_t match_length):_p_start(p_start), _suffix_first(suffix_first),
-                               _suffix_last(suffix_last), _match_length(match_length)
-    {}
-    size_t _p_start;
-    size_t _suffix_first;
-    size_t _suffix_last;
-    size_t _match_length;
+  struct Range {
+    size_t suffix_first;
+    size_t suffix_last;
+    size_t match_length;
   };
 
   class NGramMatches
