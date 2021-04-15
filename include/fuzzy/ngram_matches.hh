@@ -22,7 +22,7 @@ namespace fuzzy
                  float fuzzy, unsigned p_length,
                  const SuffixArray&);
 
-    void register_ranges(bool create, Range);
+    void register_ranges(Range);
     /* same function with lazy injection feature - if match_length
        smaller than min_seq_len, we will not process the entries for the moment */
     void register_ranges(Range, unsigned min_seq_len);
@@ -39,6 +39,5 @@ namespace fuzzy
     unsigned _p_length;
     const SuffixArray& _suffixArray;
     tsl::hopscotch_map<unsigned, AgendaItem> _psentences; // association of sentence id => AgendaItem, owns the AgendaItem
-    std::vector<Range> _ranges_toprocess;
   };
 }
