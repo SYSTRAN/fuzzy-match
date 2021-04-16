@@ -91,6 +91,7 @@ namespace fuzzy
   std::vector<VocabIndexer::index_t> VocabIndexer::getIndex(const std::vector<std::string>& ngram) const
   {
     std::vector<VocabIndexer::index_t> res;
+    res.reserve(ngram.size());
 
     for (size_t i = 0; i < ngram.size(); i++)
       res.push_back(getIndex(ngram[i]));
