@@ -310,17 +310,16 @@ namespace fuzzy
         size_t s_id = SAI.get_SuffixArray().suffixid2sentenceid()[suffixIt].sentence_id;
         if (candidates.find(s_id) == candidates.end() &&
             perfect.find(s_id) == perfect.end()) {
-          unsigned idx = (SAI.get_SuffixArray())[s_id];
-          size_t s_length = SAI.get_SuffixArray().sentence_buffer().begin()[idx];
-          std::vector<unsigned> thes(SAI.get_SuffixArray().sentence_buffer().begin()+idx+1,
-                                     SAI.get_SuffixArray().sentence_buffer().begin()+idx+s_length+1);
+          size_t s_length = 0;
+          const unsigned* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
 
           Costs costs;
           costs.diff_word = 100. / std::max(s_length, p_length);
 
           /* let us calculate edit_distance  */
           float cost = _edit_distance(thes, SAI.real_tokens(s_id),
-                                      pidx, realtok,
+                                      s_length,
+                                      pidx.data(), realtok,
                                       p_length, st, sn,
                                       idf_penalty, 0,
                                       costs, max_distance);
@@ -428,7 +427,7 @@ namespace fuzzy
                     float min_subseq_ratio,
                     float vocab_idf_penalty) const
   {
-    unsigned p_length = pattern.size();
+    size_t p_length = pattern.size();
 
     // performance guard
     if (p_length >= SuffixArrayIndex::MAX_TOKENS_IN_PATTERN)
@@ -552,9 +551,9 @@ namespace fuzzy
     for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
     {
       auto& agendaItem = agendaItemIt.value();
-      unsigned s_id = agendaItem.s_id;
-      unsigned s_length = 0;
-      const auto* suffix_wids = nGramMatches.sentence(s_id, &s_length);
+      size_t s_id = agendaItem.s_id;
+      size_t s_length = 0;
+      const auto* suffix_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
 
       /* time to add unigram now */
       /* we just need to add matches when matching free slot in the sentence */

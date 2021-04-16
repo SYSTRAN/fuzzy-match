@@ -14,12 +14,6 @@ namespace fuzzy
                        const std::vector<const char*>& st, const std::vector<int>& sn,
                        const std::vector<float> &idf_penalty, float idf_weight,
                        const Costs&, float max_fuzziness);
-
-  float _edit_distance(const std::vector<unsigned> &thes, const Sentence &reals,
-                       const std::vector<unsigned> &thep, const Tokens &realptok,
-                       int n, const std::vector<const char*>& st, const std::vector<int>& sn,
-                       const std::vector<float> &idf_penalty, float idf_weight,
-                       const Costs&, float max_fuzziness);
 }
 
 #include <fuzzy/edit_distance.hxx>

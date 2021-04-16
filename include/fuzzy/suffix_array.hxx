@@ -20,6 +20,15 @@ namespace fuzzy
     return _suffixes;
   }
 
+  inline const unsigned*
+  SuffixArray::get_sentence(std::size_t suffix_id, std::size_t* length) const
+  {
+    const auto offset = _sentence_pos[suffix_id];
+    const auto* sentence = _sentence_buffer.data() + offset;
+    *length = *sentence;
+    return sentence + 1;
+  }
+
   inline unsigned short
   SuffixArray::sentence_length(std::size_t suffix_id) const
   {

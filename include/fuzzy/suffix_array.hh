@@ -60,6 +60,7 @@ namespace fuzzy
 
     size_t nsentences() const;
 
+    inline const unsigned* get_sentence(std::size_t suffix_id, std::size_t* length) const;
     inline unsigned short sentence_length(std::size_t suffix_id) const;
 
     int start_by(const SuffixView& p, const std::vector<unsigned> &ngram) const;
