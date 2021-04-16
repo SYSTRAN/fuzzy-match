@@ -10,8 +10,22 @@ namespace fuzzy
                  const Costs& costs,
                  float max_fuzzyness)
   {
-    int n1 = s1.size();
+    return _edit_distance(s1.data(), real1, s1.size(),
+                          s2.data(), real2tok, n2,
+                          st2, sn2,
+                          idf_penalty, idf_weight,
+                          costs,
+                          max_fuzzyness);
+  }
 
+  float
+  _edit_distance(const unsigned* s1, const Sentence &real1, int n1,
+                 const unsigned* s2, const Tokens &real2tok, int n2,
+                 const std::vector<const char*>& st2, const std::vector<int>& sn2,
+                 const std::vector<float> &idf_penalty, float idf_weight,
+                 const Costs& costs,
+                 float max_fuzzyness)
+  {
     boost::multi_array<float, 2> arr(boost::extents[n1+1][n2+1]);
 
     std::vector<const char*> st1(n1+1, nullptr);

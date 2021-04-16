@@ -428,7 +428,7 @@ namespace fuzzy
                     float min_subseq_ratio,
                     float vocab_idf_penalty) const
   {
-    size_t p_length = pattern.size();
+    unsigned p_length = pattern.size();
 
     // performance guard
     if (p_length >= SuffixArrayIndex::MAX_TOKENS_IN_PATTERN)
@@ -552,13 +552,16 @@ namespace fuzzy
     for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
     {
       auto& agendaItem = agendaItemIt.value();
-      int s_id = agendaItem.s_id;
-      const auto suffix_wids = nGramMatches.sentence(s_id); //TODO we may have to update this
+      unsigned s_id = agendaItem.s_id;
+      unsigned s_length = 0;
+      const auto* suffix_wids = nGramMatches.sentence(s_id, &s_length);
 
       /* time to add unigram now */
       /* we just need to add matches when matching free slot in the sentence */
-      for (const auto wid : suffix_wids)
+      for (unsigned i = 0; i < s_length; ++i)
       {
+        const auto wid = suffix_wids[i];
+
         // If this suffix word appears at least once in the pattern
         const auto it = p_unigrams.find(wid);
         if (it != p_unigrams.end())
@@ -579,12 +582,13 @@ namespace fuzzy
       if (p_length <= agendaItem.coverage + nGramMatches.max_differences_with_pattern)
       {
         Costs costs;
-        costs.diff_word = 100. / std::max(suffix_wids.size(), p_length);
+        costs.diff_word = 100. / std::max(s_length, p_length);
 
         /* let us check the candidates */
         const auto suffix_realtok = _suffixArrayIndex->real_tokens(s_id);
         float cost = _edit_distance(suffix_wids, suffix_realtok,
-                                    pattern_wids, pattern_realtok,
+                                    s_length,
+                                    pattern_wids.data(), pattern_realtok,
                                     p_length, st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
                                     costs, 100-fuzzy);

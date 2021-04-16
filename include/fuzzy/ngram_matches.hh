@@ -28,7 +28,7 @@ namespace fuzzy
     void register_ranges(Range, unsigned min_seq_len);
     void process_backlogs();
     int get_sentence_count() const;
-    std::vector<unsigned> sentence(int s_id) const;
+    const unsigned* sentence(unsigned s_id, unsigned* length) const;
     tsl::hopscotch_map<unsigned, AgendaItem>& get_psentences();
 
     unsigned max_differences_with_pattern;
