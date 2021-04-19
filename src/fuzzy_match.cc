@@ -310,18 +310,16 @@ namespace fuzzy
         size_t s_id = SAI.get_SuffixArray().suffixid2sentenceid()[suffixIt].sentence_id;
         if (candidates.find(s_id) == candidates.end() &&
             perfect.find(s_id) == perfect.end()) {
-          unsigned idx = (SAI.get_SuffixArray())[s_id];
-          size_t s_length = SAI.get_SuffixArray().sentence_buffer().begin()[idx];
-          std::vector<unsigned> thes(SAI.get_SuffixArray().sentence_buffer().begin()+idx+1,
-                                     SAI.get_SuffixArray().sentence_buffer().begin()+idx+s_length+1);
+          size_t s_length = 0;
+          const auto* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
 
           Costs costs;
           costs.diff_word = 100. / std::max(s_length, p_length);
 
           /* let us calculate edit_distance  */
-          float cost = _edit_distance(thes, SAI.real_tokens(s_id),
-                                      pidx, realtok,
-                                      p_length, st, sn,
+          float cost = _edit_distance(thes, SAI.real_tokens(s_id), s_length,
+                                      pidx.data(), realtok, p_length,
+                                      st, sn,
                                       idf_penalty, 0,
                                       costs, max_distance);
           if (cost==0 && no_perfect) {
@@ -552,13 +550,16 @@ namespace fuzzy
     for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
     {
       auto& agendaItem = agendaItemIt.value();
-      int s_id = agendaItem.s_id;
-      const auto suffix_wids = nGramMatches.sentence(s_id); //TODO we may have to update this
+      const auto s_id = agendaItem.s_id;
+      size_t s_length = 0;
+      const auto* suffix_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
 
       /* time to add unigram now */
       /* we just need to add matches when matching free slot in the sentence */
-      for (const auto wid : suffix_wids)
+      for (unsigned i = 0; i < s_length; ++i)
       {
+        const auto wid = suffix_wids[i];
+
         // If this suffix word appears at least once in the pattern
         const auto it = p_unigrams.find(wid);
         if (it != p_unigrams.end())
@@ -579,13 +580,13 @@ namespace fuzzy
       if (p_length <= agendaItem.coverage + nGramMatches.max_differences_with_pattern)
       {
         Costs costs;
-        costs.diff_word = 100. / std::max(suffix_wids.size(), p_length);
+        costs.diff_word = 100. / std::max(s_length, p_length);
 
         /* let us check the candidates */
         const auto suffix_realtok = _suffixArrayIndex->real_tokens(s_id);
-        float cost = _edit_distance(suffix_wids, suffix_realtok,
-                                    pattern_wids, pattern_realtok,
-                                    p_length, st, sn,
+        float cost = _edit_distance(suffix_wids, suffix_realtok, s_length,
+                                    pattern_wids.data(), pattern_realtok, p_length,
+                                    st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
                                     costs, 100-fuzzy);
 #ifdef DEBUG

@@ -44,16 +44,6 @@ namespace fuzzy
     return _psentences.size();
   }
 
-  std::vector<unsigned>
-  NGramMatches::sentence(int s_id) const
-  {
-    unsigned idx = _suffixArray[s_id];
-    size_t s_length = _suffixArray.sentence_buffer().begin()[idx];
-    std::vector<unsigned> s(_suffixArray.sentence_buffer().begin() + idx + 1,
-                            _suffixArray.sentence_buffer().begin() + idx + s_length + 1);
-    return s;
-  }
-
   tsl::hopscotch_map<unsigned, AgendaItem>&
   NGramMatches::get_psentences()
   {
