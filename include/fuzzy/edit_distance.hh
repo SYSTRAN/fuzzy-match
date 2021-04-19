@@ -5,8 +5,6 @@
 
 namespace fuzzy
 {
-  int   _edit_distance_char_nonempty(const char *s1, int n1, const char *s2, int n2);
-
   int   _edit_distance_char(const char *s1, int n1, const char *s2, int n2);
 
   float _edit_distance(const unsigned* thes, const Sentence &reals, int slen,
