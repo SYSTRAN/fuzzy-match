@@ -311,7 +311,7 @@ namespace fuzzy
         if (candidates.find(s_id) == candidates.end() &&
             perfect.find(s_id) == perfect.end()) {
           size_t s_length = 0;
-          const unsigned* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
+          const auto* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
 
           Costs costs;
           costs.diff_word = 100. / std::max(s_length, p_length);
@@ -551,7 +551,7 @@ namespace fuzzy
     for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
     {
       auto& agendaItem = agendaItemIt.value();
-      size_t s_id = agendaItem.s_id;
+      const auto s_id = agendaItem.s_id;
       size_t s_length = 0;
       const auto* suffix_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
 
