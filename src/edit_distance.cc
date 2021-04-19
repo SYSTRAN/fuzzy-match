@@ -1,5 +1,7 @@
 #include <fuzzy/edit_distance.hh>
 
+#include <limits>
+
 namespace fuzzy
 {
   float
@@ -28,9 +30,11 @@ namespace fuzzy
         arr[0][j] += idf_penalty[j-1]*idf_weight;
     }
 
+    constexpr auto max_float = std::numeric_limits<float>::max();
+
     for (int i = 1; i < n1 + 1; i++)
     {
-      float min = -1;
+      float min = max_float;
       for (int j = 1; j < n2 + 1; j++)
       {
         int diff = 0;
@@ -52,14 +56,17 @@ namespace fuzzy
         int cost_tag_ij1  = costs.penalty*_edit_distance_char(st1[i], sn1[i], st2[j-1], sn2[j-1]);
         int cost_tag_i1j1 = costs.penalty*_edit_distance_char(st1[i-1], sn1[i-1], st2[j-1], sn2[j-1]);
 
-        arr[i][j] = std::min(std::min(arr[i - 1][j] + costs.diff_word + cost_tag_i1j,
-                                      arr[i][j - 1] + costs.diff_word + cost_tag_ij1 + penalty_j1),
-                             arr[i - 1][j - 1] + diff + cost_tag_i1j1);
+        const auto distance = std::min(
+          {
+            arr[i - 1][j] + costs.diff_word + cost_tag_i1j,
+            arr[i][j - 1] + costs.diff_word + cost_tag_ij1 + penalty_j1,
+            arr[i - 1][j - 1] + diff + cost_tag_i1j1
+          });
 
-        if (min == -1 || arr[i][j] < min)
-          min = arr[i][j];
+        arr[i][j] = distance;
+        min = std::min(min, distance);
       }
-      if (min > max_fuzzyness)
+      if (min != max_float && min > max_fuzzyness)
         return min;
     }
 #ifdef DEBUG
