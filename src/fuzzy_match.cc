@@ -317,10 +317,9 @@ namespace fuzzy
           costs.diff_word = 100. / std::max(s_length, p_length);
 
           /* let us calculate edit_distance  */
-          float cost = _edit_distance(thes, SAI.real_tokens(s_id),
-                                      s_length,
-                                      pidx.data(), realtok,
-                                      p_length, st, sn,
+          float cost = _edit_distance(thes, SAI.real_tokens(s_id), s_length,
+                                      pidx.data(), realtok, p_length,
+                                      st, sn,
                                       idf_penalty, 0,
                                       costs, max_distance);
           if (cost==0 && no_perfect) {
@@ -585,10 +584,9 @@ namespace fuzzy
 
         /* let us check the candidates */
         const auto suffix_realtok = _suffixArrayIndex->real_tokens(s_id);
-        float cost = _edit_distance(suffix_wids, suffix_realtok,
-                                    s_length,
-                                    pattern_wids.data(), pattern_realtok,
-                                    p_length, st, sn,
+        float cost = _edit_distance(suffix_wids, suffix_realtok, s_length,
+                                    pattern_wids.data(), pattern_realtok, p_length,
+                                    st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
                                     costs, 100-fuzzy);
 #ifdef DEBUG
