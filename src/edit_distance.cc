@@ -13,6 +13,7 @@ namespace fuzzy
                  float max_fuzzyness)
   {
     boost::multi_array<float, 2> arr(boost::extents[n1+1][n2+1]);
+    boost::multi_array<int, 2> cost_tag(boost::extents[n1+1][n2+1]);
 
     std::vector<const char*> st1(n1+1, nullptr);
     std::vector<int> sn1(n1+1, 0);
@@ -21,13 +22,17 @@ namespace fuzzy
 
     /* we have a fixed cost corresponding to trailing penalty_tokens */
     arr[0][0] = _edit_distance_char(st1[n1], sn1[n1], st2[n2], sn2[n2]);
+    cost_tag[0][0] = costs.penalty * _edit_distance_char(st1[0], sn1[0], st2[0], sn2[0]);
 
-    for (int i = 1; i < n1 + 1; i++)
+    for (int i = 1; i < n1 + 1; i++) {
       arr[i][0] = arr[i-1][0] + costs.diff_word + costs.penalty*sn1[i];
+      cost_tag[i][0] = costs.penalty * _edit_distance_char(st1[i], sn1[i], st2[0], sn2[0]);
+    }
     for (int j = 1; j < n2 + 1; j++) {
       arr[0][j] = arr[0][j-1] + costs.diff_word + costs.penalty*sn2[j];
       if (idf_weight)
         arr[0][j] += idf_penalty[j-1]*idf_weight;
+      cost_tag[0][j] = costs.penalty * _edit_distance_char(st1[0], sn1[0], st2[j], sn2[j]);
     }
 
     constexpr auto max_float = std::numeric_limits<float>::max();
@@ -52,15 +57,14 @@ namespace fuzzy
             diff = costs.diff_real;
           }
         }
-        int cost_tag_i1j  = costs.penalty*_edit_distance_char(st1[i-1], sn1[i-1], st2[j], sn2[j]);
-        int cost_tag_ij1  = costs.penalty*_edit_distance_char(st1[i], sn1[i], st2[j-1], sn2[j-1]);
-        int cost_tag_i1j1 = costs.penalty*_edit_distance_char(st1[i-1], sn1[i-1], st2[j-1], sn2[j-1]);
+
+        cost_tag[i][j] = costs.penalty * _edit_distance_char(st1[i], sn1[i], st2[j], sn2[j]);
 
         const auto distance = std::min(
           {
-            arr[i - 1][j] + costs.diff_word + cost_tag_i1j,
-            arr[i][j - 1] + costs.diff_word + cost_tag_ij1 + penalty_j1,
-            arr[i - 1][j - 1] + diff + cost_tag_i1j1
+            arr[i - 1][j] + costs.diff_word + cost_tag[i - 1][j],
+            arr[i][j - 1] + costs.diff_word + cost_tag[i][j - 1] + penalty_j1,
+            arr[i - 1][j - 1] + diff + cost_tag[i - 1][j - 1]
           });
 
         arr[i][j] = distance;
