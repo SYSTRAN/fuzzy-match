@@ -51,7 +51,7 @@ namespace fuzzy
   }
 
   void
-  NGramMatches::register_ranges(bool create, Range range)
+  NGramMatches::register_ranges(Range range)
   {
     // For each suffix that matches at least r.match_length
     for (auto i = range.suffix_first; i < range.suffix_last; i++)
@@ -65,12 +65,11 @@ namespace fuzzy
       const auto sentence_id = _suffixArray.suffixid2sentenceid()[i].sentence_id;
       auto* agendaItem = get_agendaitem(sentence_id);
       if (!agendaItem)
-      {
-        if (!create)
-          continue;
-        else
-          agendaItem = new_agendaitem(sentence_id, _p_length);
-      }
+        agendaItem = new_agendaitem(sentence_id, _p_length);
+
+      // The match will update the AgendaItem entry only if its length is the longest to date.
+      if (range.match_length <= agendaItem->maxmatch)
+        continue;
 
       // Update the AgendaItem with the match
       for(size_t j=0; j < range.match_length; j++)
@@ -86,20 +85,7 @@ namespace fuzzy
 
   void
   NGramMatches::register_ranges(Range r, unsigned min_seq_len) {
-    if (r.match_length < min_exact_match)
-      return;
-
-    if (r.match_length >= min_seq_len)
-      register_ranges(true, r);
-    else
-      _ranges_toprocess.emplace_back(std::move(r));
-  }
-
-  void
-  NGramMatches::process_backlogs() {
-    for(auto &r: _ranges_toprocess)
-    {
-      register_ranges(false, r);
-    }
+    if (r.match_length >= min_exact_match && r.match_length >= min_seq_len)
+      register_ranges(r);
   }
 }

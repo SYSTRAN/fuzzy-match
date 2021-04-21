@@ -472,7 +472,7 @@ namespace fuzzy
         std::pair<size_t, size_t> range_suffixid = _suffixArrayIndex->get_SuffixArray().equal_range(p_i, 0, 0);
 
         if (range_suffixid.first != range_suffixid.second)
-          nGramMatches.register_ranges(true, fuzzy::Range({range_suffixid.first, range_suffixid.second, 1}));
+          nGramMatches.register_ranges(fuzzy::Range({range_suffixid.first, range_suffixid.second, 1}));
       }
     }
 
@@ -535,7 +535,6 @@ namespace fuzzy
       if (p_i.size() >= 2)
         nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, previous_range_suffixid.second, p_i.size()}), min_subseq_length);
     }
-    nGramMatches.process_backlogs();
 
     /* Consolidation of the results */
 
