@@ -457,7 +457,7 @@ namespace fuzzy
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
     int p_pos = 0;
 
-    NGramMatches nGramMatches(_suffixArrayIndex->get_SuffixArray().nsentences(), fuzzy, p_length, _suffixArrayIndex->get_SuffixArray());
+    NGramMatches nGramMatches(_suffixArrayIndex->get_SuffixArray().nsentences(), fuzzy, p_length, min_subseq_length, _suffixArrayIndex->get_SuffixArray());
 
     /* index position of unigrams in the pattern */
     std::map<int, std::list<size_t> > p_unigrams;
@@ -518,8 +518,8 @@ namespace fuzzy
           if (p_i.size() > 2)
           {
             /* register (n-1) grams */
-            nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, range_suffixid.first, p_i.size() - 1}), min_subseq_length);
-            nGramMatches.register_ranges(fuzzy::Range({range_suffixid.second, previous_range_suffixid.second, p_i.size() - 1}), min_subseq_length);
+            nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, range_suffixid.first, p_i.size() - 1}));
+            nGramMatches.register_ranges(fuzzy::Range({range_suffixid.second, previous_range_suffixid.second, p_i.size() - 1}));
           }
 
           previous_range_suffixid = range_suffixid;
@@ -533,7 +533,7 @@ namespace fuzzy
         }
       }
       if (p_i.size() >= 2)
-        nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, previous_range_suffixid.second, p_i.size()}), min_subseq_length);
+        nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, previous_range_suffixid.second, p_i.size()}));
     }
 
     /* Consolidation of the results */

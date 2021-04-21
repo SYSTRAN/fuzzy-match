@@ -28,11 +28,13 @@ namespace fuzzy
 
   NGramMatches::NGramMatches(size_t size_tm,
                              float fuzzy, unsigned p_length,
+                             unsigned min_seq_len,
                              const SuffixArray& suffixArray)
     /* add a small epsilon to avoid rounding errors counting for an error */
     : max_differences_with_pattern((unsigned)std::floor(p_length * (1.f - fuzzy) + 0.00005)),
       min_exact_match(compute_min_exact_match(fuzzy, p_length)),
       _p_length(p_length),
+      _min_seq_len(min_seq_len),
       _suffixArray(suffixArray)
   {
     _psentences.reserve(p_length);
@@ -53,6 +55,10 @@ namespace fuzzy
   void
   NGramMatches::register_ranges(Range range)
   {
+    // lazy injection feature - if match_length smaller than min_seq_len, we will not process the suffixes for the moment
+    if (range.match_length < min_exact_match || range.match_length < _min_seq_len)
+      return;
+
     // For each suffix that matches at least r.match_length
     for (auto i = range.suffix_first; i < range.suffix_last; i++)
     {
@@ -68,7 +74,7 @@ namespace fuzzy
         agendaItem = new_agendaitem(sentence_id, _p_length);
 
       // The match will update the AgendaItem entry only if its length is the longest to date.
-      if (range.match_length <= agendaItem->maxmatch)
+      if (range.match_length <= static_cast<std::size_t>(agendaItem->maxmatch))
         continue;
 
       // Update the AgendaItem with the match
@@ -81,11 +87,5 @@ namespace fuzzy
 
       agendaItem->maxmatch = std::max<int>(agendaItem->maxmatch, range.match_length);
     }
-  }
-
-  void
-  NGramMatches::register_ranges(Range r, unsigned min_seq_len) {
-    if (r.match_length >= min_exact_match && r.match_length >= min_seq_len)
-      register_ranges(r);
   }
 }
