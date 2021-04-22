@@ -6,9 +6,12 @@ namespace fuzzy
   template<class Archive>
   void FuzzyMatch::save(Archive& archive, unsigned int) const
   {
+    // Older versions of operator& (e.g. in Boost 1.58) do not accept a rvalue pointer,
+    // so we first store the pointer value in a local variable.
+    const SuffixArrayIndex* suffixArrayIndex = _suffixArrayIndex.get();
     archive
     & _pt
-    & _suffixArrayIndex.get();
+    & suffixArrayIndex;
   }
 
   template<class Archive>
