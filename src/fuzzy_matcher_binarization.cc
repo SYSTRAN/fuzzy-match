@@ -34,7 +34,7 @@ namespace fuzzy
   {
     std::ifstream ifs;
     ifs.exceptions(std::ios_base::failbit | std::ios_base::badbit);
-    ifs.open(binarized_tm_filename.c_str());
+    ifs.open(binarized_tm_filename.c_str(), std::ios_base::binary);
 
     char buffer[4];
     ifs.read(buffer, 4);
