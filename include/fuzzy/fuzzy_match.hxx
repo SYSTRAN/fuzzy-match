@@ -3,6 +3,11 @@
 
 namespace fuzzy
 {
+  inline size_t FuzzyMatch::max_tokens_in_pattern() const
+  {
+    return _suffixArrayIndex->max_tokens_in_pattern();
+  }
+
   template<class Archive>
   void FuzzyMatch::save(Archive& archive, unsigned int) const
   {

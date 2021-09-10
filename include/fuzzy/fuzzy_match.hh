@@ -38,7 +38,8 @@ namespace fuzzy
       std::string id;
     };
 
-    FuzzyMatch(int pt=penalty_token::pt_none);
+    FuzzyMatch(int pt = penalty_token::pt_none,
+               size_t max_tokens_in_pattern = SuffixArrayIndex::DEFAULT_MAX_TOKENS_IN_PATTERN);
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);
     bool add_tm(const std::string& id, const Sentence& source, const Tokens& norm, bool sort = true);
@@ -94,6 +95,9 @@ namespace fuzzy
                                  std::vector<std::string> &tokens,
                                  std::vector<std::vector<std::string>> &features) const;
     std::ostream& dump(std::ostream& os) const;
+
+    size_t max_tokens_in_pattern() const;
+
   private:
     friend class boost::serialization::access;
     friend void import_binarized_fuzzy_matcher(const std::string& binarized_tm_filename, FuzzyMatch& fuzzy_matcher);

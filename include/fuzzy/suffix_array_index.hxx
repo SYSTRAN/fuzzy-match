@@ -24,14 +24,38 @@ namespace fuzzy
     return _ids.size();
   }
 
+  inline size_t
+  SuffixArrayIndex::max_tokens_in_pattern() const
+  {
+    return _max_tokens_in_pattern;
+  }
+
   template<class Archive>
   void
-  SuffixArrayIndex::serialize(Archive& ar, const unsigned int version)
+  SuffixArrayIndex::save(Archive& ar, unsigned int) const
   {
-    ar &
-    _vocabIndexer &
-    _suffixArray &
-    _ids &
-      _real_tokens;
+    ar
+      & _vocabIndexer
+      & _suffixArray
+      & _ids
+      & _real_tokens
+      & _max_tokens_in_pattern;
   }
+
+  template<class Archive>
+  void
+  SuffixArrayIndex::load(Archive& ar, unsigned int version)
+  {
+    ar
+      & _vocabIndexer
+      & _suffixArray
+      & _ids
+      & _real_tokens;
+
+    if (version >= 1)
+      ar & _max_tokens_in_pattern;
+  }
+
 }
+
+BOOST_CLASS_VERSION(fuzzy::SuffixArrayIndex, 1)
