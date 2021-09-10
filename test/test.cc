@@ -270,6 +270,38 @@ TEST(FuzzyMatchTest, empty_token) {
   ASSERT_NO_THROW(_fuzzyMatcher.match("NMT neural machine translation", 0.1, 1, false, matches));
 }
 
+TEST(FuzzyMatchTest, max_tokens_in_pattern) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 2);
+    fuzzy_matcher.add_tm("", "single");
+    fuzzy_matcher.add_tm("", "two words");
+    fuzzy_matcher.add_tm("", "three kind words");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
+
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+    EXPECT_EQ(fuzzy_matcher.max_tokens_in_pattern(), 2);
+
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"three", "kind", "words"},
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        matches,
+                        /*min_subseq_length=*/3);
+    EXPECT_EQ(matches.size(), 0);
+
+    fuzzy_matcher.match({"two", "words"},
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        matches,
+                        /*min_subseq_length=*/2);
+    EXPECT_EQ(matches.size(), 1);
+  }
+}
+
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);
   assert(argc == 2);

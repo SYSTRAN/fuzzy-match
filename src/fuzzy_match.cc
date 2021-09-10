@@ -26,9 +26,9 @@ namespace fuzzy
   };
 
 
-  FuzzyMatch::FuzzyMatch(int pt)
+  FuzzyMatch::FuzzyMatch(int pt, size_t max_tokens_in_pattern)
   : _pt(pt)
-  , _suffixArrayIndex(boost::make_unique<SuffixArrayIndex>())
+  , _suffixArrayIndex(boost::make_unique<SuffixArrayIndex>(max_tokens_in_pattern))
   {
     _update_tokenizer();
   }
@@ -429,7 +429,7 @@ namespace fuzzy
     size_t p_length = pattern.size();
 
     // performance guard
-    if (p_length >= SuffixArrayIndex::MAX_TOKENS_IN_PATTERN)
+    if (p_length > max_tokens_in_pattern())
     {
       return false; // no matches
     }

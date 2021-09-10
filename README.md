@@ -6,11 +6,12 @@
 
 Simplest command is the following:
 ```
-FuzzyMatch-cli -c CORPUS [--penalty_tokens (none|tag,sep/jnr,pct)]
+FuzzyMatch-cli -c CORPUS [--penalty-tokens (none|tag,sep/jnr,pct,cas,nbr)] [--max-tokens-in-pattern N]
 ```
 
 * `CORPUS` can be a single file - in which case, the index of each segment is simply the sentence id - or you can provide a target file using `-c CORPUSSOURCE,CORPUSTARGET` and add option `--add-target` to include in the index the actual target sentence (format ID=target). This is useful for having the index fully containing the translation memory. Not useful, if the translation memory is saved in side database.
-* `--penalty_tokens` (default `tag,cas,nbr`) is either `none` or comma-separated list of `tag`, `sep`, `jnr`, `pct`, `nbr`, `cas` modifying normalization (for `cas` performing case normalization, and `nbr` triggering number normalization), removing some tokens from index (`tag` for tags, and `pct` for punctuations), or generates spacer/joiner (`sep`/`jnr`). In each case, a penalty tokens is added.
+* `--penalty-tokens` (default `tag,cas,nbr`) is either `none` or comma-separated list of `tag`, `sep`, `jnr`, `pct`, `nbr`, `cas` modifying normalization (for `cas` performing case normalization, and `nbr` triggering number normalization), removing some tokens from index (`tag` for tags, and `pct` for punctuations), or generates spacer/joiner (`sep`/`jnr`). In each case, a penalty tokens is added.
+* `--max-tokens-in-pattern` (default: 300) limits how long the pattern can be. This is necessary to prevent poor match performance, because the edit distance computation runs in O(T^2) where T is the number of tokens in the pattern.
 
 This option used in index forces the same logic in matching.
 
@@ -35,9 +36,6 @@ Add `--no-perfect` (`-P`) to discard perfect matches. For instance the following
 ```
 FuzzyMatch-cli -l en -i CORPUS.fmi -a match -f 0.7 -N 4 -n 1 -P < INPUTFILE
 ```
-
-*To prevent FuzzyMatch from freezing there is a limit on how long the pattern can be, the limit is 300 tokens now.*
-*This is necessary because the edit distance computation runs in O(T^2) where T is the number of tokens in the pattern.*
 
 # The Algorithm
 ## Tokenization and Vocabulary Indexing

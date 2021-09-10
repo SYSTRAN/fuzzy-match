@@ -195,8 +195,9 @@ class processor {
 public:
   processor(int pt, float fuzzy, int nmatch, bool no_perfect,
             int min_subseq_length, float min_subseq_ratio,
-            float idf_penalty, bool subseq_idf_weighting):
-             _fuzzyMatcher(pt),
+            float idf_penalty, bool subseq_idf_weighting,
+            size_t max_tokens_in_pattern):
+             _fuzzyMatcher(pt, max_tokens_in_pattern),
              _fuzzy(fuzzy),
              _nmatch(nmatch),
              _no_perfect(no_perfect),
@@ -289,6 +290,7 @@ int main(int argc, char** argv)
   int nthreads;
   int min_subseq_length;
   float min_subseq_ratio;
+  size_t max_tokens_in_pattern;
   fuzzyOptions.add_options()
     ("action,a", po::value(&action)->default_value("index"), "Action on the corpus (index|match|subseq"
 #ifndef NDEBUG
@@ -310,6 +312,7 @@ int main(int argc, char** argv)
                                                                         "`sep`/`jnr` and/or `pct`.")
     ("idf-penalty,I", po::value(&idf_penalty)->default_value(0), "if not 0, apply idf-penalty on missing tokens")
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
+    ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::SuffixArrayIndex::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 
@@ -380,7 +383,8 @@ int main(int argc, char** argv)
 
   processor O(pt, fuzzy, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,
-              idf_penalty, subseq_idf_weighting);
+              idf_penalty, subseq_idf_weighting,
+              max_tokens_in_pattern);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);
