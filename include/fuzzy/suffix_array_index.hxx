@@ -52,7 +52,7 @@ namespace fuzzy
       & _ids
       & _real_tokens;
 
-    if (version > 0)
+    if (version >= 1)
       ar & _max_tokens_in_pattern;
   }
 
