@@ -137,11 +137,11 @@ namespace fuzzy
 
   /**range of suffixe starting with ngram**/
   std::pair<size_t, size_t>
-  SuffixArray::equal_range(const std::vector<unsigned> &ngram, size_t min, size_t max) const
+  SuffixArray::equal_range(const unsigned* ngram, size_t length, size_t min, size_t max) const
   {
     assert(_suffixes.empty() || _sorted);
 
-    if (ngram.size() == 0 || !ngram[0])
+    if (length == 0)
       return std::pair<size_t, size_t>(0, 0);
 
     /* if not initialized */
@@ -158,9 +158,8 @@ namespace fuzzy
       else
         max = _suffixes.size();
 
-      if (ngram.size() == 1)
-        return
-          std::pair<size_t, size_t>(min, max);
+      if (length == 1)
+        return std::pair<size_t, size_t>(min, max);
     }
 
     size_t      cur = (min + max) / 2;
@@ -170,7 +169,7 @@ namespace fuzzy
 
     while (max > min)
     {
-      r = start_by(_suffixes[cur], ngram);
+      r = start_by(_suffixes[cur], ngram, length);
 
       if (r == 0)
         break;
@@ -202,7 +201,7 @@ namespace fuzzy
     while (cur > min)
     {
       //loop invariant : start_by(_suffixes[max], ngram)>0, start_by(_suffixes[min], ngram)==0
-      r = start_by(_suffixes[cur], ngram);
+      r = start_by(_suffixes[cur], ngram, length);
 
       if (r == 0)
         min = cur;
@@ -216,7 +215,7 @@ namespace fuzzy
     //compute lower bound
     min = savemin;
 
-    if (start_by(_suffixes[min], ngram) == 0) //can happen if min=0, doesnt hurt to check in all cases
+    if (start_by(_suffixes[min], ngram, length) == 0) //can happen if min=0, doesnt hurt to check in all cases
       max = min; //the loop won't be executed
     else
       max = savecur;
@@ -226,7 +225,7 @@ namespace fuzzy
     while (cur > min)
     {
       //loop invariant : start_by(_suffixes[min], ngram)<0 ,  start_by(_suffixes[max], ngram)==0
-      r = start_by(_suffixes[cur], ngram);
+      r = start_by(_suffixes[cur], ngram, length);
 
       if (r == 0)
         max = cur;
@@ -239,35 +238,34 @@ namespace fuzzy
     res.first = max; //max is the lowest index with start_by(_suffixes[max], ngram)==0
     //postcondition on range:
     assert(res.second > res.first); //non empty range
-    assert(start_by(_suffixes[res.first], ngram) == 0);
-    assert(res.first == 0 || (start_by(_suffixes[res.first - 1], ngram) < 0));
-    assert(res.second == _suffixes.size() || start_by(_suffixes[res.second], ngram) > 0);
-    assert(res.second > 0 && (start_by(_suffixes[res.second - 1], ngram) == 0));
+    assert(start_by(_suffixes[res.first], ngram, length) == 0);
+    assert(res.first == 0 || (start_by(_suffixes[res.first - 1], ngram, length) < 0));
+    assert(res.second == _suffixes.size() || start_by(_suffixes[res.second], ngram, length) > 0);
+    assert(res.second > 0 && (start_by(_suffixes[res.second - 1], ngram, length) == 0));
     return res;
   }
 
   static int
-  compare_ngrams(const std::vector<unsigned> &v1, unsigned v1_start,
-                 const std::vector<unsigned> &v2, unsigned v2_start, bool equal_if_startby)
+  compare_ngrams(const unsigned* v1, size_t v1_length,
+                 const unsigned* v2, size_t v2_length,
+                 bool equal_if_startby = false)
   {
-    unsigned      i;
-    unsigned      j;
-    int           cmp;
+    size_t i = 0;
+    size_t j = 0;
 
-    for (i = v1_start, j = v2_start; i < v1.size() && v1[i] && j < v2.size() && v2[j]; i++, j++)
+    for (; i < v1_length && j < v2_length; i++, j++)
     {
-      if ((cmp = v1[i] - v2[j]) != 0)
-        return cmp;
-    }
-
-    if ((i == v1.size() || v1[i] == 0) && !(j == v2.size() || v2[j] == 0))
+      if (v1[i] < v2[j])
         return -1;
-
-    if (!(i == v1.size() || v1[i] == 0) && (j == v2.size() || v2[j] == 0))
-    {
-      if (!equal_if_startby)
+      else if (v1[i] > v2[j])
         return 1;
     }
+
+    if (i == v1_length && j != v2_length)
+      return -1;
+
+    if (i != v1_length && j == v2_length && !equal_if_startby)
+      return 1;
 
     return 0;
   }
@@ -275,9 +273,12 @@ namespace fuzzy
   int
   SuffixArray::comp(const SuffixView& a, const SuffixView& b) const
   {
+    size_t length_a;
+    size_t length_b;
+    const auto* suffix_a = get_suffix(a, &length_a);
+    const auto* suffix_b = get_suffix(b, &length_b);
+    const auto c = compare_ngrams(suffix_a, length_a, suffix_b, length_b);
 
-    int c = compare_ngrams(_sentence_buffer, a.subsentence_pos+_sentence_pos[a.sentence_id],
-                           _sentence_buffer, b.subsentence_pos+_sentence_pos[b.sentence_id], false);
     if (c != 0 || a.sentence_id == b.sentence_id)
       return c;
     else //same std::vector (c=0),but in different sentences: to have a total order relation we sort n sentence index (if they have the same index they are the same)
@@ -298,10 +299,15 @@ namespace fuzzy
   }
 
   int
-  SuffixArray::start_by(const SuffixView& p, const std::vector<unsigned> &ngram) const
+  SuffixArray::start_by(const SuffixView& p, const unsigned* ngram, size_t length) const
   {
-    return compare_ngrams(_sentence_buffer, p.subsentence_pos+_sentence_pos[p.sentence_id],
-                          ngram, 0, true);
+    size_t suffix_length;
+    const auto* suffix = get_suffix(p, &suffix_length);
+    return compare_ngrams(suffix,
+                          suffix_length,
+                          ngram,
+                          length,
+                          /*equal_if_startby=*/true);
   }
 
 }

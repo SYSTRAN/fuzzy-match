@@ -21,12 +21,21 @@ namespace fuzzy
   }
 
   inline const unsigned*
-  SuffixArray::get_sentence(std::size_t suffix_id, std::size_t* length) const
+  SuffixArray::get_sentence(std::size_t sentence_id, std::size_t* length) const
   {
-    const auto offset = _sentence_pos[suffix_id];
+    const auto offset = _sentence_pos[sentence_id];
     const auto* sentence = _sentence_buffer.data() + offset;
     *length = *sentence;
     return sentence + 1;
+  }
+
+  inline const unsigned*
+  SuffixArray::get_suffix(const SuffixView& p, std::size_t* length) const
+  {
+    const auto* sentence = get_sentence(p.sentence_id, length);
+    const auto prefix_length = p.subsentence_pos - 1;
+    *length -= prefix_length;
+    return sentence + prefix_length;
   }
 
   inline unsigned short
