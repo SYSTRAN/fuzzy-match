@@ -485,9 +485,7 @@ namespace fuzzy
       p_pos++;
       p_i.clear();
 
-      size_t current_min_suffixid = 0;
-      size_t current_max_suffixid = 0;
-      std::pair<size_t, size_t> previous_range_suffixid;
+      std::pair<size_t, size_t> previous_range_suffixid(0, 0);
 
       for (size_t jt = it; jt < p_length; jt++)
       {
@@ -510,7 +508,7 @@ namespace fuzzy
           pos-i+4   (n+1)gram
           pos-i+5   ngram
         */
-        std::pair<size_t, size_t> range_suffixid = _suffixArrayIndex->get_SuffixArray().equal_range(p_i, current_min_suffixid, current_max_suffixid);
+        std::pair<size_t, size_t> range_suffixid = _suffixArrayIndex->get_SuffixArray().equal_range(p_i, previous_range_suffixid.first, previous_range_suffixid.second);
 
         if (range_suffixid.first != range_suffixid.second)
         {
@@ -522,9 +520,7 @@ namespace fuzzy
             nGramMatches.register_ranges(fuzzy::Range({range_suffixid.second, previous_range_suffixid.second, p_i.size() - 1}));
           }
 
-          previous_range_suffixid = range_suffixid;
-          current_min_suffixid = range_suffixid.first;
-          current_max_suffixid = range_suffixid.second;
+          previous_range_suffixid = std::move(range_suffixid);
         }
         else
         {
