@@ -460,7 +460,7 @@ namespace fuzzy
       std::pair<size_t, size_t> range_suffixid = _suffixArrayIndex->get_SuffixArray().equal_range(pattern_wids.data(), p_length);
 
       if (range_suffixid.first != range_suffixid.second)
-        nGramMatches.register_ranges(fuzzy::Range({range_suffixid.first, range_suffixid.second, p_length}));
+        nGramMatches.register_suffix_range(range_suffixid.first, range_suffixid.second, p_length);
     }
 
     for (size_t it=0; it < p_length; it++)
@@ -499,8 +499,12 @@ namespace fuzzy
           if (subseq_length > 2)
           {
             /* register (n-1) grams */
-            nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, range_suffixid.first, subseq_length - 1}));
-            nGramMatches.register_ranges(fuzzy::Range({range_suffixid.second, previous_range_suffixid.second, subseq_length - 1}));
+            nGramMatches.register_suffix_range(previous_range_suffixid.first,
+                                               range_suffixid.first,
+                                               subseq_length - 1);
+            nGramMatches.register_suffix_range(range_suffixid.second,
+                                               previous_range_suffixid.second,
+                                               subseq_length - 1);
           }
 
           previous_range_suffixid = std::move(range_suffixid);
@@ -512,7 +516,9 @@ namespace fuzzy
         }
       }
       if (subseq_length >= 2)
-        nGramMatches.register_ranges(fuzzy::Range({previous_range_suffixid.first, previous_range_suffixid.second, subseq_length}));
+        nGramMatches.register_suffix_range(previous_range_suffixid.first,
+                                           previous_range_suffixid.second,
+                                           subseq_length);
     }
 
     /* Consolidation of the results */

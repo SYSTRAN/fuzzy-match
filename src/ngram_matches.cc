@@ -1,23 +1,9 @@
 #include <fuzzy/ngram_matches.hh>
 
-#include <fuzzy/agenda_item.hh>
-
 #include <cmath>
-#include <cstdlib>
 
 namespace fuzzy
 {
-  inline AgendaItem* NGramMatches::get_agendaitem(unsigned s_id) {
-    auto it = _psentences.find(s_id);
-    if (it != _psentences.end())
-      return &it.value();
-    return nullptr;
-  }
-  inline AgendaItem* NGramMatches::new_agendaitem(unsigned s_id, unsigned p_length) {
-    auto it = _psentences.emplace(s_id, AgendaItem(s_id, p_length)).first;
-    return &it.value();
-  }
-
   unsigned compute_min_exact_match(float fuzzy, unsigned p_length)
   {
     const auto differences = (unsigned)std::ceil(p_length * (1.f - fuzzy));
@@ -53,14 +39,14 @@ namespace fuzzy
   }
 
   void
-  NGramMatches::register_ranges(Range range)
+  NGramMatches::register_suffix_range(size_t begin, size_t end, size_t match_length)
   {
     // lazy injection feature - if match_length smaller than min_seq_len, we will not process the suffixes for the moment
-    if (range.match_length < min_exact_match || range.match_length < _min_seq_len)
+    if (match_length < min_exact_match || match_length < _min_seq_len)
       return;
 
-    // For each suffix that matches at least r.match_length
-    for (auto i = range.suffix_first; i < range.suffix_last; i++)
+    // For each suffix that matches at least match_length
+    for (auto i = begin; i < end; i++)
     {
       // The size difference between the suffix and the pattern is too large for the suffix to be accepted
       const auto sizeDifference = std::abs((long int)_p_length - (long int)_suffixArray.sentence_length(i));
@@ -69,23 +55,20 @@ namespace fuzzy
 
       // Get or create the AgendaItem corresponding to the sentence (of the suffix that matched)
       const auto sentence_id = _suffixArray.suffixid2sentenceid()[i].sentence_id;
-      auto* agendaItem = get_agendaitem(sentence_id);
-      if (!agendaItem)
-        agendaItem = new_agendaitem(sentence_id, _p_length);
+      auto& agendaItem = _psentences.emplace(sentence_id,
+                                             AgendaItem(sentence_id, _p_length)).first.value();
 
       // The match will update the AgendaItem entry only if its length is the longest to date.
-      if (range.match_length <= static_cast<std::size_t>(agendaItem->maxmatch))
-        continue;
-
-      // Update the AgendaItem with the match
-      for(size_t j=0; j < range.match_length; j++)
-        if (!agendaItem->map_pattern[j])
+      for (size_t j = agendaItem.maxmatch; j < match_length; j++)
+      {
+        if (!agendaItem.map_pattern[j])
         {
-          agendaItem->map_pattern[j] = true;
-          agendaItem->coverage++;
+          agendaItem.map_pattern[j] = true;
+          agendaItem.coverage++;
         }
+      }
 
-      agendaItem->maxmatch = std::max<int>(agendaItem->maxmatch, range.match_length);
+      agendaItem.maxmatch = std::max<int>(agendaItem.maxmatch, match_length);
     }
   }
 }
