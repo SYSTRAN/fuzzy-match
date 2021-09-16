@@ -59,16 +59,19 @@ namespace fuzzy
                                              AgendaItem(sentence_id, _p_length)).first.value();
 
       // The match will update the AgendaItem entry only if its length is the longest to date.
-      for (size_t j = agendaItem.maxmatch; j < match_length; j++)
+      if (match_length > agendaItem.maxmatch)
       {
-        if (!agendaItem.map_pattern[j])
+        for (size_t j = agendaItem.maxmatch; j < match_length; j++)
         {
-          agendaItem.map_pattern[j] = true;
-          agendaItem.coverage++;
+          if (!agendaItem.map_pattern[j])
+          {
+            agendaItem.map_pattern[j] = true;
+            agendaItem.coverage++;
+          }
         }
-      }
 
-      agendaItem.maxmatch = std::max<int>(agendaItem.maxmatch, match_length);
+        agendaItem.maxmatch = match_length;
+      }
     }
   }
 }
