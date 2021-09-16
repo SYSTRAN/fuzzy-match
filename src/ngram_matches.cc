@@ -55,8 +55,7 @@ namespace fuzzy
 
       // Get or create the AgendaItem corresponding to the sentence (of the suffix that matched)
       const auto sentence_id = _suffixArray.suffixid2sentenceid()[i].sentence_id;
-      auto& agendaItem = _psentences.emplace(sentence_id,
-                                             AgendaItem(sentence_id, _p_length)).first.value();
+      auto& agendaItem = _psentences.try_emplace(sentence_id, sentence_id, _p_length).first.value();
 
       // The match will update the AgendaItem entry only if its length is the longest to date.
       if (match_length > agendaItem.maxmatch)
