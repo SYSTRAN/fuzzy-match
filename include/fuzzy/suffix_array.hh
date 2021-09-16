@@ -60,18 +60,23 @@ namespace fuzzy
 
     size_t nsentences() const;
 
-    inline const unsigned* get_sentence(std::size_t suffix_id, std::size_t* length) const;
+    inline const unsigned* get_sentence(std::size_t sentence_id, std::size_t* length) const;
+    inline const unsigned* get_suffix(const SuffixView& p, std::size_t* length) const;
     inline unsigned short sentence_length(std::size_t suffix_id) const;
 
-    int start_by(const SuffixView& p, const std::vector<unsigned> &ngram) const;
     /** range of suffixe starting with ngram; return an open range so the number of elemem is just reS.second-res.first **/
-    std::pair<size_t, size_t> equal_range(const std::vector<unsigned> &ngram, size_t min = 0, size_t max = 0) const;
+    std::pair<size_t, size_t> equal_range(const unsigned* ngram,
+                                          size_t length,
+                                          size_t min = 0,
+                                          size_t max = 0) const;
+
     /** map suffix id -> sentence position */
     const std::vector<SuffixView>   &suffixid2sentenceid() const;
 
   private:
     int comp(const SuffixView& a, const SuffixView& b) const;
     void compute_sentence_length();
+    int start_by(const SuffixView& p, const unsigned* ngram, size_t length) const;
 
     bool _sorted;
     mutable VocabIndexer* _vocab; //not owned
