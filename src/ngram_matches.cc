@@ -23,23 +23,19 @@ namespace fuzzy
       _min_seq_len(min_seq_len),
       _suffixArray(suffixArray)
   {
-    _psentences.reserve(p_length);
   }
 
-  int
-  NGramMatches::get_sentence_count() const
+  PatternMatches&
+  NGramMatches::get_pattern_matches()
   {
-    return _psentences.size();
-  }
-
-  tsl::hopscotch_map<unsigned, AgendaItem>&
-  NGramMatches::get_psentences()
-  {
-    return _psentences;
+    return _pattern_matches;
   }
 
   void
-  NGramMatches::register_suffix_range(size_t begin, size_t end, size_t match_length)
+  NGramMatches::register_suffix_range_match(size_t begin,
+                                            size_t end,
+                                            size_t match_offset,
+                                            size_t match_length)
   {
     // lazy injection feature - if match_length smaller than min_seq_len, we will not process the suffixes for the moment
     if (match_length < min_exact_match || match_length < _min_seq_len)
@@ -53,24 +49,10 @@ namespace fuzzy
       if (sizeDifference > max_differences_with_pattern)
         continue;
 
-      // Get or create the AgendaItem corresponding to the sentence (of the suffix that matched)
+      // Get or create the PatternMatch corresponding to the sentence (of the suffix that matched)
       const auto sentence_id = _suffixArray.suffixid2sentenceid()[i].sentence_id;
-      auto& agendaItem = _psentences.try_emplace(sentence_id, sentence_id, _p_length).first.value();
-
-      // The match will update the AgendaItem entry only if its length is the longest to date.
-      if (match_length > agendaItem.maxmatch)
-      {
-        for (size_t j = agendaItem.maxmatch; j < match_length; j++)
-        {
-          if (!agendaItem.map_pattern[j])
-          {
-            agendaItem.map_pattern[j] = true;
-            agendaItem.coverage++;
-          }
-        }
-
-        agendaItem.maxmatch = match_length;
-      }
+      auto& pattern_match = _pattern_matches.try_emplace(sentence_id, _p_length).first.value();
+      pattern_match.set_match(match_offset, match_length);
     }
   }
 }
