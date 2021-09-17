@@ -66,8 +66,7 @@ namespace fuzzy
     // sort suffixes according to their first word id
     for (const auto& suffix : _suffixes)
     {
-      const auto* suffix_wids = get_suffix(suffix);
-      const auto wid = suffix_wids[0];
+      const auto wid = get_suffix(suffix)[0];
       assert((size_t)wid < vocab_size);
 
       prefixes_by_word_id[wid].push_back(suffix);
