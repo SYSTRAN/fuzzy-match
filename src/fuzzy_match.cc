@@ -450,7 +450,7 @@ namespace fuzzy
     /* result map - normalized error => sentence */
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
 
-    NGramMatches nGramMatches(_suffixArrayIndex->get_SuffixArray().nsentences(), fuzzy, p_length, min_subseq_length, _suffixArrayIndex->get_SuffixArray());
+    NGramMatches nGramMatches(fuzzy, p_length, min_subseq_length, _suffixArrayIndex->get_SuffixArray());
 
     /* index position of unigrams in the pattern */
     std::map<int, std::list<size_t> > p_unigrams;
