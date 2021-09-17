@@ -460,7 +460,10 @@ namespace fuzzy
       std::pair<size_t, size_t> range_suffixid = _suffixArrayIndex->get_SuffixArray().equal_range(pattern_wids.data(), p_length);
 
       if (range_suffixid.first != range_suffixid.second)
-        nGramMatches.register_suffix_range(range_suffixid.first, range_suffixid.second, p_length);
+        nGramMatches.register_suffix_range_match(range_suffixid.first,
+                                                 range_suffixid.second,
+                                                 0,
+                                                 p_length);
     }
 
     for (size_t it=0; it < p_length; it++)
@@ -499,12 +502,14 @@ namespace fuzzy
           if (subseq_length > 2)
           {
             /* register (n-1) grams */
-            nGramMatches.register_suffix_range(previous_range_suffixid.first,
-                                               range_suffixid.first,
-                                               subseq_length - 1);
-            nGramMatches.register_suffix_range(range_suffixid.second,
-                                               previous_range_suffixid.second,
-                                               subseq_length - 1);
+            nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
+                                                     range_suffixid.first,
+                                                     it,
+                                                     subseq_length - 1);
+            nGramMatches.register_suffix_range_match(range_suffixid.second,
+                                                     previous_range_suffixid.second,
+                                                     it,
+                                                     subseq_length - 1);
           }
 
           previous_range_suffixid = std::move(range_suffixid);
@@ -516,9 +521,10 @@ namespace fuzzy
         }
       }
       if (subseq_length >= 2)
-        nGramMatches.register_suffix_range(previous_range_suffixid.first,
-                                           previous_range_suffixid.second,
-                                           subseq_length);
+        nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
+                                                 previous_range_suffixid.second,
+                                                 it,
+                                                 subseq_length);
     }
 
     /* Consolidation of the results */
@@ -531,10 +537,13 @@ namespace fuzzy
 
     real.get_itoks(st, sn);
 
-    for (auto agendaItemIt = nGramMatches.get_psentences().begin(); agendaItemIt != nGramMatches.get_psentences().end(); ++agendaItemIt)
+    auto& pattern_matches = nGramMatches.get_pattern_matches();
+    for (auto pattern_matches_it = pattern_matches.begin();
+         pattern_matches_it != pattern_matches.end();
+         ++pattern_matches_it)
     {
-      auto& agendaItem = agendaItemIt.value();
-      const auto s_id = agendaItem.s_id;
+      const auto s_id = pattern_matches_it->first;
+      auto& pattern_match = pattern_matches_it.value();
       size_t s_length = 0;
       const auto* suffix_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
 
@@ -551,17 +560,12 @@ namespace fuzzy
           // Add coverage of unigrams
           const auto& unigram_list = it->second;
           for (const auto i : unigram_list)
-          {
-            if (!agendaItem.map_pattern[i]) {
-              agendaItem.map_pattern[i] = true;
-              agendaItem.coverage++;
-            }
-          }
+            pattern_match.set_match(i);
         }
       }
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      if (p_length <= agendaItem.coverage + nGramMatches.max_differences_with_pattern)
+      if (pattern_match.num_non_matched_words() <= nGramMatches.max_differences_with_pattern)
       {
         Costs costs;
         costs.diff_word = 100. / std::max(s_length, p_length);
@@ -582,7 +586,7 @@ namespace fuzzy
             (!no_perfect || score != 1)) {
           Match m;
           m.score = score;
-          m.max_subseq = agendaItem.maxmatch;
+          m.max_subseq = pattern_match.longest_match();
           m.s_id = s_id;
           m.id = _suffixArrayIndex->id(s_id);
           result.push(m);
