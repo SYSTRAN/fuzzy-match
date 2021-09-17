@@ -15,7 +15,6 @@ namespace fuzzy
 {
   struct SuffixView
   {
-
     unsigned sentence_id;
     unsigned short subsentence_pos;
 
@@ -30,26 +29,20 @@ namespace fuzzy
     unsigned add_sentence(const std::vector<unsigned>& sentence);
     void sort(size_t vocab_size);
 
-    unsigned operator[](const SuffixView&) const;
-    unsigned operator[](size_t) const;
-    const std::vector<unsigned> &sentence_buffer() const;
-
     std::ostream& dump(std::ostream&) const;
 
-    size_t nsentences() const;
+    size_t num_sentences() const;
 
-    inline const unsigned* get_sentence(std::size_t sentence_id, std::size_t* length) const;
-    inline const unsigned* get_suffix(const SuffixView& p, std::size_t* length) const;
-    inline unsigned short sentence_length(std::size_t suffix_id) const;
+    const unsigned* get_sentence(size_t sentence_id, size_t* length = nullptr) const;
+    const unsigned* get_suffix(const SuffixView& p, size_t* length = nullptr) const;
+    const SuffixView& get_suffix_view(size_t suffix_id) const;
+    unsigned short get_sentence_length(size_t suffix_id) const;
 
     /** range of suffixe starting with ngram; return an open range so the number of elemem is just reS.second-res.first **/
     std::pair<size_t, size_t> equal_range(const unsigned* ngram,
                                           size_t length,
                                           size_t min = 0,
                                           size_t max = 0) const;
-
-    /** map suffix id -> sentence position */
-    const std::vector<SuffixView>   &suffixid2sentenceid() const;
 
   private:
     int comp(const SuffixView& a, const SuffixView& b) const;

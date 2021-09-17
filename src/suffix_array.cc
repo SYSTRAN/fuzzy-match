@@ -54,12 +54,6 @@ namespace fuzzy
   }
 #endif
 
-  size_t
-  SuffixArray::nsentences() const
-  {
-    return _sentence_pos.size();
-  }
-
   void
   SuffixArray::sort(size_t vocab_size)
   {
@@ -70,12 +64,12 @@ namespace fuzzy
     std::vector<std::vector<SuffixView> > prefixes_by_word_id(vocab_size);
 
     // sort suffixes according to their first word id
-    for (size_t i = 0; i < _suffixes.size(); i++)
+    for (const auto& suffix : _suffixes)
     {
-      const auto wid = (*this)[_suffixes[i]];
+      const auto wid = get_suffix(suffix)[0];
       assert((size_t)wid < vocab_size);
 
-      prefixes_by_word_id[wid].push_back(_suffixes[i]);
+      prefixes_by_word_id[wid].push_back(suffix);
     }
 
     _suffixes.clear();

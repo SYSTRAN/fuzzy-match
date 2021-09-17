@@ -1,45 +1,39 @@
 namespace fuzzy
 {
-  inline unsigned SuffixArray::operator[](const SuffixView& pos)const
+  inline size_t
+  SuffixArray::num_sentences() const
   {
-    return (_sentence_buffer[_sentence_pos[pos.sentence_id]+pos.subsentence_pos]);
-  }
-
-  inline unsigned SuffixArray::operator[](size_t s_id)const
-  {
-    return _sentence_pos[s_id];
-  }
-
-  inline const std::vector<unsigned> &SuffixArray::sentence_buffer() const
-  {
-    return _sentence_buffer;
-  }
-
-  inline const std::vector<SuffixView> &SuffixArray::suffixid2sentenceid() const
-  {
-    return _suffixes;
+    return _sentence_pos.size();
   }
 
   inline const unsigned*
-  SuffixArray::get_sentence(std::size_t sentence_id, std::size_t* length) const
+  SuffixArray::get_sentence(size_t sentence_id, size_t* length) const
   {
     const auto offset = _sentence_pos[sentence_id];
     const auto* sentence = _sentence_buffer.data() + offset;
-    *length = *sentence;
+    if (length)
+      *length = *sentence;
     return sentence + 1;
   }
 
   inline const unsigned*
-  SuffixArray::get_suffix(const SuffixView& p, std::size_t* length) const
+  SuffixArray::get_suffix(const SuffixView& p, size_t* length) const
   {
     const auto* sentence = get_sentence(p.sentence_id, length);
     const auto prefix_length = p.subsentence_pos - 1;
-    *length -= prefix_length;
+    if (length)
+      *length -= prefix_length;
     return sentence + prefix_length;
   }
 
+  inline const SuffixView&
+  SuffixArray::get_suffix_view(size_t suffix_id) const
+  {
+    return _suffixes[suffix_id];
+  }
+
   inline unsigned short
-  SuffixArray::sentence_length(std::size_t suffix_id) const
+  SuffixArray::get_sentence_length(size_t suffix_id) const
   {
     return _sentence_length[suffix_id];
   }
