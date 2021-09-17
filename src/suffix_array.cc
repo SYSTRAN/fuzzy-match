@@ -95,8 +95,7 @@ namespace fuzzy
                   [this](const SuffixView& a, const SuffixView& b) {
                     return comp(a, b) < 0;
                   });
-        std::copy(prefixes_by_word_id[wid].begin(),
-                  prefixes_by_word_id[wid].end(),
+        std::copy(prefixes_by_word_id[wid].begin(), prefixes_by_word_id[wid].end(),
                   back_inserter(_suffixes));
       }
     }
