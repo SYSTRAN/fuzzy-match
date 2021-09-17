@@ -43,10 +43,6 @@ namespace fuzzy
     friend struct suffix_array_sorter;
     friend std::ostream& operator<<(std::ostream&, const SuffixArray&);
   public:
-    SuffixArray(VocabIndexer* VI);
-    SuffixArray();
-    SuffixArray(const SuffixArray& other);
-    ~SuffixArray();
     void clear();
 
     unsigned add_sentence(const std::vector<unsigned>& sentence);
@@ -78,8 +74,7 @@ namespace fuzzy
     void compute_sentence_length();
     int start_by(const SuffixView& p, const unsigned* ngram, size_t length) const;
 
-    bool _sorted;
-    mutable VocabIndexer* _vocab; //not owned
+    bool _sorted = false;
 
     // ordered sequence of sentence id, pos in sentence
     std::vector<SuffixView>              _suffixes;

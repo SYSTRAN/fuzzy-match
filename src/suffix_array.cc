@@ -5,24 +5,6 @@
 
 namespace fuzzy
 {
-
-  SuffixArray::SuffixArray()
-    : _sorted(false)
-  {
-  }
-
-  SuffixArray::SuffixArray(const SuffixArray& other)
-    : _sorted(other._sorted)
-  {
-    _suffixes = other._suffixes;
-    _sentence_buffer = other._sentence_buffer;
-    _sentence_pos = other._sentence_pos;
-  }
-
-  SuffixArray::~SuffixArray()
-  {
-  }
-
   inline bool
   suffix_array_sorter::operator()(const SuffixView& a, const SuffixView& b)const
   {
