@@ -5,12 +5,6 @@
 
 namespace fuzzy
 {
-  inline bool
-  suffix_array_sorter::operator()(const SuffixView& a, const SuffixView& b)const
-  {
-    return _ref.comp(a, b) < 0;
-  }
-
   unsigned
   SuffixArray::add_sentence(const std::vector<unsigned>& sentence)
   {
@@ -97,8 +91,13 @@ namespace fuzzy
       // for all suffixes starting by this word id
       if (!prefixes_by_word_id[wid].empty())
       {
-          std::sort(prefixes_by_word_id[wid].begin(), prefixes_by_word_id[wid].end(), suffix_array_sorter(*this));
-          std::copy(prefixes_by_word_id[wid].begin(), prefixes_by_word_id[wid].end(), back_inserter(_suffixes));
+        std::sort(prefixes_by_word_id[wid].begin(), prefixes_by_word_id[wid].end(),
+                  [this](const SuffixView& a, const SuffixView& b) {
+                    return comp(a, b) < 0;
+                  });
+        std::copy(prefixes_by_word_id[wid].begin(),
+                  prefixes_by_word_id[wid].end(),
+                  back_inserter(_suffixes));
       }
     }
 

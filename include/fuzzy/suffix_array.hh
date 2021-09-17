@@ -24,24 +24,8 @@ namespace fuzzy
     void serialize(Archive& archive, const unsigned int);
   };
 
-  class SuffixArray;
-
-  /***compare 2 offset on a suffix array*/
-  struct  suffix_array_sorter
-  {
-    suffix_array_sorter(const SuffixArray& ref)
-      : _ref(ref)
-    {
-    }
-
-    inline bool operator()(const SuffixView& a, const SuffixView& b) const;
-    const SuffixArray& _ref;
-  };
-
   class SuffixArray
   {
-    friend struct suffix_array_sorter;
-    friend std::ostream& operator<<(std::ostream&, const SuffixArray&);
   public:
     void clear();
 
