@@ -35,12 +35,12 @@ namespace fuzzy
   SuffixArrayIndex::sentence(size_t sindex) const
   {
     std::string sent =">";
-    size_t idx = _suffixArray[sindex];
+    size_t slength = 0;
+    const auto* sentence = _suffixArray.get_sentence(sindex, &slength);
 
-    for (size_t j = 1; _suffixArray.sentence_buffer()[idx + j]; j++)
+    for (size_t j = 0; j < slength; j++)
     {
-      int ind = _suffixArray.sentence_buffer()[idx + j];
-      std::string form = _vocabIndexer.getWord(ind);
+      std::string form = _vocabIndexer.getWord(sentence[j]);
       if (!sent.empty())
         sent += " ";
       sent += form;

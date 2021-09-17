@@ -257,11 +257,11 @@ namespace fuzzy
 
     std::vector<float> idf_penalty;
     const std::vector<unsigned> &sfreq = SAI.get_VocabIndexer().getSFreq();
-    unsigned nsentences = SAI.get_SuffixArray().nsentences();
+    unsigned num_sentences = SAI.get_SuffixArray().num_sentences();
     idf_penalty.reserve(pidx.size());
     for(auto idx: pidx) {
       if (idx != fuzzy::VocabIndexer::VOCAB_UNK)
-        idf_penalty.push_back(std::log(nsentences*1.0/sfreq[idx]));
+        idf_penalty.push_back(std::log(num_sentences*1.0/sfreq[idx]));
       else
         /* unknown word - we cannot find a subsequence with it */
         idf_penalty.push_back(-1);
@@ -301,7 +301,7 @@ namespace fuzzy
 
       for(auto suffixIt=range_suffixid.first; suffixIt < range_suffixid.second &&
                                             candidates.size()<number_of_matches; suffixIt++) {
-        size_t s_id = SAI.get_SuffixArray().suffixid2sentenceid()[suffixIt].sentence_id;
+        size_t s_id = SAI.get_SuffixArray().get_suffix_view(suffixIt).sentence_id;
         if (candidates.find(s_id) == candidates.end() &&
             perfect.find(s_id) == perfect.end()) {
           size_t s_length = 0;
@@ -353,22 +353,22 @@ namespace fuzzy
   }
 
   float FuzzyMatch::compute_max_idf_penalty() const {
-    const unsigned nr_sentences = _suffixArrayIndex->get_SuffixArray().nsentences();
-    return std::log(nr_sentences);
+    const unsigned num_sentences = _suffixArrayIndex->get_SuffixArray().num_sentences();
+    return std::log(num_sentences);
   }
 
   std::vector<float> FuzzyMatch::compute_idf_penalty(const std::vector<unsigned>& pattern_wids) const {
     std::vector<float> idf_penalty;
     idf_penalty.reserve(pattern_wids.size());
 
-    const unsigned nr_sentences = _suffixArrayIndex->get_SuffixArray().nsentences();
+    const unsigned num_sentences = _suffixArrayIndex->get_SuffixArray().num_sentences();
 
     const std::vector<unsigned>& word_frequency_in_sentences = _suffixArrayIndex->get_VocabIndexer().getSFreq();
 
     for (const auto wid : pattern_wids) {
       // https://en.wikipedia.org/wiki/TF-IDF
       if (wid != fuzzy::VocabIndexer::VOCAB_UNK)
-        idf_penalty.push_back(std::log((float)nr_sentences/(float)word_frequency_in_sentences[wid]));
+        idf_penalty.push_back(std::log((float)num_sentences/(float)word_frequency_in_sentences[wid]));
       else
         idf_penalty.push_back(0);
     }

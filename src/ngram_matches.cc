@@ -45,12 +45,12 @@ namespace fuzzy
     for (auto i = begin; i < end; i++)
     {
       // The size difference between the suffix and the pattern is too large for the suffix to be accepted
-      const auto sizeDifference = std::abs((long int)_p_length - (long int)_suffixArray.sentence_length(i));
+      const auto sizeDifference = std::abs((long int)_p_length - (long int)_suffixArray.get_sentence_length(i));
       if (sizeDifference > max_differences_with_pattern)
         continue;
 
       // Get or create the PatternMatch corresponding to the sentence (of the suffix that matched)
-      const auto sentence_id = _suffixArray.suffixid2sentenceid()[i].sentence_id;
+      const auto sentence_id = _suffixArray.get_suffix_view(i).sentence_id;
       auto& pattern_match = _pattern_matches.try_emplace(sentence_id, _p_length).first.value();
       pattern_match.set_match(match_offset, match_length);
     }
