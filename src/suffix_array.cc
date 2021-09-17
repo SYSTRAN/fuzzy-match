@@ -108,15 +108,6 @@ namespace fuzzy
     compute_sentence_length();
   }
 
-  void
-  SuffixArray::clear()
-  {
-    _sentence_buffer.clear();
-    _sentence_pos.clear();
-    _suffixes.clear();
-    _quickVocabAccess.clear();
-  }
-
   /**range of suffixe starting with ngram**/
   std::pair<size_t, size_t>
   SuffixArray::equal_range(const unsigned* ngram, size_t length, size_t min, size_t max) const

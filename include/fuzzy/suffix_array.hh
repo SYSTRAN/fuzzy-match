@@ -43,8 +43,6 @@ namespace fuzzy
     friend struct suffix_array_sorter;
     friend std::ostream& operator<<(std::ostream&, const SuffixArray&);
   public:
-    void clear();
-
     unsigned add_sentence(const std::vector<unsigned>& sentence);
     void sort(size_t vocab_size);
 
