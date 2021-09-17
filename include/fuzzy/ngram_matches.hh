@@ -63,8 +63,8 @@ namespace fuzzy
   class NGramMatches
   {
   public:
-    NGramMatches(size_t size_tm,
-                 float fuzzy, unsigned p_length,
+    NGramMatches(float fuzzy,
+                 unsigned p_length,
                  unsigned min_seq_len,
                  const SuffixArray&);
 

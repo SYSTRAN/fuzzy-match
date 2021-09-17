@@ -12,8 +12,8 @@ namespace fuzzy
     return std::ceil((p_length - differences) / (differences + 1.));
   }
 
-  NGramMatches::NGramMatches(size_t size_tm,
-                             float fuzzy, unsigned p_length,
+  NGramMatches::NGramMatches(float fuzzy,
+                             unsigned p_length,
                              unsigned min_seq_len,
                              const SuffixArray& suffixArray)
     /* add a small epsilon to avoid rounding errors counting for an error */
