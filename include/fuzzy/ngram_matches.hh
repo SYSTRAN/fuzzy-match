@@ -47,8 +47,18 @@ namespace fuzzy
     size_t _longest_match;
   };
 
+  struct IntHash {
+    unsigned int operator()(unsigned int x) const {
+      // Credit: https://stackoverflow.com/a/12996028
+      x = ((x >> 16) ^ x) * 0x45d9f3b;
+      x = ((x >> 16) ^ x) * 0x45d9f3b;
+      x = (x >> 16) ^ x;
+      return x;
+    }
+  };
+
   // Sentence ID -> PatternMatch
-  using PatternMatches = tsl::hopscotch_map<unsigned, PatternMatch>;
+  using PatternMatches = tsl::hopscotch_map<unsigned, PatternMatch, IntHash>;
 
   class NGramMatches
   {
