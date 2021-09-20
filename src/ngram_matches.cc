@@ -25,17 +25,14 @@ namespace fuzzy
   {
   }
 
-  PatternMatches&
-  NGramMatches::get_pattern_matches()
+  const LongestMatches&
+  NGramMatches::get_longest_matches() const
   {
-    return _pattern_matches;
+    return _longest_matches;
   }
 
   void
-  NGramMatches::register_suffix_range_match(size_t begin,
-                                            size_t end,
-                                            size_t match_offset,
-                                            size_t match_length)
+  NGramMatches::register_suffix_range_match(size_t begin, size_t end, unsigned match_length)
   {
     // lazy injection feature - if match_length smaller than min_seq_len, we will not process the suffixes for the moment
     if (match_length < min_exact_match || match_length < _min_seq_len)
@@ -51,8 +48,8 @@ namespace fuzzy
 
       // Get or create the PatternMatch corresponding to the sentence (of the suffix that matched)
       const auto sentence_id = _suffixArray.get_suffix_view(i).sentence_id;
-      auto& pattern_match = _pattern_matches.try_emplace(sentence_id, _p_length).first.value();
-      pattern_match.set_match(match_offset, match_length);
+      auto& longest_match = _longest_matches.try_emplace(sentence_id, match_length).first.value();
+      longest_match = std::max(longest_match, match_length);
     }
   }
 }
