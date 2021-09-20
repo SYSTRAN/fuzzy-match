@@ -1,7 +1,5 @@
 #include <fuzzy/edit_distance.hh>
 
-#include <limits>
-
 namespace fuzzy
 {
   float
@@ -35,11 +33,9 @@ namespace fuzzy
       cost_tag[0][j] = costs.penalty * _edit_distance_char(st1[0], sn1[0], st2[j], sn2[j]);
     }
 
-    constexpr auto max_float = std::numeric_limits<float>::max();
-
     for (int i = 1; i < n1 + 1; i++)
     {
-      float min = max_float;
+      float min = std::numeric_limits<float>::max();
       for (int j = 1; j < n2 + 1; j++)
       {
         int diff = 0;
@@ -70,7 +66,7 @@ namespace fuzzy
         arr[i][j] = distance;
         min = std::min(min, distance);
       }
-      if (min != max_float && min > max_fuzzyness)
+      if (min > max_fuzzyness)
         return min;
     }
 #ifdef DEBUG
