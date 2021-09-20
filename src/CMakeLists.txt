@@ -7,6 +7,7 @@ set(FUZZY_SOURCES
   sentence.cc
   fuzzy_matcher_binarization.cc
   edit_distance.cc
+  pattern_coverage.cc
 )
 
 if (COMMAND create_library)

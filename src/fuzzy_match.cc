@@ -7,6 +7,7 @@
 
 #include <fuzzy/ngram_matches.hh>
 #include <fuzzy/edit_distance.hh>
+#include <fuzzy/pattern_coverage.hh>
 
 #include <onmt/unicode/Unicode.h>
 #include <boost/make_unique.hpp>
@@ -216,49 +217,6 @@ namespace fuzzy
     {
       return weight < other.weight || (weight == other.weight && position > other.position);
     }
-  };
-
-  class PatternMatch
-  {
-  public:
-    PatternMatch(size_t pattern_length)
-      : _pattern_length(pattern_length)
-    {
-    }
-
-    void register_pattern_word(unsigned word_id, size_t position)
-    {
-      _words_positions[word_id].push_back(position);
-    }
-
-    // Counts the number of words in the pattern that are also in the sentence.
-    size_t count_matched_words(const unsigned* sentence, size_t length) const
-    {
-      std::vector<bool> matched_words(_pattern_length, false);
-      size_t num_matched_words = 0;
-
-      for (size_t i = 0; i < length; ++i)
-      {
-        const auto it = _words_positions.find(sentence[i]);
-        if (it == _words_positions.end())  // Sentence word is not in the pattern.
-          continue;
-
-        for (const auto position : it->second)
-        {
-          if (!matched_words[position])
-          {
-            matched_words[position] = true;
-            num_matched_words++;
-          }
-        }
-      }
-
-      return num_matched_words;
-    }
-
-  private:
-    std::map<unsigned, std::vector<size_t>> _words_positions;
-    size_t _pattern_length;
   };
 
   /* subsequence operator */
@@ -487,7 +445,6 @@ namespace fuzzy
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
 
     NGramMatches nGramMatches(fuzzy, p_length, min_subseq_length, _suffixArrayIndex->get_SuffixArray());
-    PatternMatch pattern_match(p_length);
 
     if (p_length == 1)
     {
@@ -501,9 +458,6 @@ namespace fuzzy
 
     for (size_t it=0; it < p_length; it++)
     {
-      /* unigram indexing */
-      pattern_match.register_pattern_word(pattern_wids[it], it);
-
       std::pair<size_t, size_t> previous_range_suffixid(0, 0);
       size_t subseq_length = 0;
 
@@ -561,6 +515,7 @@ namespace fuzzy
 
     /* now explore for the best segments */
 
+    PatternCoverage pattern_coverage(pattern_wids);
     std::vector<const char*> st(p_length+1);
     std::vector<int> sn(p_length+1);
     Tokens pattern_realtok = (Tokens)real;
@@ -573,12 +528,12 @@ namespace fuzzy
       const auto longest_match = pair.second;
       size_t s_length = 0;
       const auto* sentence_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
-      const auto num_matched_words = (longest_match < p_length
-                                      ? pattern_match.count_matched_words(sentence_wids, s_length)
+      const auto num_covered_words = (longest_match < p_length
+                                      ? pattern_coverage.count_covered_words(sentence_wids, s_length)
                                       : p_length);
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      if (p_length - num_matched_words <= nGramMatches.max_differences_with_pattern)
+      if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
       {
         Costs costs;
         costs.diff_word = 100. / std::max(s_length, p_length);
