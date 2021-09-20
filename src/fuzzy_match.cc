@@ -522,6 +522,9 @@ namespace fuzzy
 
     real.get_itoks(st, sn);
 
+    // We track the lowest costs in order the call the edit distance with an upper bound
+    // and possibly return earlier. The default upper bound is "FLT_MAX (i.e. no restriction).
+    // The restriction will only start when we pop this value from the heap.
     std::priority_queue<float> lowest_costs;
     lowest_costs.push(std::numeric_limits<float>::max());
 
