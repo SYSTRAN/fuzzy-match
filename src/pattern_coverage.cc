@@ -1,34 +1,27 @@
 #include "fuzzy/pattern_coverage.hh"
 
+#include <algorithm>
+
 namespace fuzzy
 {
 
   PatternCoverage::PatternCoverage(const std::vector<unsigned>& pattern)
-    : _pattern_length(pattern.size())
   {
-    for (size_t i = 0; i < pattern.size(); ++i)
-      _words_positions[pattern[i]].push_back(i);
+    _words_count.reserve(pattern.size());
+    for (const auto word : pattern)
+      _words_count[word]++;
   }
 
   size_t PatternCoverage::count_covered_words(const unsigned* sentence, size_t sentence_length) const
   {
-    std::vector<bool> covered_words(_pattern_length, false);
     size_t num_covered_words = 0;
 
-    for (size_t i = 0; i < sentence_length; ++i)
+    for (const auto& pair : _words_count)
     {
-      const auto it = _words_positions.find(sentence[i]);
-      if (it == _words_positions.end())  // Sentence word is not in the pattern.
-        continue;
-
-      for (const auto position : it->second)
-      {
-        if (!covered_words[position])
-        {
-          covered_words[position] = true;
-          num_covered_words++;
-        }
-      }
+      const auto word = pair.first;
+      const auto count = pair.second;
+      if (std::find(sentence, sentence + sentence_length, word) != sentence + sentence_length)
+        num_covered_words += count;
     }
 
     return num_covered_words;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 namespace fuzzy
@@ -15,8 +15,7 @@ namespace fuzzy
     size_t count_covered_words(const unsigned* sentence, size_t sentence_length) const;
 
   private:
-    std::map<unsigned, std::vector<size_t>> _words_positions;
-    size_t _pattern_length;
+    std::unordered_map<unsigned, unsigned> _words_count;
   };
 
 }
