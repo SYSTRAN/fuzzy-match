@@ -522,6 +522,12 @@ namespace fuzzy
 
     real.get_itoks(st, sn);
 
+    // We track the lowest costs in order the call the edit distance with an upper bound
+    // and possibly return earlier. The default upper bound is FLT_MAX (i.e. no restriction).
+    // The restriction will only start when we pop this value from the heap.
+    std::priority_queue<float> lowest_costs;
+    lowest_costs.push(std::numeric_limits<float>::max());
+
     for (const auto& pair : nGramMatches.get_longest_matches())
     {
       const auto s_id = pair.first;
@@ -540,18 +546,26 @@ namespace fuzzy
 
         /* let us check the candidates */
         const auto sentence_realtok = _suffixArrayIndex->real_tokens(s_id);
+        const auto cost_upper_bound = lowest_costs.top();
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
-                                    costs, 100-fuzzy);
+                                    costs, cost_upper_bound);
 #ifdef DEBUG
         std::cout << "cost=" << cost << "+" << s_idf_penalty << "/" << O.max << std::endl;
 #endif
 
+        if ((no_perfect && cost == 0) || cost > cost_upper_bound)
+          continue;
+
         float score = int(10000-cost*100)/10000.0;
-        if (score >= fuzzy &&
-            (!no_perfect || score != 1)) {
+
+        lowest_costs.push(cost);
+        if (score < fuzzy || (number_of_matches > 0 && lowest_costs.size() > number_of_matches))
+          lowest_costs.pop();
+
+        if (score >= fuzzy) {
           Match m;
           m.score = score;
           m.max_subseq = longest_match;
