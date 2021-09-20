@@ -261,7 +261,7 @@ namespace fuzzy
     }
 
     /* sort the subsequences by idf weight */
-    std::priority_queue<Subseq, std::vector<Subseq>> subseq_queue;
+    std::priority_queue<Subseq> subseq_queue;
     for(size_t it=0; it < p_length; it++) {
       float idf_weight = 0;
       for(size_t jt=it; jt < p_length; jt++) {
