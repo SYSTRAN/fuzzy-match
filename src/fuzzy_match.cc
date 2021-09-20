@@ -559,8 +559,7 @@ namespace fuzzy
         float score = int(10000-cost*100)/10000.0;
 
         lowest_costs.push(cost);
-        if ((number_of_matches > 0 && lowest_costs.size() > number_of_matches)
-            || (number_of_matches == 0 && score < fuzzy))
+        if (score < fuzzy || (number_of_matches > 0 && lowest_costs.size() > number_of_matches))
           lowest_costs.pop();
 
         if (score >= fuzzy) {
