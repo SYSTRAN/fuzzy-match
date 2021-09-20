@@ -207,21 +207,14 @@ namespace fuzzy
     _suffixArrayIndex->sort();
   }
 
-  class Subseq {
-  public:
-    Subseq(float w, unsigned p, unsigned l):_w(w),_p(p),_l(l) {}
-    float _w;
-    unsigned _p;
-    unsigned _l;
-  };
+  struct Subseq {
+    float weight;
+    size_t position;
+    size_t length;
 
-  class CompareSubseq
-  {
-  public:
-    bool operator()(const Subseq &x, const Subseq &y)
+    bool operator<(const Subseq& other) const
     {
-      return x._w < y._w || 
-             (x._w == y._w && x._p > y._p);
+      return weight < other.weight || (weight == other.weight && position > other.position);
     }
   };
 
@@ -268,7 +261,7 @@ namespace fuzzy
     }
 
     /* sort the subsequences by idf weight */
-    std::priority_queue<Subseq, std::vector<Subseq>, CompareSubseq> subseq_queue;
+    std::priority_queue<Subseq> subseq_queue;
     for(size_t it=0; it < p_length; it++) {
       float idf_weight = 0;
       for(size_t jt=it; jt < p_length; jt++) {
@@ -276,7 +269,7 @@ namespace fuzzy
         if (weight == -1) break;
         idf_weight += idf_weighting?weight:1;
         if (int(jt-it+1) >= min_subseq_length)
-          subseq_queue.push(Subseq(idf_weight, it, jt-it+1));
+          subseq_queue.emplace(Subseq{idf_weight, it, jt-it+1});
       }
     }
 
@@ -297,7 +290,7 @@ namespace fuzzy
 
       size_t current_min_suffixid = 0;
       size_t current_max_suffixid = 0;
-      std::pair<size_t, size_t> range_suffixid = SAI.get_SuffixArray().equal_range(pidx.data() + subseq._p, subseq._l, current_min_suffixid, current_max_suffixid);
+      std::pair<size_t, size_t> range_suffixid = SAI.get_SuffixArray().equal_range(pidx.data() + subseq.position, subseq.length, current_min_suffixid, current_max_suffixid);
 
       for(auto suffixIt=range_suffixid.first; suffixIt < range_suffixid.second &&
                                             candidates.size()<number_of_matches; suffixIt++) {
@@ -323,11 +316,11 @@ namespace fuzzy
           if (cost < max_distance) {
             Match m;
             best_match.score = int(10000-cost*100)/10000.0;
-            best_match.max_subseq = subseq._l;
+            best_match.max_subseq = subseq.length;
             best_match.s_id = s_id;
             best_match.id = SAI.id(s_id);
-            unsigned org_it = map_tokens[subseq._p];
-            unsigned org_jt = map_tokens[subseq._p + subseq._l];
+            unsigned org_it = map_tokens[subseq.position];
+            unsigned org_jt = map_tokens[subseq.position + subseq.length];
             std::vector<std::string> tokens_subseq(tokens.begin()+org_it, tokens.begin()+org_jt);
             std::vector<std::vector<std::string> > features_subseq;
             if (features.size()) {
