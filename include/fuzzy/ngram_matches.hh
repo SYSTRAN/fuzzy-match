@@ -30,7 +30,7 @@ namespace fuzzy
     // Registers a match for this range of suffixes.
     void register_suffix_range_match(size_t begin, size_t end, unsigned match_length);
 
-    const LongestMatches& get_longest_matches() const;
+    std::vector<std::pair<unsigned, unsigned>> get_longest_matches() const;
 
     unsigned max_differences_with_pattern;
     unsigned min_exact_match; // Any suffix without an subsequence of at least this with the pattern won't be accepted later
