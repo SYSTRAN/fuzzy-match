@@ -248,18 +248,7 @@ namespace fuzzy
 
     /* get vocab id once for all */
     std::vector<unsigned> pidx = SAI.get_VocabIndexer().getIndex(pattern);
-
-    std::vector<float> idf_penalty;
-    const std::vector<unsigned> &sfreq = SAI.get_VocabIndexer().getSFreq();
-    unsigned num_sentences = SAI.get_SuffixArray().num_sentences();
-    idf_penalty.reserve(pidx.size());
-    for(auto idx: pidx) {
-      if (idx != fuzzy::VocabIndexer::VOCAB_UNK)
-        idf_penalty.push_back(std::log(num_sentences*1.0/sfreq[idx]));
-      else
-        /* unknown word - we cannot find a subsequence with it */
-        idf_penalty.push_back(-1);
-    }
+    const std::vector<float> idf_penalty = compute_idf_penalty(pidx, /*oov_penalty=*/-1);
 
     /* sort the subsequences by idf weight */
     std::priority_queue<Subseq> subseq_queue;
@@ -350,7 +339,8 @@ namespace fuzzy
     return std::log(num_sentences);
   }
 
-  std::vector<float> FuzzyMatch::compute_idf_penalty(const std::vector<unsigned>& pattern_wids) const {
+  std::vector<float> FuzzyMatch::compute_idf_penalty(const std::vector<unsigned>& pattern_wids,
+                                                     float oov_penalty) const {
     std::vector<float> idf_penalty;
     idf_penalty.reserve(pattern_wids.size());
 
@@ -363,7 +353,7 @@ namespace fuzzy
       if (wid != fuzzy::VocabIndexer::VOCAB_UNK)
         idf_penalty.push_back(std::log((float)num_sentences/(float)word_frequency_in_sentences[wid]));
       else
-        idf_penalty.push_back(0);
+        idf_penalty.push_back(oov_penalty);
     }
 
     return idf_penalty;
