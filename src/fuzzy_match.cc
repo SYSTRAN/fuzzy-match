@@ -248,7 +248,8 @@ namespace fuzzy
 
     /* get vocab id once for all */
     std::vector<unsigned> pidx = SAI.get_VocabIndexer().getIndex(pattern);
-    const std::vector<float> idf_penalty = compute_idf_penalty(pidx, /*oov_penalty=*/-1);
+    const std::vector<float> idf_penalty = compute_idf_penalty(pidx,
+                                                               /*unknown_vocab_word_penalty=*/-1);
 
     /* sort the subsequences by idf weight */
     std::priority_queue<Subseq> subseq_queue;
@@ -340,7 +341,7 @@ namespace fuzzy
   }
 
   std::vector<float> FuzzyMatch::compute_idf_penalty(const std::vector<unsigned>& pattern_wids,
-                                                     float oov_penalty) const {
+                                                     float unknown_vocab_word_penalty) const {
     std::vector<float> idf_penalty;
     idf_penalty.reserve(pattern_wids.size());
 
@@ -353,7 +354,7 @@ namespace fuzzy
       if (wid != fuzzy::VocabIndexer::VOCAB_UNK)
         idf_penalty.push_back(std::log((float)num_sentences/(float)word_frequency_in_sentences[wid]));
       else
-        idf_penalty.push_back(oov_penalty);
+        idf_penalty.push_back(unknown_vocab_word_penalty);
     }
 
     return idf_penalty;

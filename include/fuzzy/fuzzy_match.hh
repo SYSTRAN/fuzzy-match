@@ -115,7 +115,8 @@ namespace fuzzy
     float compute_max_idf_penalty() const;
 
     std::vector<float>
-    compute_idf_penalty(const std::vector<unsigned int> &pattern_wids, float oov_penalty = 0) const;
+    compute_idf_penalty(const std::vector<unsigned int>& pattern_wids,
+                        float unknown_vocab_word_penalty = 0) const;
 
     /* penalty tokens */
     int                    _pt;
