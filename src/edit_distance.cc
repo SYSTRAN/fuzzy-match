@@ -20,17 +20,17 @@ namespace fuzzy
 
     /* we have a fixed cost corresponding to trailing penalty_tokens */
     arr[0][0] = _edit_distance_char(st1[n1], sn1[n1], st2[n2], sn2[n2]);
-    cost_tag[0][0] = costs.penalty * _edit_distance_char(st1[0], sn1[0], st2[0], sn2[0]);
+    cost_tag[0][0] = _edit_distance_char(st1[0], sn1[0], st2[0], sn2[0]);
 
     for (int i = 1; i < n1 + 1; i++) {
-      arr[i][0] = arr[i-1][0] + costs.diff_word + costs.penalty*sn1[i];
-      cost_tag[i][0] = costs.penalty * _edit_distance_char(st1[i], sn1[i], st2[0], sn2[0]);
+      arr[i][0] = arr[i-1][0] + costs.diff_word + sn1[i];
+      cost_tag[i][0] = _edit_distance_char(st1[i], sn1[i], st2[0], sn2[0]);
     }
     for (int j = 1; j < n2 + 1; j++) {
-      arr[0][j] = arr[0][j-1] + costs.diff_word + costs.penalty*sn2[j];
+      arr[0][j] = arr[0][j-1] + costs.diff_word + sn2[j];
       if (idf_weight)
         arr[0][j] += idf_penalty[j-1]*idf_weight;
-      cost_tag[0][j] = costs.penalty * _edit_distance_char(st1[0], sn1[0], st2[j], sn2[j]);
+      cost_tag[0][j] = _edit_distance_char(st1[0], sn1[0], st2[j], sn2[j]);
     }
 
     for (int i = 1; i < n1 + 1; i++)
@@ -54,7 +54,7 @@ namespace fuzzy
           }
         }
 
-        cost_tag[i][j] = costs.penalty * _edit_distance_char(st1[i], sn1[i], st2[j], sn2[j]);
+        cost_tag[i][j] = _edit_distance_char(st1[i], sn1[i], st2[j], sn2[j]);
 
         const auto distance = std::min(
           {

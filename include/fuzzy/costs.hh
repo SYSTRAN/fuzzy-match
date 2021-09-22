@@ -1,17 +1,21 @@
 #pragma once
 
+#include <algorithm>
+
 namespace fuzzy
 {
   struct Costs
   {
-    /* cost when 2 normalized tokens are identical but differ on real forms
-       for instance numbers */
-    const float diff_real = 2.0;
-    /* cost of case difference */
-    const float diff_case = 1.0;
-    /* cost if one of the token (only) is a penalty token */
-    const int penalty = 1;
+    Costs(size_t pattern_length, size_t sentence_length)
+      : diff_word(100.f / std::max(pattern_length, sentence_length))
+    {
+    }
 
-    float diff_word;
+    // Cost when 2 normalized words are different.
+    const float diff_word;
+    // Cost when 2 normalized words are identical but their original forms are different (e.g. numbers).
+    const float diff_real = 2.0;
+    // Cost when 2 normalized words are identical but their original forms only differ in casing.
+    const float diff_case = 1.0;
   };
 }
