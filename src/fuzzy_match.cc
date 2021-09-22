@@ -301,8 +301,7 @@ namespace fuzzy
           size_t s_length = 0;
           const auto* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
 
-          Costs costs;
-          costs.diff_word = 100. / std::max(s_length, p_length);
+          const Costs costs(p_length, s_length);
 
           /* let us calculate edit_distance  */
           float cost = _edit_distance(thes, SAI.real_tokens(s_id), s_length,
@@ -541,8 +540,7 @@ namespace fuzzy
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
       if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
       {
-        Costs costs;
-        costs.diff_word = 100. / std::max(s_length, p_length);
+        const Costs costs(p_length, s_length);
 
         /* let us check the candidates */
         const auto sentence_realtok = _suffixArrayIndex->real_tokens(s_id);
