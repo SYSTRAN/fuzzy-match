@@ -25,10 +25,16 @@ namespace fuzzy
   {
   }
 
-  const LongestMatches&
+  std::vector<std::pair<unsigned, unsigned>>
   NGramMatches::get_longest_matches() const
   {
-    return _longest_matches;
+    std::vector<std::pair<unsigned, unsigned>> sorted_matches(_longest_matches.begin(),
+                                                              _longest_matches.end());
+    std::sort(sorted_matches.begin(), sorted_matches.end(),
+              [](const std::pair<unsigned, unsigned>& a, const std::pair<unsigned, unsigned>& b) {
+                return a.second > b.second || (a.second == b.second && a.first < b.first);
+              });
+    return sorted_matches;
   }
 
   void
