@@ -2,12 +2,12 @@ name: CMake
 
 on: [push, pull_request]
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build: [Release, Debug]
 
     steps:
     - uses: actions/checkout@v2
@@ -23,18 +23,18 @@ jobs:
 
     - name: Install dependencies (OpenNMT Tokenizer)
       working-directory: ${{runner.workspace}}/build
-      run: git clone --recursive --branch v1.20.0 --depth 1 https://github.com/OpenNMT/Tokenizer && cd Tokenizer && git submodule update --init && mkdir build && cd build && cmake -DLIB_ONLY=ON .. && sudo make install
+      run: git clone --recursive --branch v1.20.0 --depth 1 https://github.com/OpenNMT/Tokenizer && cd Tokenizer && git submodule update --init && mkdir build && cd build && cmake -DLIB_ONLY=ON -DCMAKE_BUILD_TYPE=${{ matrix.build }} .. && sudo make install
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build }}
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build . --config ${{ matrix.build }}
 
     - name: Downloading test data
       working-directory: ${{runner.workspace}}/build

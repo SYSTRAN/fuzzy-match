@@ -52,7 +52,7 @@ namespace fuzzy
 #ifndef NDEBUG
   std::ostream& SuffixArrayIndex::dump(std::ostream& os) const {
     os << "=== Vocabulary ==="<<std::endl;
-    _vocabIndexer.dump(os, _suffixArray.nsentences()) << std::endl;
+    _vocabIndexer.dump(os, _suffixArray.num_sentences()) << std::endl;
     os << "=== Suffix Array ==="<<std::endl;
     _suffixArray.dump(os) << std::endl;
     return os;
