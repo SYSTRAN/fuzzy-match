@@ -40,7 +40,7 @@ namespace fuzzy
 
     for (size_t j = 0; j < slength; j++)
     {
-      std::string form = _vocabIndexer.getWord(sentence[j]);
+      const std::string& form = _vocabIndexer.getWord(sentence[j]);
       if (!sent.empty())
         sent += " ";
       sent += form;
