@@ -9,10 +9,6 @@
 #include <unicode/translit.h>
 #include <onmt/Tokenizer.h>
 
-namespace onmt {
-  class Tokenizer;
-}
-
 namespace fuzzy
 {
   class FuzzyMatch
