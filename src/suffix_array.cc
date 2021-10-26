@@ -1,6 +1,7 @@
 #include <fuzzy/suffix_array.hh>
 
 #include <fuzzy/ngram_matches.hh>
+#include <fuzzy/vocab_indexer.hh>
 #include <cassert>
 
 namespace fuzzy

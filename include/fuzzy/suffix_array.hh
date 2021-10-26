@@ -5,8 +5,6 @@
 #include <iostream>
 #include <ostream>
 
-#include "fuzzy/vocab_indexer.hh"
-
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>

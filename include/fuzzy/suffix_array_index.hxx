@@ -6,8 +6,8 @@ namespace fuzzy
     return _suffixArray;
   }
 
-  inline VocabIndexer&
-  SuffixArrayIndex::get_VocabIndexer()
+  inline const VocabIndexer&
+  SuffixArrayIndex::get_VocabIndexer() const
   {
     return _vocabIndexer;
   }
