@@ -11,6 +11,7 @@
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/pattern_coverage.hh>
 
+#include <onmt/Tokenizer.h>
 #include <onmt/unicode/Unicode.h>
 #include <boost/make_unique.hpp>
 
@@ -52,6 +53,8 @@ namespace fuzzy
   {
     _update_tokenizer();
   }
+
+  FuzzyMatch::~FuzzyMatch() = default;
 
   void FuzzyMatch::_update_tokenizer() {
     int flags_tokenizer = onmt::Tokenizer::Flags::SegmentAlphabetChange
