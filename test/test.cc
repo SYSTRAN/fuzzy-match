@@ -302,6 +302,38 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
   }
 }
 
+TEST(FuzzyMatchTest, nfc_normalization) {
+  // The ohm character is normalized into omega under NFC normalization.
+  const std::string ohm = "Ω";
+  const std::string omega = "Ω";
+
+  fuzzy::FuzzyMatch fuzzy_matcher;
+  fuzzy_matcher.add_tm("", ohm);
+  fuzzy_matcher.sort();
+
+  {
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match(ohm,
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        /*no_perfect=*/false,
+                        matches,
+                        /*min_subseq_length=*/1);
+    EXPECT_EQ(matches.size(), 1);
+  }
+
+  {
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match(omega,
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        /*no_perfect=*/false,
+                        matches,
+                        /*min_subseq_length=*/1);
+    EXPECT_EQ(matches.size(), 1);
+  }
+}
+
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);
   assert(argc == 2);

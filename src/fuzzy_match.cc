@@ -5,6 +5,8 @@
 #include <cmath>
 #include <set>
 
+#include <unicode/normalizer2.h>
+
 #include <fuzzy/ngram_matches.hh>
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/pattern_coverage.hh>
@@ -25,6 +27,23 @@ namespace fuzzy
              (x.score == y.score && x.s_id > y.s_id);
     }
   };
+
+  static std::string normalize(const std::string& text_utf8) {
+    UErrorCode error_code = U_ZERO_ERROR;
+    const auto* normalizer = icu::Normalizer2::getNFCInstance(error_code);
+    if (U_FAILURE(error_code))
+      throw std::runtime_error("Unable to get the ICU normalizer");
+
+    const auto text = icu::UnicodeString::fromUTF8(text_utf8);
+    const auto text_norm = normalizer->normalize(text, error_code);
+
+    if (U_FAILURE(error_code))
+      return text_utf8;
+
+    std::string text_norm_utf8;
+    text_norm.toUTF8String(text_norm_utf8);
+    return text_norm_utf8;
+  }
 
 
   FuzzyMatch::FuzzyMatch(int pt, size_t max_tokens_in_pattern)
@@ -53,10 +72,6 @@ namespace fuzzy
     _ptokenizer->add_alphabet_to_segment("Kanbun");
     _ptokenizer->add_alphabet_to_segment("Katakana");
     _ptokenizer->add_alphabet_to_segment("Hiragana");
-    UErrorCode status = U_ZERO_ERROR;
-    UParseError error;
-
-    _ptrans = std::unique_ptr<decltype(_ptrans)::element_type>(icu::Transliterator::createFromRules("NFC", "::NFC;", UTRANS_FORWARD, error, status));
   }
 
   void
@@ -81,11 +96,7 @@ namespace fuzzy
                                       std::vector<unsigned> &map_tokens,
                                       std::vector<std::string> &tokens,
                                       std::vector<std::vector<std::string>> &features) const {
-    /* ICU basic normalization */
-    icu::UnicodeString u_sentence = icu::UnicodeString::fromUTF8(sentence);
-    std::string sentence_norm;
-    _ptrans->transliterate(u_sentence);
-    u_sentence.toUTF8String(sentence_norm);
+    const std::string sentence_norm = normalize(sentence);
     _ptokenizer->tokenize(sentence_norm, tokens, features);
 
     real.reserve(tokens.size());
