@@ -7,7 +7,7 @@
 #include <boost/serialization/vector.hpp>
 
 #include "fuzzy/suffix_array.hh"
-
+#include "fuzzy/vocab_indexer.hh"
 #include "fuzzy/sentence.hh"
 
 namespace fuzzy
@@ -20,7 +20,7 @@ namespace fuzzy
     SuffixArrayIndex(size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
 
     const SuffixArray &get_SuffixArray() const;
-    VocabIndexer      &get_VocabIndexer();
+    const VocabIndexer& get_VocabIndexer() const;
 
     int                add_tm(const std::string& id,
                               const Sentence& real_tokens,

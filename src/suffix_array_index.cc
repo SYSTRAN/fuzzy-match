@@ -17,7 +17,7 @@ namespace fuzzy
   {
     if (!real_tokens.empty() && norm_tokens.size() <= _max_tokens_in_pattern) // patterns greater than this size would be ignored in match
     {
-      std::vector<unsigned> tokens_idx = _vocabIndexer.getIndexCreate(norm_tokens);
+      std::vector<unsigned> tokens_idx = _vocabIndexer.addWords(norm_tokens);
       _suffixArray.add_sentence(tokens_idx);
 
       _ids.push_back(id);
@@ -40,7 +40,7 @@ namespace fuzzy
 
     for (size_t j = 0; j < slength; j++)
     {
-      std::string form = _vocabIndexer.getWord(sentence[j]);
+      const std::string& form = _vocabIndexer.getWord(sentence[j]);
       if (!sent.empty())
         sent += " ";
       sent += form;
