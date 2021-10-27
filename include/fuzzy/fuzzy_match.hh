@@ -6,7 +6,6 @@
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
 
-#include <unicode/translit.h>
 #include <onmt/Tokenizer.h>
 
 namespace onmt {
@@ -122,8 +121,6 @@ namespace fuzzy
     int                    _pt;
     /* open-nmt tokenizer */
     std::unique_ptr<onmt::Tokenizer> _ptokenizer;
-    /* icu transliterator */
-    std::unique_ptr<icu::Transliterator> _ptrans;
     /* Suffix-Array Index */
     std::unique_ptr<SuffixArrayIndex> _suffixArrayIndex;
   };
