@@ -6,8 +6,6 @@
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
 
-#include <onmt/Tokenizer.h>
-
 namespace onmt {
   class Tokenizer;
 }
@@ -39,6 +37,7 @@ namespace fuzzy
 
     FuzzyMatch(int pt = penalty_token::pt_none,
                size_t max_tokens_in_pattern = SuffixArrayIndex::DEFAULT_MAX_TOKENS_IN_PATTERN);
+    ~FuzzyMatch();
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);
     bool add_tm(const std::string& id, const Sentence& source, const Tokens& norm, bool sort = true);
