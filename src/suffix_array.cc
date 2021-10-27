@@ -215,7 +215,7 @@ namespace fuzzy
                  const unsigned* v2, size_t v2_length,
                  bool equal_if_startby = false)
   {
-    for (size_t i = 0; i < v1_length && i < v2_length; i++)
+    for (size_t i = 0; i < std::min(v1_length, v2_length); i++)
     {
       if (v1[i] < v2[i])
         return -1;
