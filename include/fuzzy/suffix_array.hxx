@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 namespace fuzzy
 {
   inline size_t
