@@ -9,7 +9,9 @@ set(FUZZY_SOURCES
   edit_distance.cc
   pattern_coverage.cc
 )
-
+if(MSVC)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 if (COMMAND create_library)
   create_library(${PROJECT_NAME} SHARED
     ${FUZZY_SOURCES})
