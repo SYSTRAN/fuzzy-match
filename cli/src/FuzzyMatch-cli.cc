@@ -312,7 +312,7 @@ int main(int argc, char** argv)
                                                                         "`sep`/`jnr` and/or `pct`.")
     ("idf-penalty,I", po::value(&idf_penalty)->default_value(0), "if not 0, apply idf-penalty on missing tokens")
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
-    ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::SuffixArrayIndex::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
+    ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 

@@ -36,7 +36,7 @@ namespace fuzzy
     };
 
     FuzzyMatch(int pt = penalty_token::pt_none,
-               size_t max_tokens_in_pattern = SuffixArrayIndex::DEFAULT_MAX_TOKENS_IN_PATTERN);
+               size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
     ~FuzzyMatch();
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);

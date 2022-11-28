@@ -12,11 +12,11 @@
 
 namespace fuzzy
 {
+  constexpr size_t DEFAULT_MAX_TOKENS_IN_PATTERN = 300; // if you change this value, update README.md
+  
   class SuffixArrayIndex
   {
   public:
-    static const size_t DEFAULT_MAX_TOKENS_IN_PATTERN;
-
     SuffixArrayIndex(size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
 
     const SuffixArray &get_SuffixArray() const;
