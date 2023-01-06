@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         build: [Release, Debug]
@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install dependencies (distribution provided)
-      run: sudo apt-get update && sudo apt install libicu66 libboost-all-dev
+      run: sudo apt-get update && sudo apt install libicu-dev libboost-all-dev
 
     - name: Install dependencies (google-test tricky install) # See https://stackoverflow.com/questions/24295876/cmake-cannot-find-googletest-required-library-in-ubuntu
       run: sudo apt install libgtest-dev build-essential cmake && cd /usr/src/googletest && sudo cmake . && sudo cmake --build . --target install
