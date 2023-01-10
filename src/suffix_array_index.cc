@@ -2,8 +2,6 @@
 
 namespace fuzzy
 {
-  const size_t SuffixArrayIndex::DEFAULT_MAX_TOKENS_IN_PATTERN = 300; // if you change this value, update README.md
-
   SuffixArrayIndex::SuffixArrayIndex(size_t max_tokens_in_pattern)
     : _max_tokens_in_pattern(max_tokens_in_pattern)
   {
