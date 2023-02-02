@@ -311,7 +311,7 @@ namespace fuzzy
           float cost = _edit_distance(thes, SAI.real_tokens(s_id), s_length,
                                       pidx.data(), realtok, p_length,
                                       st, sn,
-                                      idf_penalty, 0,
+                                      idf_penalty, 0, 1,
                                       costs, max_distance);
           if (cost==0 && no_perfect) {
             perfect.insert(s_id);
@@ -382,13 +382,14 @@ namespace fuzzy
                          std::vector<Match>& matches,
                          int min_subseq_length,
                          float min_subseq_ratio,
-                         float vocab_idf_penalty) const {
+                         float vocab_idf_penalty,
+                         float replace_cost) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, replace_cost);
   }
 
   /* backward compatibility */
@@ -399,11 +400,12 @@ namespace fuzzy
                     std::vector<Match>& matches,
                     int min_subseq_length,
                     float min_subseq_ratio,
-                    float vocab_idf_penalty) const
+                    float vocab_idf_penalty,
+                    float replace_cost) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, replace_cost);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -416,7 +418,8 @@ namespace fuzzy
                     std::vector<Match>& matches,
                     int min_subseq_length,
                     float min_subseq_ratio,
-                    float vocab_idf_penalty) const
+                    float vocab_idf_penalty,
+                    float replace_cost) const
   {
     size_t p_length = pattern.size();
 
@@ -550,10 +553,12 @@ namespace fuzzy
         /* let us check the candidates */
         const auto sentence_realtok = _suffixArrayIndex->real_tokens(s_id);
         const auto cost_upper_bound = lowest_costs.top();
+        // TODO: have a custom cost for replace
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
+                                    replace_cost,
                                     costs, cost_upper_bound);
 #ifdef DEBUG
         std::cout << "cost=" << cost << "+" << s_idf_penalty << "/" << O.max << std::endl;

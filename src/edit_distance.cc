@@ -7,11 +7,14 @@ namespace fuzzy
                  const unsigned* s2, const Tokens &real2tok, int n2,
                  const std::vector<const char*>& st2, const std::vector<int>& sn2,
                  const std::vector<float> &idf_penalty, float idf_weight,
+                 float replace_cost,
                  const Costs& costs,
                  float max_fuzzyness)
   {
     boost::multi_array<float, 2> arr(boost::extents[n1+1][n2+1]);
     boost::multi_array<int, 2> cost_tag(boost::extents[n1+1][n2+1]);
+    /* idf_penalty(w) = log(nbre w / nbre seqs) */ 
+    /* idf_weight = bool * costs.diff_word / log(nbre seqs) */ 
 
     std::vector<const char*> st1(n1+1, nullptr);
     std::vector<int> sn1(n1+1, 0);
@@ -43,7 +46,7 @@ namespace fuzzy
         if (idf_weight)
           penalty_j1 = idf_penalty[j-1]*idf_weight;
         if (s1[i-1] != s2[j-1]) {
-          diff = costs.diff_word + penalty_j1;
+          diff = replace_cost * costs.diff_word + penalty_j1;
         }
         else if (real1tok[i-1] != real2tok[j-1]) {
           /* is difference only a case difference */

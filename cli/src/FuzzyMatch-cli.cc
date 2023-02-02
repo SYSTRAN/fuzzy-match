@@ -196,7 +196,7 @@ public:
   processor(int pt, float fuzzy, int nmatch, bool no_perfect,
             int min_subseq_length, float min_subseq_ratio,
             float idf_penalty, bool subseq_idf_weighting,
-            size_t max_tokens_in_pattern):
+            size_t max_tokens_in_pattern, float replace_cost):
              _fuzzyMatcher(pt, max_tokens_in_pattern),
              _fuzzy(fuzzy),
              _nmatch(nmatch),
@@ -204,12 +204,13 @@ public:
              _min_subseq_length(min_subseq_length),
              _min_subseq_ratio(min_subseq_ratio),
              _idf_penalty(idf_penalty),
-             _subseq_idf_weighting(subseq_idf_weighting) {}
+             _subseq_idf_weighting(subseq_idf_weighting),
+             _replace_cost(replace_cost) {}
   std::string match(const std::string &sentence) {
     std::vector<fuzzy::FuzzyMatch::Match> matches;
 
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
-                        _min_subseq_length, _min_subseq_ratio, _idf_penalty);
+                        _min_subseq_length, _min_subseq_ratio, _idf_penalty, _replace_cost);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -261,6 +262,7 @@ private:
   int _min_subseq_length;
   float _min_subseq_ratio;
   float _idf_penalty;
+  float _replace_cost;
   bool _subseq_idf_weighting;
 };
 
@@ -285,6 +287,7 @@ int main(int argc, char** argv)
   std::string index_file;
   std::string penalty_tokens;
   float idf_penalty;
+  float replace_cost;
   float fuzzy;
   int nmatch;
   int nthreads;
@@ -311,6 +314,7 @@ int main(int argc, char** argv)
                                                                         "Values: none (no such token) or a comma-separated list of `cas`, `nbr`, `tag`, "
                                                                         "`sep`/`jnr` and/or `pct`.")
     ("idf-penalty,I", po::value(&idf_penalty)->default_value(0), "if not 0, apply idf-penalty on missing tokens")
+    ("replace-cost", po::value(&replace_cost)->default_value(1), "custom cost for replace in edit distance")
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
     ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
@@ -384,7 +388,7 @@ int main(int argc, char** argv)
   processor O(pt, fuzzy, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,
-              max_tokens_in_pattern);
+              max_tokens_in_pattern, replace_cost);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);

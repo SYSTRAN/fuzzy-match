@@ -13,6 +13,7 @@ namespace fuzzy
                        const unsigned* thep, const Tokens &realptok, int plen,
                        const std::vector<const char*>& st, const std::vector<int>& sn,
                        const std::vector<float> &idf_penalty, float idf_weight,
+                       float replace_cost,
                        const Costs&,
                        float max_fuzziness = std::numeric_limits<float>::max());
 }
