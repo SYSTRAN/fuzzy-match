@@ -53,7 +53,7 @@ namespace fuzzy
                int min_subseq_length=2,
                float min_subseq_ratio=0,
                float vocab_idf_penalty=0,
-               float replace_cost=1) const;
+               const EditCosts& edit_costs=EditCosts()) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -63,7 +63,7 @@ namespace fuzzy
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
                float vocab_idf_penalty=0,
-               float replace_cost=1) const;
+               const EditCosts& edit_costs=EditCosts()) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -73,7 +73,7 @@ namespace fuzzy
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
                float vocab_idf_penalty=0,
-               float replace_cost=1) const;
+               const EditCosts& edit_costs=EditCosts()) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,

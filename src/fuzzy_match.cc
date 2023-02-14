@@ -7,6 +7,7 @@
 
 #include <unicode/normalizer2.h>
 
+#include <fuzzy/costs.hh>
 #include <fuzzy/ngram_matches.hh>
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/pattern_coverage.hh>
@@ -305,13 +306,15 @@ namespace fuzzy
           size_t s_length = 0;
           const auto* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
 
-          const Costs costs(p_length, s_length);
+          const EditCosts edit_costs = EditCosts();
+          const Costs costs(p_length, s_length, edit_costs);
 
           /* let us calculate edit_distance  */
           float cost = _edit_distance(thes, SAI.real_tokens(s_id), s_length,
                                       pidx.data(), realtok, p_length,
                                       st, sn,
-                                      idf_penalty, 0, 1,
+                                      idf_penalty, 0, 
+                                      edit_costs,
                                       costs, max_distance);
           if (cost==0 && no_perfect) {
             perfect.insert(s_id);
@@ -383,13 +386,13 @@ namespace fuzzy
                          int min_subseq_length,
                          float min_subseq_ratio,
                          float vocab_idf_penalty,
-                         float replace_cost) const {
+                         const EditCosts& edit_costs) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, replace_cost);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
   }
 
   /* backward compatibility */
@@ -401,11 +404,11 @@ namespace fuzzy
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
-                    float replace_cost) const
+                    const EditCosts& edit_costs) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, replace_cost);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -419,7 +422,7 @@ namespace fuzzy
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
-                    float replace_cost) const
+                    const EditCosts& edit_costs) const
   {
     size_t p_length = pattern.size();
 
@@ -538,6 +541,9 @@ namespace fuzzy
     for (const auto& pair : nGramMatches.get_longest_matches())
     {
       const auto s_id = pair.first;
+#ifdef DEBUG
+      std::cerr << "#" << s_id << std::endl;
+#endif
       const auto longest_match = pair.second;
       size_t s_length = 0;
       const auto* sentence_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
@@ -548,17 +554,16 @@ namespace fuzzy
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
       if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
       {
-        const Costs costs(p_length, s_length);
+        const Costs costs(p_length, s_length, edit_costs);
 
         /* let us check the candidates */
         const auto sentence_realtok = _suffixArrayIndex->real_tokens(s_id);
         const auto cost_upper_bound = lowest_costs.top();
-        // TODO: have a custom cost for replace
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
-                                    replace_cost,
+                                    edit_costs,
                                     costs, cost_upper_bound);
 #ifdef DEBUG
         std::cout << "cost=" << cost << "+" << s_idf_penalty << "/" << O.max << std::endl;

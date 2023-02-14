@@ -14,6 +14,7 @@
 #include <chrono>
 #include <ctime>
 
+#include <fuzzy/costs.hh>
 #include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/fuzzy_matcher_binarization.hh>
 
@@ -196,7 +197,7 @@ public:
   processor(int pt, float fuzzy, int nmatch, bool no_perfect,
             int min_subseq_length, float min_subseq_ratio,
             float idf_penalty, bool subseq_idf_weighting,
-            size_t max_tokens_in_pattern, float replace_cost):
+            size_t max_tokens_in_pattern, fuzzy::EditCosts edit_cost):
              _fuzzyMatcher(pt, max_tokens_in_pattern),
              _fuzzy(fuzzy),
              _nmatch(nmatch),
@@ -205,12 +206,12 @@ public:
              _min_subseq_ratio(min_subseq_ratio),
              _idf_penalty(idf_penalty),
              _subseq_idf_weighting(subseq_idf_weighting),
-             _replace_cost(replace_cost) {}
+             _cost(edit_cost) {}
   std::string match(const std::string &sentence) {
     std::vector<fuzzy::FuzzyMatch::Match> matches;
 
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
-                        _min_subseq_length, _min_subseq_ratio, _idf_penalty, _replace_cost);
+                        _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -241,6 +242,9 @@ public:
   apply_stream(std::istream &in, std::ostream &out, size_t num_threads, size_t buffer_size, bool domatch) {
     if (domatch) {
       auto function_match = [this](const std::string& sentence) { 
+#ifdef DEBUG
+        std::cerr << "### new ###" << std::endl;
+#endif
         return match(sentence);
       };
       return process_stream(function_match,
@@ -262,7 +266,7 @@ private:
   int _min_subseq_length;
   float _min_subseq_ratio;
   float _idf_penalty;
-  float _replace_cost;
+  fuzzy::EditCosts _cost;
   bool _subseq_idf_weighting;
 };
 
@@ -287,6 +291,8 @@ int main(int argc, char** argv)
   std::string index_file;
   std::string penalty_tokens;
   float idf_penalty;
+  float insert_cost;
+  float delete_cost;
   float replace_cost;
   float fuzzy;
   int nmatch;
@@ -314,6 +320,8 @@ int main(int argc, char** argv)
                                                                         "Values: none (no such token) or a comma-separated list of `cas`, `nbr`, `tag`, "
                                                                         "`sep`/`jnr` and/or `pct`.")
     ("idf-penalty,I", po::value(&idf_penalty)->default_value(0), "if not 0, apply idf-penalty on missing tokens")
+    ("insert-cost", po::value(&insert_cost)->default_value(1), "custom cost for insert in edit distance")
+    ("delete-cost", po::value(&delete_cost)->default_value(1), "custom cost for delete in edit distance")
     ("replace-cost", po::value(&replace_cost)->default_value(1), "custom cost for replace in edit distance")
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
     ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
@@ -385,10 +393,11 @@ int main(int argc, char** argv)
     return 0;
   }
 
+  fuzzy::EditCosts edit_cost = fuzzy::EditCosts(insert_cost, delete_cost, replace_cost);
   processor O(pt, fuzzy, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,
-              max_tokens_in_pattern, replace_cost);
+              max_tokens_in_pattern, edit_cost);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);

@@ -1,4 +1,7 @@
+#include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/edit_distance.hh>
+#include <iostream>
+#include <boost/format.hpp>
 
 namespace fuzzy
 {
@@ -7,14 +10,14 @@ namespace fuzzy
                  const unsigned* s2, const Tokens &real2tok, int n2,
                  const std::vector<const char*>& st2, const std::vector<int>& sn2,
                  const std::vector<float> &idf_penalty, float idf_weight,
-                 float replace_cost,
+                 const EditCosts& edit_costs,
                  const Costs& costs,
                  float max_fuzzyness)
   {
     boost::multi_array<float, 2> arr(boost::extents[n1+1][n2+1]);
     boost::multi_array<int, 2> cost_tag(boost::extents[n1+1][n2+1]);
-    /* idf_penalty(w) = log(nbre w / nbre seqs) */ 
-    /* idf_weight = bool * costs.diff_word / log(nbre seqs) */ 
+    /* idf_penalty(w) = log(nbre seqs / nbre occ w) */ 
+    /* idf_weight = weight * costs.diff_word / log(nbre seqs) */ 
 
     std::vector<const char*> st1(n1+1, nullptr);
     std::vector<int> sn1(n1+1, 0);
@@ -26,13 +29,15 @@ namespace fuzzy
     cost_tag[0][0] = _edit_distance_char(st1[0], sn1[0], st2[0], sn2[0]);
 
     for (int i = 1; i < n1 + 1; i++) {
-      arr[i][0] = arr[i-1][0] + costs.diff_word + sn1[i];
+      /* initialize distance source side (real1) */
+      arr[i][0] = arr[i-1][0] + costs.diff_word * edit_costs._delete + sn1[i];
       cost_tag[i][0] = _edit_distance_char(st1[i], sn1[i], st2[0], sn2[0]);
     }
     for (int j = 1; j < n2 + 1; j++) {
-      arr[0][j] = arr[0][j-1] + costs.diff_word + sn2[j];
+      /* initialize distance target side (real2tok) */
+      arr[0][j] = arr[0][j-1] + costs.diff_word * edit_costs._insert + sn2[j];
       if (idf_weight)
-        arr[0][j] += idf_penalty[j-1]*idf_weight;
+        arr[0][j] += idf_penalty[j-1] * idf_weight;
       cost_tag[0][j] = _edit_distance_char(st1[0], sn1[0], st2[j], sn2[j]);
     }
 
@@ -44,9 +49,9 @@ namespace fuzzy
         int diff = 0;
         float penalty_j1 = 0;
         if (idf_weight)
-          penalty_j1 = idf_penalty[j-1]*idf_weight;
+          penalty_j1 = idf_penalty[j-1] * idf_weight;
         if (s1[i-1] != s2[j-1]) {
-          diff = replace_cost * costs.diff_word + penalty_j1;
+          diff = edit_costs._replace * costs.diff_word + penalty_j1;
         }
         else if (real1tok[i-1] != real2tok[j-1]) {
           /* is difference only a case difference */
@@ -61,8 +66,8 @@ namespace fuzzy
 
         const auto distance = std::min(
           {
-            arr[i - 1][j] + costs.diff_word + cost_tag[i - 1][j],
-            arr[i][j - 1] + costs.diff_word + cost_tag[i][j - 1] + penalty_j1,
+            arr[i - 1][j] + edit_costs._delete * costs.diff_word + cost_tag[i - 1][j],
+            arr[i][j - 1] + edit_costs._insert * costs.diff_word + cost_tag[i][j - 1] + penalty_j1,
             arr[i - 1][j - 1] + diff + cost_tag[i - 1][j - 1]
           });
 
@@ -73,11 +78,12 @@ namespace fuzzy
         return min;
     }
 #ifdef DEBUG
-    printf("---\n");
+    std::cerr << "---\n";
     for(int i = 0; i < n1 + 1; i++)
     {
-      for (int j = 0; j < n2 + 1; j++) printf("%6.2f ", arr[i][j]);
-      printf("\n");
+      for (int j = 0; j < n2 + 1; j++)
+        std::cerr << boost::format("%.2f\t") % arr[i][j];
+      std::cerr << "\n";
     }
 #endif
     return arr[n1][n2];
