@@ -26,7 +26,7 @@ namespace fuzzy
   };
   struct Costs
   {
-    private:
+    public:
       static const float get_normalizer(
         size_t pattern_length,
         size_t sentence_length,
@@ -42,7 +42,6 @@ namespace fuzzy
           return (edit_costs._replace - edit_costs._insert) * (float)sentence_length + edit_costs._insert * (float)pattern_length;
         }
       }
-    public:
       Costs(size_t pattern_length, size_t sentence_length)
         : diff_word(100.f / std::max(pattern_length, sentence_length))
       {

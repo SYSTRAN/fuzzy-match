@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fuzzy/suffix_array.hh>
-
+#include <fuzzy/costs.hh>
 #include <fuzzy/tsl/hopscotch_map.h>
 
 namespace fuzzy
@@ -28,11 +28,19 @@ namespace fuzzy
                  const SuffixArray&);
 
     // Registers a match for this range of suffixes.
-    void register_suffix_range_match(size_t begin, size_t end, unsigned match_length);
+    void register_suffix_range_match(
+      size_t begin,
+      size_t end,
+      unsigned match_length,
+      const EditCosts& edit_costs=EditCosts()
+    );
+    const bool theoretical_rejection(size_t p_length, size_t s_length, const EditCosts& edit_costs) const;
+    const bool theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts& edit_costs) const;
 
     std::vector<std::pair<unsigned, unsigned>> get_longest_matches() const;
 
-    unsigned max_differences_with_pattern;
+    float fuzzy_threshold;
+    // unsigned max_differences_with_pattern;
     unsigned min_exact_match; // Any suffix without an subsequence of at least this with the pattern won't be accepted later
 
   private:

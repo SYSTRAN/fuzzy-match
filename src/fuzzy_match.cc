@@ -463,7 +463,8 @@ namespace fuzzy
       if (range_suffixid.first != range_suffixid.second)
         nGramMatches.register_suffix_range_match(range_suffixid.first,
                                                  range_suffixid.second,
-                                                 p_length);
+                                                 p_length,
+                                                 edit_costs);
     }
 
     for (size_t it=0; it < p_length; it++)
@@ -501,10 +502,12 @@ namespace fuzzy
             /* register (n-1) grams */
             nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
                                                      range_suffixid.first,
-                                                     subseq_length - 1);
+                                                     subseq_length - 1,
+                                                     edit_costs);
             nGramMatches.register_suffix_range_match(range_suffixid.second,
                                                      previous_range_suffixid.second,
-                                                     subseq_length - 1);
+                                                     subseq_length - 1,
+                                                     edit_costs);
           }
 
           previous_range_suffixid = std::move(range_suffixid);
@@ -518,7 +521,8 @@ namespace fuzzy
       if (subseq_length >= 2)
         nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
                                                  previous_range_suffixid.second,
-                                                 subseq_length);
+                                                 subseq_length,
+                                                 edit_costs);
     }
 
     /* Consolidation of the results */
@@ -541,9 +545,6 @@ namespace fuzzy
     for (const auto& pair : nGramMatches.get_longest_matches())
     {
       const auto s_id = pair.first;
-#ifdef DEBUG
-      std::cerr << "#" << s_id << std::endl;
-#endif
       const auto longest_match = pair.second;
       size_t s_length = 0;
       const auto* sentence_wids = _suffixArrayIndex->get_SuffixArray().get_sentence(s_id, &s_length);
@@ -552,7 +553,8 @@ namespace fuzzy
                                       : p_length);
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
+      // if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
+      if (!nGramMatches.theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
       {
         const Costs costs(p_length, s_length, edit_costs);
 
@@ -565,11 +567,8 @@ namespace fuzzy
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
                                     edit_costs,
                                     costs, cost_upper_bound);
-#ifdef DEBUG
-        std::cout << "cost=" << cost << "+" << s_idf_penalty << "/" << O.max << std::endl;
-#endif
 
-        if ((no_perfect && cost == 0) || cost > cost_upper_bound)
+        if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
           continue;
 
         float score = int(10000-cost*100)/10000.0;
@@ -592,8 +591,8 @@ namespace fuzzy
     while (!result.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
     {
       auto match = result.top();
-#ifdef DEBUG
-      std::cout << match.score << "\t" << alignment.second << "\t"
+#ifdef XDEBUG
+      std::cout << match.score << "\t"
                 << match.id << std::endl;
 #endif
 

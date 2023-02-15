@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <fuzzy/costs.hh>
 #include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/fuzzy_matcher_binarization.hh>
 #include <iostream>
@@ -291,7 +292,7 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
                         /*number_of_matches=*/1,
                         matches,
                         /*min_subseq_length=*/3);
-    EXPECT_EQ(matches.size(), 0);
+    EXPECT_EQ(matches.size(), 0); // no match since "three kind words" not in TM, because max token in patterns set to 2
 
     fuzzy_matcher.match({"two", "words"},
                         /*fuzzy=*/1,
@@ -331,6 +332,46 @@ TEST(FuzzyMatchTest, nfc_normalization) {
                         matches,
                         /*min_subseq_length=*/1);
     EXPECT_EQ(matches.size(), 1);
+  }
+}
+
+TEST(FuzzyMatchTest, lcs_cost) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c");
+    fuzzy_matcher.add_tm("", "a b c d e x x x");
+    fuzzy_matcher.add_tm("", "x x a b c d e f x x x x x");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
+
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/3,
+                        /*min_subseq_ratio=*/0.5,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
+
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 2);
+      EXPECT_NEAR(matches[0].score, 1.f, 1e-3);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 1);
+      EXPECT_NEAR(matches[1].score, 5/6.f, 1e-3);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 0); 
+      EXPECT_NEAR(matches[2].score, 1/2.f, 1e-3);
+    }
   }
 }
 

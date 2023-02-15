@@ -46,7 +46,7 @@ namespace fuzzy
       float min = std::numeric_limits<float>::max();
       for (int j = 1; j < n2 + 1; j++)
       {
-        int diff = 0;
+        float diff = 0;
         float penalty_j1 = 0;
         if (idf_weight)
           penalty_j1 = idf_penalty[j-1] * idf_weight;
@@ -56,14 +56,13 @@ namespace fuzzy
         else if (real1tok[i-1] != real2tok[j-1]) {
           /* is difference only a case difference */
           if (strchr("LUMC", real1tok[i-1][0]))
-            diff = costs.diff_case;
+            diff = edit_costs._replace * costs.diff_case;
           else {
-            diff = costs.diff_real;
+            diff = edit_costs._replace * costs.diff_real;
           }
         }
 
         cost_tag[i][j] = _edit_distance_char(st1[i], sn1[i], st2[j], sn2[j]);
-
         const auto distance = std::min(
           {
             arr[i - 1][j] + edit_costs._delete * costs.diff_word + cost_tag[i - 1][j],
@@ -77,7 +76,7 @@ namespace fuzzy
       if (min > max_fuzzyness)
         return min;
     }
-#ifdef DEBUG
+#ifdef XDEBUG
     std::cerr << "---\n";
     for(int i = 0; i < n1 + 1; i++)
     {

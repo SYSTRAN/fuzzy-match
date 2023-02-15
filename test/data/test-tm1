@@ -9,8 +9,8 @@ PERFECT2	aa bb bb aa cc dd	1	false	5	1	2=aa bb bb aa cc dd
 
 # simple fuzzies
 FUZZY1	aa bb cc	1	false	5
-FUZZY2	aa bb cc	0.7	false	5
-FUZZY3	aa bb cc	0.6	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee	0.74	3=aa ｟it｠ bb cc dd
+FUZZY2	aa bb cc	0.7	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee	0.74	3=aa ｟it｠ bb cc dd
+FUZZY3	aa bb cc	0.6	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee	0.74	3=aa ｟it｠ bb cc dd	0.60	6=aa bb cc dd.	0.60	7=aa bb cc dd .
 FUZZY4	aa bb aa cc dd	0.75	false	5	0.83	2=aa bb bb aa cc dd	0.8	1=aa bb cc dd	0.79	3=aa ｟it｠ bb cc dd
 FUZZY5	aa bb cc ff	0.75	false	5	0.75	1=aa bb cc dd	0.75	5=aa bb cc ee
 
