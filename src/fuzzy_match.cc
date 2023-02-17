@@ -383,6 +383,7 @@ namespace fuzzy
                          unsigned number_of_matches,
                          bool no_perfect,
                          std::vector<Match>& matches,
+                         float contrastive_factor,
                          int min_subseq_length,
                          float min_subseq_ratio,
                          float vocab_idf_penalty,
@@ -392,7 +393,7 @@ namespace fuzzy
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
   }
 
   /* backward compatibility */
@@ -401,6 +402,7 @@ namespace fuzzy
                     float fuzzy,
                     unsigned number_of_matches,
                     std::vector<Match>& matches,
+                    float contrastive_factor,
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
@@ -408,7 +410,7 @@ namespace fuzzy
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -419,6 +421,7 @@ namespace fuzzy
                     unsigned number_of_matches,
                     bool no_perfect,
                     std::vector<Match>& matches,
+                    float contrastive_factor,
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,

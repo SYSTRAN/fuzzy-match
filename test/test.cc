@@ -291,6 +291,7 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
                         /*fuzzy=*/1,
                         /*number_of_matches=*/1,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/3);
     EXPECT_EQ(matches.size(), 0); // no match since "three kind words" not in TM, because max token in patterns set to 2
 
@@ -298,6 +299,7 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
                         /*fuzzy=*/1,
                         /*number_of_matches=*/1,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/2);
     EXPECT_EQ(matches.size(), 1);
   }
@@ -319,6 +321,7 @@ TEST(FuzzyMatchTest, nfc_normalization) {
                         /*number_of_matches=*/1,
                         /*no_perfect=*/false,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/1);
     EXPECT_EQ(matches.size(), 1);
   }
@@ -330,6 +333,7 @@ TEST(FuzzyMatchTest, nfc_normalization) {
                         /*number_of_matches=*/1,
                         /*no_perfect=*/false,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/1);
     EXPECT_EQ(matches.size(), 1);
   }
@@ -354,6 +358,7 @@ TEST(FuzzyMatchTest, lcs_cost) {
                         /*fuzzy=*/0,
                         /*number_of_matches=*/10,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/3,
                         /*min_subseq_ratio=*/0.5,
                         /*vocab_idf_penalty=*/0,
@@ -393,6 +398,7 @@ TEST(FuzzyMatchTest, pre_reject) {
                         /*fuzzy=*/0.5,
                         /*number_of_matches=*/10,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
@@ -409,6 +415,7 @@ TEST(FuzzyMatchTest, pre_reject) {
                         /*fuzzy=*/0.5,
                         /*number_of_matches=*/10,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
@@ -438,6 +445,7 @@ TEST(FuzzyMatchTest, idf_weight_1) {
                         /*fuzzy=*/0.,
                         /*number_of_matches=*/10,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/1,
@@ -472,6 +480,7 @@ TEST(FuzzyMatchTest, idf_weight_2) {
                         /*fuzzy=*/0.,
                         /*number_of_matches=*/10,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/1,
@@ -493,6 +502,7 @@ TEST(FuzzyMatchTest, idf_weight_2) {
                         /*fuzzy=*/0.,
                         /*number_of_matches=*/10,
                         matches,
+                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/1,
