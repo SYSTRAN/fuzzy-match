@@ -390,13 +390,14 @@ namespace fuzzy
                          int min_subseq_length,
                          float min_subseq_ratio,
                          float vocab_idf_penalty,
-                         const EditCosts& edit_costs) const {
+                         const EditCosts& edit_costs,
+                         ContrastReduce reduce) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce);
   }
 
   /* backward compatibility */
@@ -409,11 +410,12 @@ namespace fuzzy
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
-                    const EditCosts& edit_costs) const
+                    const EditCosts& edit_costs,
+                    ContrastReduce reduce) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -428,7 +430,8 @@ namespace fuzzy
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
-                    const EditCosts& edit_costs) const
+                    const EditCosts& edit_costs,
+                    ContrastReduce reduce) const
   {
     size_t p_length = pattern.size();
 
@@ -605,6 +608,7 @@ namespace fuzzy
       auto comp = [contrastive_factor](const Match& m1, const Match& m2) {
           return (m1.score - contrastive_factor * m1.penalty) < (m2.score - contrastive_factor * m2.penalty);
       };
+      /* for memoization optimization */
       std::unordered_map<std::pair<int, int>, float, PairHasher> edit_cost_memory;
       while (!candidates.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
       {
@@ -634,7 +638,7 @@ namespace fuzzy
           }
           if (!penalties.empty())
           {
-            if (false)
+            if (reduce == ContrastReduce::MAX)
             { // max
               match.penalty = *std::max_element(penalties.cbegin(), penalties.cend());
             } else
