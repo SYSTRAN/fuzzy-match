@@ -89,7 +89,7 @@ TEST87	I have been informed by the competent Slovak authorities that Jozef Herib
 TEST88	The next item is the vote .	0.5	true	2	0.720000029	11669=Nous passons à l ' heure des questions .	0.667699993	42=Nous passons à l ' ordre des travaux .
 TEST89	( Parliament adopted the text )	0.5	true	2	0.839999974	2258=( Le Parlement adopte la résolution )	0.839999974	2276=( Le Parlement adopte la résolution )
 TEST90	President .	0.5	true	2	
-TEST91	That concludes the vote .	0.5	true	2	0.800000012	19462=Le débat est clos .	0.600000024	1283=L ' ordre du jour appelle la discussion commune sur les rapports suivants :
+TEST91	That concludes the vote .	0.5	true	2	0.800000012	19462=Le débat est clos .
 TEST92	The von Wogau report therefore proposes regulating arms exports and making them more ethical .	0.5	true	2	
 TEST93	One might as well try to make murder , plunder or abduction more ethical .	0.5	true	2	
 TEST94	The simple fact that the great powers are wasting enormous sums of money on weapons of mass destruction shows that the present organisation of society is barbaric .	0.5	true	2	

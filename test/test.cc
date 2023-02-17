@@ -53,7 +53,7 @@ static void tests_matches(fuzzy::FuzzyMatch &fm, const std::string &testfile,
     bool non_perfect = boost::lexical_cast<bool>(split_test[3]);
     int nmatches = boost::lexical_cast<int>(split_test[4]);
     std::vector<fuzzy::FuzzyMatch::Match> matches;
-    fm.match(pattern, fuzzy, nmatches, non_perfect, matches,
+    fm.match(pattern, fuzzy, nmatches, non_perfect, matches, 0,
              min_subseq_length, min_subseq_ratio);
     /* check exact number of matches */
     size_t match_expected = (split_test.size()-5)/2;
@@ -234,7 +234,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length > pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].s_id, 0);
   }
@@ -245,7 +245,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length > pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].s_id, 1);
   }
@@ -256,7 +256,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length == pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].s_id, 2);
   }
@@ -514,6 +514,47 @@ TEST(FuzzyMatchTest, idf_weight_2) {
     EXPECT_TRUE(matches[0].score > matches[1].score);
     EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
     EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
+  }
+}
+
+TEST(FuzzyMatchTest, contrastive) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c d");
+    fuzzy_matcher.add_tm("", "b c d");
+    fuzzy_matcher.add_tm("", "d e f");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
+
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*contrastive factor*/1.,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
+
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 0);
+      EXPECT_NEAR(matches[0].score, 2/3.f, 1e-3);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 2);
+      EXPECT_NEAR(matches[1].score, 1/2.f, 1e-3);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 1); 
+      EXPECT_NEAR(matches[2].score, 1/8.f, 1e-3);
+    }
   }
 }
 

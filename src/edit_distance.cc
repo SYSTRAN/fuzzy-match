@@ -87,4 +87,57 @@ namespace fuzzy
 #endif
     return arr[n1][n2];
   }
+  float
+  _edit_distance_internal(const unsigned* s1, int n1,
+                          const unsigned* s2, int n2,
+                          const EditCosts& edit_costs,
+                          const Costs& costs,
+                          float max_fuzzyness)
+  {
+    boost::multi_array<float, 2> arr(boost::extents[n1+1][n2+1]);
+
+    for (int i = 1; i < n1 + 1; i++) {
+      /* initialize distance source side (real1) */
+      arr[i][0] = arr[i-1][0] + costs.diff_word * edit_costs._delete;
+    }
+    for (int j = 1; j < n2 + 1; j++) {
+      /* initialize distance target side (real2tok) */
+      arr[0][j] = arr[0][j-1] + costs.diff_word * edit_costs._insert;
+    }
+
+    for (int i = 1; i < n1 + 1; i++)
+    {
+      float min = std::numeric_limits<float>::max();
+      for (int j = 1; j < n2 + 1; j++)
+      {
+        float diff = 0;
+
+        if (s1[i-1] != s2[j-1]) {
+          diff = edit_costs._replace * costs.diff_word;
+        }
+
+        const auto distance = std::min(
+          {
+            arr[i - 1][j] + edit_costs._delete * costs.diff_word,
+            arr[i][j - 1] + edit_costs._insert * costs.diff_word,
+            arr[i - 1][j - 1] + diff
+          });
+
+        arr[i][j] = distance;
+        min = std::min(min, distance);
+      }
+      if (min > max_fuzzyness)
+        return min;
+    }
+#ifdef XDEBUG
+    std::cerr << "---\n";
+    for(int i = 0; i < n1 + 1; i++)
+    {
+      for (int j = 0; j < n2 + 1; j++)
+        std::cerr << boost::format("%.2f\t") % arr[i][j];
+      std::cerr << "\n";
+    }
+#endif
+    return arr[n1][n2];
+  }
 }
