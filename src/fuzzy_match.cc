@@ -592,68 +592,48 @@ namespace fuzzy
         }
       }
     }
-    // if (false)
-    if (contrastive_factor > 0) 
+    /* Contrastive reranking */
+    if (contrastive_factor > 0)
     {
-      // std::cerr << "---------------> " << contrastive_factor << std::endl;
-      // std::priority_queue<Match, std::vector<Match>, CompareMatch> rescored_result = result;
-      // if (!result.empty())
-      // {
-      //   auto match = result.top();
-      //   matches.push_back(match);
-      //   result.pop();
-      //   std::cerr << "#";
-      //   std::cerr << match.s_id << " >>> ";
-      //   for (int i = 0; i < match.length; i++)
-      //     std::cerr << match.s[i] << " ";
-      //   std::cerr << std::endl;
-      // }
       std::list<Match> candidates;
       while (!result.empty())
       {
         auto match = result.top();
         candidates.push_back(match);
         result.pop();
-        // std::cerr << "#";
-        // std::cerr << match.s_id << ": ";
-        // for (int i = 0; i < match.length; i++)
-        //   std::cerr << match.s[i] << " ";
-        // std::cerr << std::endl;
       }
       auto comp = [contrastive_factor](const Match& m1, const Match& m2) {
-          // std::cerr << "++++++++" << m1.s_id << " comp " << m2.s_id << std::endl;
-          // std::cerr << "        " << (m1.score) << " vs " << (m2.score) << std::endl;
-          // std::cerr << "        " << (m1.penalty) << " vs " << (m2.penalty) << std::endl;
-          // std::cerr << "        " << (m1.score - contrastive_factor * m1.penalty) << " vs " << (m2.score - contrastive_factor * m2.penalty) << std::endl;
           return (m1.score - contrastive_factor * m1.penalty) < (m2.score - contrastive_factor * m2.penalty);
       };
+      std::unordered_map<std::pair<int, int>, float, PairHasher> edit_cost_memory;
       while (!candidates.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
       {
-        // result of type: std::priority_queue<Match, std::vector<Match>, CompareMatch>
         EditCosts internal_edit_cost = EditCosts();
-        // rescore
+        // rescore penalties of candidates
         for (Match &match : candidates)
         {
           std::vector<float> penalties;
           for (Match &match_memory : matches)
           {
-            const Costs costs(match.length, match_memory.length, edit_costs);
-            // std::cerr << match.s_id << " vs " << match_memory.s_id << std::endl;            
-            float penalty = _edit_distance_internal(
-              match.s, match.length,
-              match_memory.s, match_memory.length,
-              internal_edit_cost,
-              costs
-            );
-            penalty = int(10000-penalty*100)/10000.0;
-            // std::cerr << "  penalty=" << penalty << std::endl;
+            auto it = edit_cost_memory.find({match.s_id, match_memory.s_id});
+            float penalty;
+            if (it != edit_cost_memory.end()) {
+              penalty = it->second;
+            } else {
+              const Costs costs(match.length, match_memory.length, internal_edit_cost);
+              penalty = _edit_distance_internal(
+                match.s, match.length,
+                match_memory.s, match_memory.length,
+                internal_edit_cost,
+                costs
+              );
+              edit_cost_memory.insert({{match.s_id, match_memory.s_id}, penalty});
+            }
+            penalty = int(10000 - penalty * 100) / 10000.0;
             penalties.push_back(penalty);
           }
-          // for (const float &x : penalties)
-          //   std::cerr << "$ " << x;
           if (!penalties.empty())
           {
-            // std::cerr << std::endl;
             if (false)
             { // max
               match.penalty = *std::max_element(penalties.cbegin(), penalties.cend());
@@ -661,12 +641,10 @@ namespace fuzzy
             { // mean
               match.penalty = std::accumulate(penalties.cbegin(), penalties.cend(), 0.f) / penalties.size();
             }
-            // std::cerr << "@@@ " << match.penalty << std::endl;
           }
         }
         auto it_max = std::max_element(candidates.begin(), candidates.end(), comp);
         candidates.erase(it_max);
-        // std::cerr << it_max->s_id << " >>> " << contrastive_factor << " * " << it_max->penalty << std::endl;
         it_max->score -= contrastive_factor * it_max->penalty;
         matches.push_back(*it_max);
       }

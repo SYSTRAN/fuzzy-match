@@ -6,6 +6,8 @@
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
 #include <utility>
+#include <functional>
+#include <unordered_map>
 
 namespace onmt {
   class Tokenizer;
@@ -13,6 +15,13 @@ namespace onmt {
 
 namespace fuzzy
 {
+  struct PairHasher {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+      std::size_t h1 = std::hash<int>()(p.first);
+      std::size_t h2 = std::hash<int>()(p.second);
+      return h1 ^ (h2 << 1);
+    }
+  };
   class FuzzyMatch
   {
   public:
