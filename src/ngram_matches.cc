@@ -46,9 +46,9 @@ namespace fuzzy
     float theoretical_bound = 1.f - remaining_cost * sizeDifference / Costs::get_normalizer(p_length, s_length, edit_costs);
     
     // bool old_test = sizeDifference > max_differences_with_pattern;
-    bool new_test = theoretical_bound + 0.000005 < fuzzy_threshold;
+    // bool new_test = theoretical_bound + 0.000005 < fuzzy_threshold;
 
-    return new_test;
+    // return new_test;
     return theoretical_bound + 0.000005 < fuzzy_threshold;
   }
 
