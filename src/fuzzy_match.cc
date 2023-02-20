@@ -391,13 +391,14 @@ namespace fuzzy
                          float min_subseq_ratio,
                          float vocab_idf_penalty,
                          const EditCosts& edit_costs,
-                         ContrastReduce reduce) const {
+                         ContrastReduce reduce,
+                         int contrast_buffer) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer);
   }
 
   /* backward compatibility */
@@ -411,11 +412,12 @@ namespace fuzzy
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
                     const EditCosts& edit_costs,
-                    ContrastReduce reduce) const
+                    ContrastReduce reduce,
+                    int contrast_buffer) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -431,9 +433,12 @@ namespace fuzzy
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
                     const EditCosts& edit_costs,
-                    ContrastReduce reduce) const
+                    ContrastReduce reduce,
+                    int contrast_buffer) const
   {
     size_t p_length = pattern.size();
+    if (contrast_buffer == -1)
+      contrast_buffer = number_of_matches;
 
     // performance guard
     if (p_length > max_tokens_in_pattern())
@@ -583,7 +588,7 @@ namespace fuzzy
         float score = int(10000-cost*100)/10000.0;
 
         lowest_costs.push(cost);
-        if (score < fuzzy || (number_of_matches > 0 && lowest_costs.size() > number_of_matches))
+        if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > contrast_buffer))
           lowest_costs.pop();
         if (score >= fuzzy) {
           Match m = Match(sentence_wids, s_length);
@@ -648,10 +653,11 @@ namespace fuzzy
           }
         }
         auto it_max = std::max_element(candidates.begin(), candidates.end(), comp);
-        candidates.erase(it_max);
-        it_max->score -= contrastive_factor * it_max->penalty;
         matches.push_back(*it_max);
+        candidates.erase(it_max);
+        // it_max->score -= contrastive_factor * it_max->penalty;
       }
+      return matches.size();
     }
     else 
     {

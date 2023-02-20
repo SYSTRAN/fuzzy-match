@@ -198,7 +198,8 @@ public:
             int min_subseq_length, float min_subseq_ratio,
             float idf_penalty, bool subseq_idf_weighting,
             size_t max_tokens_in_pattern, fuzzy::EditCosts edit_cost,
-            std::string contrastive_reduce_str):
+            std::string contrastive_reduce_str,
+            int contrastive_buffer):
              _fuzzyMatcher(pt, max_tokens_in_pattern),
              _fuzzy(fuzzy),
              _contrastive_factor(contrastive_factor),
@@ -208,7 +209,8 @@ public:
              _min_subseq_ratio(min_subseq_ratio),
              _idf_penalty(idf_penalty),
              _subseq_idf_weighting(subseq_idf_weighting),
-             _cost(edit_cost) {
+             _cost(edit_cost),
+             _contrastive_buffer(contrastive_buffer) {
     if (contrastive_reduce_str == "max")
       _contrastive_reduce = fuzzy::ContrastReduce::MAX;
     else
@@ -219,7 +221,7 @@ public:
 
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
                         _contrastive_factor, _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost,
-                        _contrastive_reduce);
+                        _contrastive_reduce, _contrastive_buffer);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -278,6 +280,7 @@ private:
   fuzzy::EditCosts _cost;
   bool _subseq_idf_weighting;
   fuzzy::ContrastReduce _contrastive_reduce;
+  int _contrastive_buffer;
 };
 
 int main(int argc, char** argv)
@@ -310,6 +313,7 @@ int main(int argc, char** argv)
   int nmatch;
   int nthreads;
   int min_subseq_length;
+  int contrastive_buffer;
   float min_subseq_ratio;
   size_t max_tokens_in_pattern;
   fuzzyOptions.add_options()
@@ -337,8 +341,9 @@ int main(int argc, char** argv)
     ("replace-cost", po::value(&replace_cost)->default_value(1), "custom cost for replace in edit distance")
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
     ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
-    ("contrast", po::value(&contrastive_factor)->default_value(0), "Contrastive factor for contrastive fuzzy retrieval")
+    ("contrast", po::value(&contrastive_factor)->default_value(0.f), "Contrastive factor for contrastive fuzzy retrieval")
     ("contrast-reduce", po::value(&contrastive_reduce)->default_value("mean"), "Contrastive factor for contrastive fuzzy retrieval")
+    ("contrast-buffer", po::value(&contrastive_buffer)->default_value(-1), "number of fuzzy matches to place in the buffer")    
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 
@@ -412,7 +417,7 @@ int main(int argc, char** argv)
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,
               max_tokens_in_pattern, edit_cost,
-              contrastive_reduce);
+              contrastive_reduce, contrastive_buffer);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);
