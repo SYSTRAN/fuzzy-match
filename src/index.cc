@@ -1,4 +1,4 @@
-#include <fuzzy/filter_index.hh>
+#include <fuzzy/index.hh>
 
 namespace fuzzy
 {

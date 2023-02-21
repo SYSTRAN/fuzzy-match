@@ -62,4 +62,4 @@ namespace fuzzy
   };
 }
 
-#include <fuzzy/filter_index.hxx>
+#include <fuzzy/index.hxx>

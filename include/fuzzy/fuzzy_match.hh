@@ -2,7 +2,7 @@
 
 #include <boost/serialization/vector.hpp>
 
-#include <fuzzy/filter_index.hh>
+#include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
 #include <utility>

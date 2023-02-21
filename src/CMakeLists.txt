@@ -9,7 +9,7 @@ set(FUZZY_SOURCES
   edit_distance.cc
   pattern_coverage.cc
   filter.cc
-  filter_index.cc
+  index.cc
 )
 if(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
