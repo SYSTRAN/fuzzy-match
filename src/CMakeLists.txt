@@ -1,13 +1,15 @@
 set(FUZZY_SOURCES
   fuzzy_match.cc
   ngram_matches.cc
-  suffix_array_index.cc
   vocab_indexer.cc
   suffix_array.cc
+  bm25.cc
   sentence.cc
   fuzzy_matcher_binarization.cc
   edit_distance.cc
   pattern_coverage.cc
+  filter.cc
+  filter_index.cc
 )
 if(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)

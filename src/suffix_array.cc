@@ -26,35 +26,6 @@ namespace fuzzy
     return sidx;
   }
 
-#ifndef NDEBUG
-  std::ostream&
-  SuffixArray::dump(std::ostream& os)const
-  {
-    os << "   ===text===" << std::endl;
-
-    for (size_t i = 0; i < _sentence_pos.size(); i++)
-    {
-      size_t idx = _sentence_pos[i];
-      for (size_t j = 0; _sentence_buffer[j+idx]; j++)
-        os << _sentence_buffer[j+idx] << " ";
-      os << std::endl;
-    }
-
-    os << "   ===suffixes===" << std::endl;
-
-    for (size_t i = 0; i < _suffixes.size(); i++)
-    {
-      os << i << "(" << _suffixes[i].sentence_id << "/" << _suffixes[i].subsentence_pos << "):: ";
-      size_t idx = _sentence_pos[_suffixes[i].sentence_id];
-      for (size_t j = _suffixes[i].subsentence_pos; _sentence_buffer[idx+j]; j++)
-        os << _sentence_buffer[idx+j] << " ";
-      os << std::endl;
-    }
-
-    return os;
-  }
-#endif
-
   void
   SuffixArray::sort(size_t vocab_size)
   {
