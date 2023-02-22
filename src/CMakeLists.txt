@@ -1,6 +1,8 @@
 set(FUZZY_SOURCES
   fuzzy_match.cc
+  filter_matches.cc
   ngram_matches.cc
+  bm25_matches.cc
   vocab_indexer.cc
   suffix_array.cc
   bm25.cc
