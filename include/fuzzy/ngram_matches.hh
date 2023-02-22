@@ -40,8 +40,6 @@ namespace fuzzy
     std::vector<std::pair<unsigned, unsigned>> get_longest_matches() const;
 
     float fuzzy_threshold;
-    // unsigned max_differences_with_pattern;
-    unsigned min_exact_match; // Any suffix without an subsequence of at least this with the pattern won't be accepted later
 
   private:
     unsigned _p_length;

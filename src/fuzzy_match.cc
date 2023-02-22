@@ -567,7 +567,6 @@ namespace fuzzy
                                       : p_length);
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      // if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
       if (!nGramMatches.theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
       {
         const Costs costs(p_length, s_length, edit_costs);
