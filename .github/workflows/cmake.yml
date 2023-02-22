@@ -27,26 +27,19 @@ jobs:
 
     - name: Configure CMake
       shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build }}
+      run: cmake . -DCMAKE_BUILD_TYPE=${{ matrix.build }}
 
     - name: Build
-      working-directory: ${{runner.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config ${{ matrix.build }}
 
-    - name: Downloading test data
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: git clone https://github.com/SYSTRAN/fuzzy-match
-
     - name: Building test indexes
-      working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ./cli/src/FuzzyMatch-cli -c fuzzy-match/test/data/tm1,fuzzy-match/test/data/tm1 --add-target 1 && ./cli/src/FuzzyMatch-cli -c fuzzy-match/test/data/tm1,fuzzy-match/test/data/tm1 --add-target 1 && ./cli/src/FuzzyMatch-cli -c fuzzy-match/test/data/tm2.en.gz,fuzzy-match/test/data/tm2.fr.gz --add-target
+      run: |
+        ./cli/src/FuzzyMatch-cli -c test/data/tm1,test/data/tm1 --add-target 1
+        ./cli/src/FuzzyMatch-cli -c test/data/tm2.en.gz,test/data/tm2.fr.gz --add-target
 
     - name: Test
-      working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ./test/FuzzyMatch-test fuzzy-match/test/data/
+      run: ./test/FuzzyMatch-test test/data/
