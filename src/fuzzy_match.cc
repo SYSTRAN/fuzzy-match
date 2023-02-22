@@ -473,79 +473,87 @@ namespace fuzzy
 
     const Filter& filter = _filterIndex->get_Filter();
     const SuffixArray& suffix_array = dynamic_cast<const SuffixArray&>(filter);
-    // assert(_filter->_suffixes.empty() || _filter->_sorted);
-    NGramMatches nGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
+    FilterType filter_type = FilterType::SUFFIX;
+    FilterMatches* filter_matches;
+    if (filter_type == FilterType::SUFFIX) {
+      filter_matches = new NGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
+      NGramMatches& nGramMatches = static_cast<NGramMatches&>(*filter_matches);
 
-    if (p_length == 1)
-    {
-      std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data(), p_length);
-
-      if (range_suffixid.first != range_suffixid.second)
-        nGramMatches.register_suffix_range_match(range_suffixid.first,
-                                                 range_suffixid.second,
-                                                 p_length,
-                                                 edit_costs);
-    }
-
-    for (size_t it=0; it < p_length; it++)
-    {
-      std::pair<size_t, size_t> previous_range_suffixid(0, 0);
-      size_t subseq_length = 0;
-
-      for (size_t jt = it; jt < p_length; jt++)
+      if (p_length == 1)
       {
-        ++subseq_length;
-        /*
-          the set of solution will be a decreasing range
-          pos-i     ngram
-          pos-i+1   ngram
-          pos-i+2   ngram   (n+1)gram
-          pos-i+3   ngram   (n+1)gram   (n+2)gram
-          pos-i+4   ngram   (n+1)gram
-          pos-i+5   ngram
-
-          and we will only keep the matches:
-          pos-i     ngram
-          pos-i+1   ngram
-          pos-i+2   (n+1)gram
-          pos-i+3   (n+2)gram
-          pos-i+4   (n+1)gram
-          pos-i+5   ngram
-        */
-        std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data() + it, subseq_length, previous_range_suffixid.first, previous_range_suffixid.second);
-
+        std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data(), p_length);
 
         if (range_suffixid.first != range_suffixid.second)
-        {
-          /* do not register unigrams - yet */
-          if (subseq_length > 2)
-          {
-            /* register (n-1) grams */
-            nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
-                                                     range_suffixid.first,
-                                                     subseq_length - 1,
-                                                     edit_costs);
-            nGramMatches.register_suffix_range_match(range_suffixid.second,
-                                                     previous_range_suffixid.second,
-                                                     subseq_length - 1,
-                                                     edit_costs);
-          }
-
-          previous_range_suffixid = std::move(range_suffixid);
-        }
-        else
-        {
-          --subseq_length;
-          break;
-        }
+          nGramMatches.register_suffix_range_match(range_suffixid.first,
+                                                  range_suffixid.second,
+                                                  p_length,
+                                                  edit_costs);
       }
-      if (subseq_length >= 2)
-        nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
-                                                 previous_range_suffixid.second,
-                                                 subseq_length,
-                                                 edit_costs);
-    }
 
+      for (size_t it=0; it < p_length; it++)
+      {
+        std::pair<size_t, size_t> previous_range_suffixid(0, 0);
+        size_t subseq_length = 0;
+
+        for (size_t jt = it; jt < p_length; jt++)
+        {
+          ++subseq_length;
+          /*
+            the set of solution will be a decreasing range
+            pos-i     ngram
+            pos-i+1   ngram
+            pos-i+2   ngram   (n+1)gram
+            pos-i+3   ngram   (n+1)gram   (n+2)gram
+            pos-i+4   ngram   (n+1)gram
+            pos-i+5   ngram
+
+            and we will only keep the matches:
+            pos-i     ngram
+            pos-i+1   ngram
+            pos-i+2   (n+1)gram
+            pos-i+3   (n+2)gram
+            pos-i+4   (n+1)gram
+            pos-i+5   ngram
+          */
+          std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data() + it, subseq_length, previous_range_suffixid.first, previous_range_suffixid.second);
+
+
+          if (range_suffixid.first != range_suffixid.second)
+          {
+            /* do not register unigrams - yet */
+            if (subseq_length > 2)
+            {
+              /* register (n-1) grams */
+              nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
+                                                      range_suffixid.first,
+                                                      subseq_length - 1,
+                                                      edit_costs);
+              nGramMatches.register_suffix_range_match(range_suffixid.second,
+                                                      previous_range_suffixid.second,
+                                                      subseq_length - 1,
+                                                      edit_costs);
+            }
+
+            previous_range_suffixid = std::move(range_suffixid);
+          }
+          else
+          {
+            --subseq_length;
+            break;
+          }
+        }
+        if (subseq_length >= 2)
+          nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
+                                                  previous_range_suffixid.second,
+                                                  subseq_length,
+                                                  edit_costs);
+      }
+      filter_matches = &nGramMatches;
+    }
+    else if (filter_type == FilterType::BM25)
+    {
+      // TODO
+    }
     /* Consolidation of the results */
 
     /* now explore for the best segments */
@@ -563,7 +571,7 @@ namespace fuzzy
     std::priority_queue<float> lowest_costs;
     lowest_costs.push(std::numeric_limits<float>::max());
 
-    for (const auto& pair : nGramMatches.get_longest_matches())
+    for (const auto& pair : filter_matches->get_longest_matches())
     {
       const auto s_id = pair.first;
       const auto longest_match = pair.second;
@@ -574,8 +582,7 @@ namespace fuzzy
                                       : p_length);
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      // if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
-      if (!nGramMatches.theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
+      if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
       {
         const Costs costs(p_length, s_length, edit_costs);
 
@@ -607,6 +614,7 @@ namespace fuzzy
         }
       }
     }
+    delete[] filter_matches;
     /* Contrastive reranking */
     if (contrastive_factor > 0)
     {

@@ -39,14 +39,6 @@ namespace fuzzy
     std::vector<unsigned short> _sentence_length;
 
     friend class boost::serialization::access;
-
-    // template<class Archive>
-    // void save(Archive&, unsigned int version) const;
-
-    // template<class Archive>
-    // void load(Archive&, unsigned int version);
-
-    // BOOST_SERIALIZATION_SPLIT_MEMBER()
   };
 }
 

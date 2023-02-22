@@ -23,46 +23,4 @@ namespace fuzzy
   {
     return _sentence_length[suffix_id];
   }
-
-
-  // template<class Archive>
-  // void Filter::save(Archive& archive, unsigned int) const
-  // {
-  //   archive
-  //   & _sorted
-  //   & _suffixes
-  //   & _sentence_buffer
-  //   & _sentence_pos
-  //   & _quickVocabAccess;
-  // }
-
-  // template<class Archive>
-  // void Filter::load(Archive& archive, unsigned int version)
-  // {
-  //     archive & _sorted;
-  // //   if (version == 1)
-  // //   {
-  // //     archive
-  // //     & _sorted
-  // //     & _suffixes
-  // //     & _sentence_buffer
-  // //     & _sentence_pos
-  // //     & _quickVocabAccess;
-  // //   }
-  // //   else if (version == 0) // Old format using std::pair
-  // //   {
-  // //     std::vector<std::pair<unsigned, unsigned short>> suffixes;
-
-  // //     archive
-  // //     & _sorted
-  // //     & _suffixes
-  // //     & _sentence_buffer
-  // //     & _sentence_pos
-  // //     & _quickVocabAccess;
-  // //   }
-  // //   else
-  // //     throw std::invalid_argument("Unsupported FMI format");
-
-  // //   compute_sentence_length();
-  // }
 }

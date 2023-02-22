@@ -16,6 +16,7 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
+  enum class FilterType { SUFFIX, BM25 };
   struct PairHasher {
     std::size_t operator()(const std::pair<int, int>& p) const {
       std::size_t h1 = std::hash<int>()(p.first);

@@ -7,6 +7,8 @@
 
 #include <fuzzy/filter.hh>
 
+#include <boost/multi_array.hpp>
+#include <boost/format.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
@@ -30,25 +32,30 @@ namespace fuzzy
     size_t num_sentences() const;
 
     const unsigned* get_sentence(size_t sentence_id, size_t* length = nullptr) const;
-    // const unsigned* get_suffix(const SuffixView& p, size_t* length = nullptr) const;
-    // const SuffixView& get_suffix_view(size_t suffix_id) const;
     unsigned short get_sentence_length(size_t suffix_id) const;
 
-    /** range of suffixe starting with ngram; return an open range so the number of elemem is just reS.second-res.first **/
-    // std::pair<size_t, size_t> equal_range(const unsigned* ngram,
-    //                                       size_t length,
-    //                                       size_t min = 0,
-    //                                       size_t max = 0) const;
+    double bm25_score(unsigned term, unsigned s_id, double avg_doc_length);
+    double bm25_score(std::vector<unsigned> query, unsigned s_id);
+    void compute_bm25_cache();
 
-  protected:
-    // int comp(const SuffixView& a, const SuffixView& b) const;
+  private:
     void compute_sentence_length() override;
-    // int start_by(const SuffixView& p, const unsigned* ngram, size_t length) const;
-
+    
     bool _sorted = false;
 
-    // // ordered sequence of sentence id, pos in sentence
-    // std::vector<SuffixView>              _suffixes;
+    unsigned vocab_size;
+    // BM25 cache
+    boost::multi_array<unsigned, 2> _bm25;
+    // Term-Document frequency
+    boost::multi_array<unsigned, 2> _tf;
+    // IDF
+    std::vector<unsigned>& _idf;
+    // Total number of tokens
+    unsigned _num_tokens;
+    // BM25 usual parameters
+    float _k1;
+    float _b;
+    
 
     friend class boost::serialization::access;
 
