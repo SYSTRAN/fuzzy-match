@@ -38,34 +38,6 @@ namespace fuzzy
       pt_cas = 1 << 5,
     };
 
-    // struct SequenceInfo
-    // {
-    //   SequenceInfo(
-    //     const unsigned* s,
-    //     int length
-    //   ) : _s(s),
-    //       _length(length) {}
-    //   SequenceInfo() {}
-    //   SequenceInfo(const SequenceInfo& other)
-    //       : _s(other._s), _length(other._length) {
-    //     std::copy(other._s, other._s + other._length, _s);
-    //   }
-    //   SequenceInfo& operator=(const SequenceInfo& other) {
-    //     if (this != &other) {
-    //       _length = other._length;
-    //       delete[] _s;
-    //       _s = new unsigned[_length];
-    //       std::copy(other._s, other._s + other._length, _s);
-    //     }
-    //     return *this;
-    //   }
-    //   ~SequenceInfo() {
-    //     delete[] _s;
-    //   }
-    //   const unsigned* _s;
-    //   int _length;
-    // };
-
     struct Match
     {
       Match(
@@ -73,37 +45,11 @@ namespace fuzzy
         int length
       ) : length(length), s(seq) {}
       Match() {}
-      // ~Match() {
-      //   if (s_info != nullptr)
-      //     delete s_info;
-      // }
-      Match(const Match& other)
-          : score(other.score),
-            penalty(other.penalty),
-            max_subseq(other.max_subseq),
-            s_id(other.s_id),
-            id(other.id),
-            length(other.length),
-            s(other.s) {}
-
-      Match& operator=(const Match& other) {
-        if (this != &other) {
-          score = other.score;
-          penalty = other.penalty;
-          max_subseq = other.max_subseq;
-          s_id = other.s_id;
-          id = other.id;
-          s = other.s;
-          length = other.length;
-        }
-        return *this;
-      }
       float       score;
       float       penalty;
       int         max_subseq;
       unsigned    s_id;
       std::string id;
-      // SequenceInfo *s_info;
       int length;
       const unsigned* s;
     };
@@ -122,11 +68,11 @@ namespace fuzzy
                float fuzzy,
                unsigned number_of_matches,
                std::vector<Match> &matches,
-               float contrastive_factor=0,
                int min_subseq_length=2,
                float min_subseq_ratio=0,
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1) const;
     bool match(const Sentence& real,
@@ -135,11 +81,11 @@ namespace fuzzy
                unsigned number_of_matches,
                bool no_perfect,
                std::vector<Match>& matches,
-               float contrastive_factor=0,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1) const;
     /* simplified, include tokenization */
@@ -148,11 +94,11 @@ namespace fuzzy
                unsigned number_of_matches,
                bool no_perfect,
                std::vector<Match>& matches,
-               float contrastive_factor=0,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1) const;
     bool subsequence(const std::string &sentence,

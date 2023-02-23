@@ -53,7 +53,7 @@ static void tests_matches(fuzzy::FuzzyMatch &fm, const std::string &testfile,
     bool non_perfect = boost::lexical_cast<bool>(split_test[3]);
     int nmatches = boost::lexical_cast<int>(split_test[4]);
     std::vector<fuzzy::FuzzyMatch::Match> matches;
-    fm.match(pattern, fuzzy, nmatches, non_perfect, matches, 0,
+    fm.match(pattern, fuzzy, nmatches, non_perfect, matches,
              min_subseq_length, min_subseq_ratio);
     /* check exact number of matches */
     size_t match_expected = (split_test.size()-5)/2;
@@ -234,7 +234,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length > pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].s_id, 0);
   }
@@ -245,7 +245,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length > pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].s_id, 1);
   }
@@ -256,7 +256,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length == pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].s_id, 2);
   }
@@ -291,7 +291,6 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
                         /*fuzzy=*/1,
                         /*number_of_matches=*/1,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/3);
     EXPECT_EQ(matches.size(), 0); // no match since "three kind words" not in TM, because max token in patterns set to 2
 
@@ -299,7 +298,6 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
                         /*fuzzy=*/1,
                         /*number_of_matches=*/1,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/2);
     EXPECT_EQ(matches.size(), 1);
   }
@@ -321,7 +319,6 @@ TEST(FuzzyMatchTest, nfc_normalization) {
                         /*number_of_matches=*/1,
                         /*no_perfect=*/false,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/1);
     EXPECT_EQ(matches.size(), 1);
   }
@@ -333,7 +330,6 @@ TEST(FuzzyMatchTest, nfc_normalization) {
                         /*number_of_matches=*/1,
                         /*no_perfect=*/false,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/1);
     EXPECT_EQ(matches.size(), 1);
   }
@@ -358,7 +354,6 @@ TEST(FuzzyMatchTest, lcs_cost) {
                         /*fuzzy=*/0,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/3,
                         /*min_subseq_ratio=*/0.5,
                         /*vocab_idf_penalty=*/0,
@@ -398,7 +393,6 @@ TEST(FuzzyMatchTest, pre_reject) {
                         /*fuzzy=*/0.5,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
@@ -415,7 +409,6 @@ TEST(FuzzyMatchTest, pre_reject) {
                         /*fuzzy=*/0.5,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
@@ -445,7 +438,6 @@ TEST(FuzzyMatchTest, idf_weight_1) {
                         /*fuzzy=*/0.,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/1,
@@ -480,7 +472,6 @@ TEST(FuzzyMatchTest, idf_weight_2) {
                         /*fuzzy=*/0.,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/1,
@@ -502,7 +493,6 @@ TEST(FuzzyMatchTest, idf_weight_2) {
                         /*fuzzy=*/0.,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/1,
@@ -536,11 +526,11 @@ TEST(FuzzyMatchTest, contrastive_reduce_mean) {
                         /*fuzzy=*/0,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/1.,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
-                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
+                        /*contrastive factor=*/1.);
 
     EXPECT_EQ(matches.size(), 3);
     if (matches.size() >= 1) {
@@ -577,11 +567,11 @@ TEST(FuzzyMatchTest, contrastive_reduce_max) {
                         /*fuzzy=*/0,
                         /*number_of_matches=*/10,
                         matches,
-                        /*contrastive factor*/1.,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
+                        /*contrastive factor*/1.,
                         fuzzy::ContrastReduce::MAX);
 
     EXPECT_EQ(matches.size(), 3);
@@ -621,26 +611,23 @@ TEST(FuzzyMatchTest, contrastive_buffer) {
                         /*fuzzy=*/0,
                         /*number_of_matches=*/3,
                         matches,
-                        /*contrastive factor*/1.,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,
                         /*edit_costs=*/fuzzy::EditCosts(1, 0, 1),
+                        /*contrastive factor*/1.,
                         fuzzy::ContrastReduce::MAX,
                         /*buffer-size=*/10);
 
     EXPECT_EQ(matches.size(), 3);
     if (matches.size() >= 1) {
       EXPECT_EQ(matches[0].s_id, 0);
-      // EXPECT_NEAR(matches[0].score - matches[0].penalty, 2/3.f, 1e-3);
     }
     if (matches.size() >= 2) {
       EXPECT_EQ(matches[1].s_id, 3);
-      // EXPECT_NEAR(matches[1].score - matches[1].penalty, 1/2.f, 1e-3);
     }
     if (matches.size() >= 3) {
       EXPECT_EQ(matches[2].s_id, 4); 
-      // EXPECT_NEAR(matches[2].score - matches[2].penalty, -1/4.f, 1e-3);
     }
   }
 }

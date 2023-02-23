@@ -220,8 +220,8 @@ public:
     std::vector<fuzzy::FuzzyMatch::Match> matches;
 
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
-                        _contrastive_factor, _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost,
-                        _contrastive_reduce, _contrastive_buffer);
+                        _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost,
+                        _contrastive_factor, _contrastive_reduce, _contrastive_buffer);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -252,9 +252,6 @@ public:
   apply_stream(std::istream &in, std::ostream &out, size_t num_threads, size_t buffer_size, bool domatch) {
     if (domatch) {
       auto function_match = [this](const std::string& sentence) { 
-#ifdef DEBUG
-        std::cerr << "### new ###" << std::endl;
-#endif
         return match(sentence);
       };
       return process_stream(function_match,
@@ -412,7 +409,7 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  fuzzy::EditCosts edit_cost = fuzzy::EditCosts(insert_cost, delete_cost, replace_cost);
+  fuzzy::EditCosts edit_cost(insert_cost, delete_cost, replace_cost);
   processor O(pt, fuzzy, contrastive_factor, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,
