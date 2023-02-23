@@ -4,6 +4,9 @@
 #include <vector>
 #include <iostream>
 #include <ostream>
+#include <algorithm>
+#include <unordered_set>
+#include <math.h> 
 
 #include <fuzzy/filter.hh>
 
@@ -15,6 +18,7 @@
 
 namespace fuzzy
 {
+  // Sentence ID -> BM25-score
   class BM25 : public Filter
   {
   public:
@@ -23,39 +27,32 @@ namespace fuzzy
     using Filter::dump;
     using Filter::num_sentences;
     using Filter::get_sentence;
-    using Filter::get_sentence_length;
 
     void sort(size_t vocab_size);
 
     std::ostream& dump(std::ostream&) const;
 
-    size_t num_sentences() const;
+    unsigned get_sentence_length(size_t s_id) const;
 
-    const unsigned* get_sentence(size_t sentence_id, size_t* length = nullptr) const;
-    unsigned short get_sentence_length(size_t suffix_id) const;
+    double bm25_score_pattern(
+      unsigned s_id,
+      std::vector<unsigned> pattern_wids) const;
 
-    double bm25_score(unsigned term, unsigned s_id, double avg_doc_length);
-    double bm25_score(std::vector<unsigned> query, unsigned s_id);
-    void compute_bm25_cache();
+    double bm25_score(
+      unsigned term,
+      unsigned s_id,
+      double avg_doc_length,
+      boost::multi_array<unsigned, 2>& tf,
+      std::vector<float>& idf);
 
   private:
-    void compute_sentence_length() override;
-    
     bool _sorted = false;
 
-    unsigned vocab_size;
-    // BM25 cache
+    // BM25 (t, d) cache
     boost::multi_array<unsigned, 2> _bm25;
-    // Term-Document frequency
-    boost::multi_array<unsigned, 2> _tf;
-    // IDF
-    std::vector<unsigned>& _idf;
-    // Total number of tokens
-    unsigned _num_tokens;
     // BM25 usual parameters
     float _k1;
     float _b;
-    
 
     friend class boost::serialization::access;
 

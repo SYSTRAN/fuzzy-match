@@ -17,10 +17,4 @@ namespace fuzzy
       *length = *sentence;
     return sentence + 1;
   }
-
-  inline unsigned short
-  Filter::get_sentence_length(size_t suffix_id) const
-  {
-    return _sentence_length[suffix_id];
-  }
 }

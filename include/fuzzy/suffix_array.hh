@@ -31,13 +31,12 @@ namespace fuzzy
     using Filter::dump;
     using Filter::num_sentences;
     using Filter::get_sentence;
-    using Filter::get_sentence_length;
 
     void sort(size_t vocab_size);
 
     const unsigned* get_suffix(const SuffixView& p, size_t* length = nullptr) const;
     const SuffixView& get_suffix_view(size_t suffix_id) const;
-    // unsigned short get_sentence_length(size_t suffix_id) const;
+    unsigned short get_sentence_length(size_t suffix_id) const;
 
     /** range of suffixe starting with ngram; return an open range so the number of elemem is just reS.second-res.first **/
     std::pair<size_t, size_t> equal_range(const unsigned* ngram,
@@ -47,13 +46,15 @@ namespace fuzzy
 
   protected:
     int comp(const SuffixView& a, const SuffixView& b) const;
-    void compute_sentence_length() override;
+    void compute_sentence_length();
     int start_by(const SuffixView& p, const unsigned* ngram, size_t length) const;
 
     bool _sorted = false;
 
     // ordered sequence of sentence id, pos in sentence
     std::vector<SuffixView>              _suffixes;
+    // cache friendly access to the sentence length associated with the prefix (used to speed up NGramMatches::register_ranges)
+    std::vector<unsigned short> _sentence_length;
 
     friend class boost::serialization::access;
 

@@ -18,6 +18,12 @@ namespace fuzzy
     return _suffixes[suffix_id];
   }
 
+  inline unsigned short
+  SuffixArray::get_sentence_length(size_t suffix_id) const
+  {
+    return _sentence_length[suffix_id];
+  }
+
   template<class Archive>
   void SuffixArray::save(Archive& archive, unsigned int) const
   {

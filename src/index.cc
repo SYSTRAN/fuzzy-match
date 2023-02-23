@@ -12,9 +12,9 @@ namespace fuzzy
 
   int
   FilterIndex::add_tm(const std::string& id,
-                           const Sentence& real_tokens,
-                           const Tokens& norm_tokens,
-                           bool sort)
+                      const Sentence& real_tokens,
+                      const Tokens& norm_tokens,
+                      bool sort)
   {
     if (!real_tokens.empty() && norm_tokens.size() <= _max_tokens_in_pattern) // patterns greater than this size would be ignored in match
     {

@@ -22,11 +22,8 @@ namespace fuzzy
     size_t num_sentences() const;
 
     const unsigned* get_sentence(size_t sentence_id, size_t* length = nullptr) const;
-    unsigned short get_sentence_length(size_t suffix_id) const;
 
   protected:
-    virtual void compute_sentence_length() = 0;
-
     bool _sorted = false;
 
     // the concatenated sentences, as 0-terminated sequences of vocab
@@ -35,8 +32,6 @@ namespace fuzzy
     std::vector<unsigned>         _sentence_pos;
     /* index first word in _sentences */
     std::vector<unsigned>         _quickVocabAccess;
-    // cache friendly access to the sentence length associated with the prefix (used to speed up NGramMatches::register_ranges)
-    std::vector<unsigned short> _sentence_length;
 
     friend class boost::serialization::access;
   };

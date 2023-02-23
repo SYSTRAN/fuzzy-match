@@ -172,7 +172,7 @@ namespace fuzzy
     int                    _pt;
     /* open-nmt tokenizer */
     std::unique_ptr<onmt::Tokenizer> _ptokenizer;
-    /* Suffix-Array Index */
+    /* Filter Index */
     std::unique_ptr<FilterIndex> _filterIndex;
   };
 }
