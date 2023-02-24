@@ -9,6 +9,7 @@
 
 #include "fuzzy/filter.hh"
 #include "fuzzy/suffix_array.hh"
+#include "fuzzy/bm25.hh"
 #include "fuzzy/vocab_indexer.hh"
 #include "fuzzy/sentence.hh"
 
@@ -39,6 +40,7 @@ namespace fuzzy
     std::ostream&      dump(std::ostream& os) const;
 
     size_t max_tokens_in_pattern() const;
+    IndexType getType() const;
 
   private:
     friend class boost::serialization::access;
@@ -53,8 +55,8 @@ namespace fuzzy
 
     VocabIndexer _vocabIndexer;
     std::shared_ptr<Filter> _filter;
-    std::shared_ptr<Filter> createSuffixArray() { return std::make_shared<SuffixArray>(); }
-    // Filter  _filter;
+    inline std::shared_ptr<Filter> createSuffixArray() { return std::make_shared<SuffixArray>(); }
+    inline std::shared_ptr<Filter> createBM25() { return std::make_shared<BM25>(); }
     std::vector<std::string> _ids;
     std::vector<Sentence>    _real_tokens;
     size_t _max_tokens_in_pattern;

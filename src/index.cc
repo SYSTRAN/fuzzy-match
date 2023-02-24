@@ -6,8 +6,10 @@ namespace fuzzy
     : _max_tokens_in_pattern(max_tokens_in_pattern),
       _type(type)
   {
-   if (_type == IndexType::SUFFIX)
-    _filter = createSuffixArray();
+    if (_type == IndexType::BM25)
+      _filter = createBM25();
+    else if (_type == IndexType::SUFFIX)
+      _filter = createSuffixArray();
   }
 
   int
@@ -69,5 +71,4 @@ namespace fuzzy
   { 
     return _ids[index];
   }
-
 }

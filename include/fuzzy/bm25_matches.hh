@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <fuzzy/bm25.hh>
 #include <fuzzy/costs.hh>
 #include <fuzzy/tsl/hopscotch_map.h>
@@ -18,10 +19,11 @@ namespace fuzzy
                 unsigned p_length,
                 unsigned min_seq_len,
                 const BM25&,
-                const unsigned buffer=10);
+                const unsigned buffer=10,
+                const float _cutoff_threshold=0.);
     // Registers a match for this range of suffixes.
     void register_pattern(
-      std::vector<unsigned>& pattern_wids,
+      const std::vector<unsigned>& pattern_wids,
       const EditCosts& edit_costs=EditCosts());
 
     using FilterMatches::theoretical_rejection;
@@ -32,6 +34,7 @@ namespace fuzzy
   private:
     // Num of sentences to place in the buffer
     const unsigned _buffer;
+    const float _cutoff_threshold;
     BestMatches _best_matches;
   };
 }

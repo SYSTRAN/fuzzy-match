@@ -12,9 +12,11 @@
 
 #include <boost/multi_array.hpp>
 #include <boost/format.hpp>
+#include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
+#include <boost/serialization/array.hpp>
 
 namespace fuzzy
 {
@@ -22,6 +24,8 @@ namespace fuzzy
   class BM25 : public Filter
   {
   public:
+    BM25(float k1=1.5, float b=0.75);
+    ~BM25();
     unsigned add_sentence(const std::vector<unsigned>& sentence) override;
 
     using Filter::dump;
@@ -49,10 +53,10 @@ namespace fuzzy
     bool _sorted = false;
 
     // BM25 (t, d) cache
-    boost::multi_array<unsigned, 2> _bm25;
+    boost::multi_array<float, 2>* _bm25 = nullptr;
     // BM25 usual parameters
-    float _k1;
-    float _b;
+    float _k1 = 1.5;
+    float _b = 0.75;
 
     friend class boost::serialization::access;
 

@@ -14,6 +14,7 @@
 #include <chrono>
 #include <ctime>
 
+#include <fuzzy/index.hh>
 #include <fuzzy/costs.hh>
 #include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/fuzzy_matcher_binarization.hh>
@@ -199,7 +200,8 @@ public:
             float idf_penalty, bool subseq_idf_weighting,
             size_t max_tokens_in_pattern, fuzzy::EditCosts edit_cost,
             std::string contrastive_reduce_str,
-            int contrastive_buffer):
+            int contrastive_buffer,
+            std::string filter_type):
              _fuzzyMatcher(pt, max_tokens_in_pattern),
              _fuzzy(fuzzy),
              _contrastive_factor(contrastive_factor),
@@ -215,6 +217,10 @@ public:
       _contrastive_reduce = fuzzy::ContrastReduce::MAX;
     else
       _contrastive_reduce = fuzzy::ContrastReduce::MEAN;
+    if (filter_type == "bm25")
+      _filter_type = fuzzy::IndexType::BM25;
+    else
+      _filter_type = fuzzy::IndexType::SUFFIX;
   }
   std::string match(const std::string &sentence) {
     std::vector<fuzzy::FuzzyMatch::Match> matches;
@@ -281,6 +287,7 @@ private:
   bool _subseq_idf_weighting;
   fuzzy::ContrastReduce _contrastive_reduce;
   int _contrastive_buffer;
+  fuzzy::IndexType _filter_type;
 };
 
 int main(int argc, char** argv)
@@ -304,6 +311,7 @@ int main(int argc, char** argv)
   std::string index_file;
   std::string penalty_tokens;
   std::string contrastive_reduce;
+  std::string filter_type;
   float idf_penalty;
   float insert_cost;
   float delete_cost;
@@ -342,7 +350,8 @@ int main(int argc, char** argv)
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
     ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
     ("contrast", po::value(&contrastive_factor)->default_value(0.f), "Contrastive factor for contrastive fuzzy retrieval")
-    ("contrast-reduce", po::value(&contrastive_reduce)->default_value("mean"), "Contrastive factor for contrastive fuzzy retrieval")
+    ("contrast-reduce", po::value(&contrastive_reduce)->default_value("mean"), "Contrastive factor for contrastive fuzzy retrieval (mean, max)")
+    ("filter-type", po::value(&filter_type)->default_value("suffix-array"), "Type of filter used (suffix-array, bm25)")
     ("contrast-buffer", po::value(&contrastive_buffer)->default_value(-1), "number of fuzzy matches to place in the buffer")    
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
@@ -417,7 +426,8 @@ int main(int argc, char** argv)
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,
               max_tokens_in_pattern, edit_cost,
-              contrastive_reduce, contrastive_buffer);
+              contrastive_reduce, contrastive_buffer,
+              filter_type);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);

@@ -16,7 +16,7 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
-  enum class FilterType { SUFFIX, BM25 };
+  // enum class IndexType { SUFFIX, BM25 };
   struct PairHasher {
     std::size_t operator()(const std::pair<int, int>& p) const {
       std::size_t h1 = std::hash<int>()(p.first);
@@ -76,7 +76,8 @@ namespace fuzzy
       const unsigned* s;
     };
     FuzzyMatch(int pt = penalty_token::pt_none,
-               size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
+               size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN,
+               IndexType filter_type = IndexType::SUFFIX);
     ~FuzzyMatch();
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);
@@ -96,7 +97,8 @@ namespace fuzzy
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
                ContrastReduce reduce=ContrastReduce::MEAN,
-               int contrast_buffer=-1) const;
+               int contrast_buffer=-1,
+               IndexType filter_type=IndexType::SUFFIX) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -109,7 +111,8 @@ namespace fuzzy
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
                ContrastReduce reduce=ContrastReduce::MEAN,
-               int contrast_buffer=-1) const;
+               int contrast_buffer=-1,
+               IndexType filter_type=IndexType::SUFFIX) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -122,7 +125,8 @@ namespace fuzzy
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
                ContrastReduce reduce=ContrastReduce::MEAN,
-               int contrast_buffer=-1) const;
+               int contrast_buffer=-1,
+               IndexType filter_type=IndexType::SUFFIX) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,

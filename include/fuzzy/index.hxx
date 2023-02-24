@@ -29,6 +29,11 @@ namespace fuzzy
   {
     return _max_tokens_in_pattern;
   }
+  inline IndexType
+  FilterIndex::getType() const
+  {
+    return _type;
+  }
 
   template<class Archive>
   void
@@ -38,8 +43,20 @@ namespace fuzzy
     {
       SuffixArray& suffix_array = static_cast<SuffixArray&>(*_filter);
       ar
+        & _type
         & _vocabIndexer
         & suffix_array
+        & _ids
+        & _real_tokens
+        & _max_tokens_in_pattern;
+    }
+    else if (_type == IndexType::BM25)
+    {
+      BM25& bm25 = static_cast<BM25&>(*_filter);
+      ar
+        & _type
+        & _vocabIndexer
+        & bm25
         & _ids
         & _real_tokens
         & _max_tokens_in_pattern;
@@ -49,13 +66,26 @@ namespace fuzzy
   template<class Archive>
   void
   FilterIndex::load(Archive& ar, unsigned int version)
-  {
+  {      
+    ar
+      & _type;
     if (_type == IndexType::SUFFIX)
     {
+      std::cerr << "index load suffix..." << std::endl;
       SuffixArray& suffix_array = static_cast<SuffixArray&>(*_filter);
       ar
         & _vocabIndexer
         & suffix_array
+        & _ids
+        & _real_tokens;
+    }
+    else if (_type == IndexType::BM25)
+    {
+      std::cerr << "index load bM25..." << std::endl;
+      BM25& bm25 = static_cast<BM25&>(*_filter);
+      ar
+        & _vocabIndexer
+        & bm25
         & _ids
         & _real_tokens;
     }

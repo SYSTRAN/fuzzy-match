@@ -11,8 +11,10 @@
 #include <unicode/normalizer2.h>
 
 #include <fuzzy/suffix_array.hh>
+#include <fuzzy/bm25.hh>
 #include <fuzzy/costs.hh>
 #include <fuzzy/ngram_matches.hh>
+#include <fuzzy/bm25_matches.hh>
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/pattern_coverage.hh>
 
@@ -52,9 +54,9 @@ namespace fuzzy
   }
 
 
-  FuzzyMatch::FuzzyMatch(int pt, size_t max_tokens_in_pattern)
+  FuzzyMatch::FuzzyMatch(int pt, size_t max_tokens_in_pattern, IndexType filter_type)
   : _pt(pt)
-  , _filterIndex(boost::make_unique<FilterIndex>(max_tokens_in_pattern))
+  , _filterIndex(boost::make_unique<FilterIndex>(max_tokens_in_pattern, filter_type))
   {
     _update_tokenizer();
   }
@@ -395,13 +397,14 @@ namespace fuzzy
                          float vocab_idf_penalty,
                          const EditCosts& edit_costs,
                          ContrastReduce reduce,
-                         int contrast_buffer) const {
+                         int contrast_buffer,
+                         IndexType filter_type) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer, filter_type);
   }
 
   /* backward compatibility */
@@ -416,11 +419,12 @@ namespace fuzzy
                     float vocab_idf_penalty,
                     const EditCosts& edit_costs,
                     ContrastReduce reduce,
-                    int contrast_buffer) const
+                    int contrast_buffer,
+                    IndexType filter_type) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer);
+                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer, filter_type);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -437,7 +441,8 @@ namespace fuzzy
                     float vocab_idf_penalty,
                     const EditCosts& edit_costs,
                     ContrastReduce reduce,
-                    int contrast_buffer) const
+                    int contrast_buffer,
+                    IndexType filter_type) const
   {
     size_t p_length = pattern.size();
     if (contrast_buffer == -1)
@@ -472,10 +477,9 @@ namespace fuzzy
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
 
     const Filter& filter = _filterIndex->get_Filter();
-    const SuffixArray& suffix_array = dynamic_cast<const SuffixArray&>(filter);
-    FilterType filter_type = FilterType::SUFFIX;
     FilterMatches* filter_matches;
-    if (filter_type == FilterType::SUFFIX) {
+    if (filter_type == IndexType::SUFFIX) {
+      const SuffixArray& suffix_array = static_cast<const SuffixArray&>(filter);
       filter_matches = new NGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
       NGramMatches& nGramMatches = static_cast<NGramMatches&>(*filter_matches);
 
@@ -550,9 +554,14 @@ namespace fuzzy
       }
       filter_matches = &nGramMatches;
     }
-    else if (filter_type == FilterType::BM25)
+    else if (filter_type == IndexType::BM25)
     {
-      // TODO
+      std::cerr << "register <<<";
+      const BM25& bm25 = static_cast<const BM25&>(filter);
+      filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, 20);
+      BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
+      bm25Matches.register_pattern(pattern_wids, edit_costs);
+      std::cerr << std::endl << ">>>";
     }
     /* Consolidation of the results */
 
@@ -573,6 +582,7 @@ namespace fuzzy
 
     for (const auto& pair : filter_matches->get_longest_matches())
     {
+      // std::cerr << "blabla" << std::endl;sorted_matches
       const auto s_id = pair.first;
       const auto longest_match = pair.second;
       size_t s_length = 0;
@@ -580,7 +590,7 @@ namespace fuzzy
       const auto num_covered_words = (longest_match < p_length
                                       ? pattern_coverage.count_covered_words(sentence_wids, s_length)
                                       : p_length);
-
+      // std::cerr << "reject" << std::endl;
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
       if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
       {
@@ -589,6 +599,7 @@ namespace fuzzy
         /* let us check the candidates */
         const auto sentence_realtok = _filterIndex->real_tokens(s_id);
         const auto cost_upper_bound = lowest_costs.top();
+        std::cerr << "+";
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
