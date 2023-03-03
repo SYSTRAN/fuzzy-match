@@ -5,9 +5,6 @@
 #include <fuzzy/suffix_array_index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
-#include <utility>
-#include <functional>
-#include <unordered_map>
 
 namespace onmt {
   class Tokenizer;
@@ -23,6 +20,7 @@ namespace fuzzy
       return h1 ^ (h2 << 1);
     }
   };
+
   class FuzzyMatch
   {
   public:
@@ -53,6 +51,7 @@ namespace fuzzy
       int length;
       const unsigned* s;
     };
+
     FuzzyMatch(int pt = penalty_token::pt_none,
                size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
     ~FuzzyMatch();

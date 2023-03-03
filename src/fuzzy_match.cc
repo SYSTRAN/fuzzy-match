@@ -10,7 +10,6 @@
 
 #include <unicode/normalizer2.h>
 
-#include <fuzzy/costs.hh>
 #include <fuzzy/ngram_matches.hh>
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/pattern_coverage.hh>
@@ -658,16 +657,11 @@ namespace fuzzy
         candidates.erase(it_max);
       }
     }
-    else 
+    else
     {
       while (!result.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
       {
         auto match = result.top();
-#ifdef XDEBUG
-        std::cout << match.score << "\t"
-                  << match.id << std::endl;
-#endif
-
         matches.push_back(match);
 
         result.pop();

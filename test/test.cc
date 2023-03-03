@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <fuzzy/costs.hh>
 #include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/fuzzy_matcher_binarization.hh>
 #include <iostream>

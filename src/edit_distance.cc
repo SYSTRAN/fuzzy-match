@@ -1,7 +1,4 @@
-#include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/edit_distance.hh>
-#include <iostream>
-#include <boost/format.hpp>
 
 namespace fuzzy
 {
@@ -78,6 +75,7 @@ namespace fuzzy
     }
     return arr[n1][n2];
   }
+
   float
   _edit_distance(const unsigned* s1, int n1,
                  const unsigned* s2, int n2,
@@ -120,15 +118,6 @@ namespace fuzzy
       if (min > max_fuzzyness)
         return min;
     }
-#ifdef XDEBUG
-    std::cerr << "---\n";
-    for(int i = 0; i < n1 + 1; i++)
-    {
-      for (int j = 0; j < n2 + 1; j++)
-        std::cerr << boost::format("%.2f\t") % arr[i][j];
-      std::cerr << "\n";
-    }
-#endif
     return arr[n1][n2];
   }
 }
