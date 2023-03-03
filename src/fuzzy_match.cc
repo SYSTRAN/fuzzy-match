@@ -2,8 +2,11 @@
 
 #include <queue>
 #include <vector>
+#include <list>
 #include <cmath>
 #include <set>
+#include <numeric>
+#include <algorithm>
 
 #include <unicode/normalizer2.h>
 
@@ -26,6 +29,14 @@ namespace fuzzy
     {
       return x.score < y.score || 
              (x.score == y.score && x.s_id > y.s_id);
+    }
+  };
+
+  struct PairHasher {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+      std::size_t h1 = std::hash<int>()(p.first);
+      std::size_t h2 = std::hash<int>()(p.second);
+      return h1 ^ (h2 << 1);
     }
   };
 
@@ -305,13 +316,15 @@ namespace fuzzy
           size_t s_length = 0;
           const auto* thes = SAI.get_SuffixArray().get_sentence(s_id, &s_length);
 
-          const Costs costs(p_length, s_length);
+          const EditCosts edit_costs;
+          const Costs costs(p_length, s_length, edit_costs);
 
           /* let us calculate edit_distance  */
           float cost = _edit_distance(thes, SAI.real_tokens(s_id), s_length,
                                       pidx.data(), realtok, p_length,
                                       st, sn,
-                                      idf_penalty, 0,
+                                      idf_penalty, 0, 
+                                      edit_costs,
                                       costs, max_distance);
           if (cost==0 && no_perfect) {
             perfect.insert(s_id);
@@ -382,13 +395,18 @@ namespace fuzzy
                          std::vector<Match>& matches,
                          int min_subseq_length,
                          float min_subseq_ratio,
-                         float vocab_idf_penalty) const {
+                         float vocab_idf_penalty,
+                         const EditCosts& edit_costs,
+                         float contrastive_factor,
+                         ContrastReduce reduce,
+                         int contrast_buffer) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty,
+                 edit_costs, contrastive_factor, reduce, contrast_buffer);
   }
 
   /* backward compatibility */
@@ -399,11 +417,16 @@ namespace fuzzy
                     std::vector<Match>& matches,
                     int min_subseq_length,
                     float min_subseq_ratio,
-                    float vocab_idf_penalty) const
+                    float vocab_idf_penalty,
+                    const EditCosts& edit_costs,
+                    float contrastive_factor,
+                    ContrastReduce reduce,
+                    int contrast_buffer) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty,
+                 edit_costs, contrastive_factor, reduce, contrast_buffer);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -416,9 +439,15 @@ namespace fuzzy
                     std::vector<Match>& matches,
                     int min_subseq_length,
                     float min_subseq_ratio,
-                    float vocab_idf_penalty) const
+                    float vocab_idf_penalty,
+                    const EditCosts& edit_costs,
+                    float contrastive_factor,
+                    ContrastReduce reduce,
+                    int contrast_buffer) const
   {
     size_t p_length = pattern.size();
+    if (contrast_buffer == -1)
+      contrast_buffer = number_of_matches;
 
     // performance guard
     if (p_length > max_tokens_in_pattern())
@@ -457,7 +486,8 @@ namespace fuzzy
       if (range_suffixid.first != range_suffixid.second)
         nGramMatches.register_suffix_range_match(range_suffixid.first,
                                                  range_suffixid.second,
-                                                 p_length);
+                                                 p_length,
+                                                 edit_costs);
     }
 
     for (size_t it=0; it < p_length; it++)
@@ -495,10 +525,12 @@ namespace fuzzy
             /* register (n-1) grams */
             nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
                                                      range_suffixid.first,
-                                                     subseq_length - 1);
+                                                     subseq_length - 1,
+                                                     edit_costs);
             nGramMatches.register_suffix_range_match(range_suffixid.second,
                                                      previous_range_suffixid.second,
-                                                     subseq_length - 1);
+                                                     subseq_length - 1,
+                                                     edit_costs);
           }
 
           previous_range_suffixid = std::move(range_suffixid);
@@ -512,7 +544,8 @@ namespace fuzzy
       if (subseq_length >= 2)
         nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
                                                  previous_range_suffixid.second,
-                                                 subseq_length);
+                                                 subseq_length,
+                                                 edit_costs);
     }
 
     /* Consolidation of the results */
@@ -543,9 +576,9 @@ namespace fuzzy
                                       : p_length);
 
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-      if (p_length - num_covered_words <= nGramMatches.max_differences_with_pattern)
+      if (!nGramMatches.theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
       {
-        const Costs costs(p_length, s_length);
+        const Costs costs(p_length, s_length, edit_costs);
 
         /* let us check the candidates */
         const auto sentence_realtok = _suffixArrayIndex->real_tokens(s_id);
@@ -554,22 +587,19 @@ namespace fuzzy
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
+                                    edit_costs,
                                     costs, cost_upper_bound);
-#ifdef DEBUG
-        std::cout << "cost=" << cost << "+" << s_idf_penalty << "/" << O.max << std::endl;
-#endif
 
-        if ((no_perfect && cost == 0) || cost > cost_upper_bound)
+        if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
           continue;
 
         float score = int(10000-cost*100)/10000.0;
 
         lowest_costs.push(cost);
-        if (score < fuzzy || (number_of_matches > 0 && lowest_costs.size() > number_of_matches))
+        if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > contrast_buffer))
           lowest_costs.pop();
-
         if (score >= fuzzy) {
-          Match m;
+          Match m(sentence_wids, s_length);
           m.score = score;
           m.max_subseq = longest_match;
           m.s_id = s_id;
@@ -578,20 +608,73 @@ namespace fuzzy
         }
       }
     }
-
-    while (!result.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
+    /* Contrastive reranking */
+    if (contrastive_factor > 0)
     {
-      auto match = result.top();
-#ifdef DEBUG
-      std::cout << match.score << "\t" << alignment.second << "\t"
-                << match.id << std::endl;
-#endif
-
-      matches.push_back(match);
-
-      result.pop();
+      std::list<Match> candidates;
+      while (!result.empty())
+      {
+        auto match = result.top();
+        candidates.push_back(match);
+        result.pop();
+      }
+      auto comp = [contrastive_factor](const Match& m1, const Match& m2) {
+          return (m1.score - contrastive_factor * m1.penalty) < (m2.score - contrastive_factor * m2.penalty);
+      };
+      /* for memoization optimization */
+      std::unordered_map<std::pair<int, int>, float, PairHasher> edit_cost_memory;
+      while (!candidates.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
+      {
+        EditCosts internal_edit_cost;
+        // rescore penalties of candidates
+        for (Match &match : candidates)
+        {
+          std::vector<float> penalties;
+          for (Match &match_memory : matches)
+          {
+            auto it = edit_cost_memory.find({match.s_id, match_memory.s_id});
+            float penalty;
+            if (it != edit_cost_memory.end()) {
+              penalty = it->second;
+            } else {
+              const Costs costs(match.length, match_memory.length, internal_edit_cost);
+              penalty = _edit_distance(
+                match.s, match.length,
+                match_memory.s, match_memory.length,
+                internal_edit_cost,
+                costs
+              );
+              edit_cost_memory.insert({{match.s_id, match_memory.s_id}, penalty});
+            }
+            penalty = int(10000 - penalty * 100) / 10000.0;
+            penalties.push_back(penalty);
+          }
+          if (!penalties.empty())
+          {
+            if (reduce == ContrastReduce::MAX)
+            { // max
+              match.penalty = *std::max_element(penalties.cbegin(), penalties.cend());
+            } else
+            { // mean
+              match.penalty = std::accumulate(penalties.cbegin(), penalties.cend(), 0.f) / penalties.size();
+            }
+          }
+        }
+        auto it_max = std::max_element(candidates.begin(), candidates.end(), comp);
+        matches.push_back(*it_max);
+        candidates.erase(it_max);
+      }
     }
+    else
+    {
+      while (!result.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
+      {
+        auto match = result.top();
+        matches.push_back(match);
 
+        result.pop();
+      }
+    }
     return matches.size() > 0;
   }
 }

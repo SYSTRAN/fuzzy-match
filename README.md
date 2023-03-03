@@ -20,7 +20,7 @@ The above command generates a file `CORPUS.fmi`.
 ## Fuzzy Lookup
 
 ```
-FuzzyMatch-cli -i CORPUS.fmi -a match -f FUZZY -N NTHREAD -n NMATCH [--ml ML] [--mr MR] --idf-penalty IDFPENALTYRATIO < INPUTFILE > MATCHES 
+FuzzyMatch-cli -i CORPUS.fmi -a match -f FUZZY -N NTHREAD -n NMATCH [--ml ML] [--mr MR] --idf-penalty IDFPENALTYRATIO --insert-cost ICOST --delete-cost DCOST --replace-cost RCOST --contrast CONTRASTFACTOR --contrast-buffer CONTRASTBUFF < INPUTFILE > MATCHES 
 ```
 
 * `CORPUS.fmi` path to the complete generated index file
@@ -30,6 +30,9 @@ FuzzyMatch-cli -i CORPUS.fmi -a match -f FUZZY -N NTHREAD -n NMATCH [--ml ML] [-
 * `ML` minimal length of the longest subsequence (in tokens) - defaut 3. If the pattern size is strictly less than `ML`, then this parameter is ignored.
 * `MR` minimal ratio of the longest subsequence (in tokens) - default 0. Interesting to use for lowest fuzzy - for instance a value of 0.5, used with fuzzy threshold 0.5, will guarantee the presence of at least 50% of the sentence length
 * `IDFPENALTYRATIO` if not null, gives extra penalty to word missing weighted on IDF: a value of 1 is equivalent to give a penalty of one additional missing word for a word appearing only once in all the translation memory.
+* `ICOST`, `DCOST`, `RCOST`, positive real values, respectively costs for *insertion*, *deletion* and *replace* in the edit distance. The defalut are 1, 1, 1. For coverage similarity, choose 1, 0, 1.
+* `CONTRAST` contrastive factor for iterative contrastive retrieval (see [paper](https://aclanthology.org/2022.emnlp-main.235/)). Default is 0. The greater, the more diversity in the retrieved sequences.
+* `CONTRASTBUFF` contrastive buffer (default `NMATCH`, only useful when `CONTRAST`>0) is the number of candidates with highest matches considered for contrastive reranking. If not set, it will just rerank the `NMATCH` scores.
 
 Add `--no-perfect` (`-P`) to discard perfect matches. For instance the following command returns one fuzzy match higher than 0.7 but not perfect:
 

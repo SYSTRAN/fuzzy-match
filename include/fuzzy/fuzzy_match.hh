@@ -12,6 +12,8 @@ namespace onmt {
 
 namespace fuzzy
 {
+  enum class ContrastReduce { MEAN, MAX };
+
   class FuzzyMatch
   {
   public:
@@ -29,10 +31,18 @@ namespace fuzzy
 
     struct Match
     {
+      Match(
+        const unsigned* seq,
+        int length
+      ) : length(length), s(seq) {}
+      Match() {}
       float       score;
+      float       penalty;
       int         max_subseq;
       unsigned    s_id;
       std::string id;
+      int length;
+      const unsigned* s;
     };
 
     FuzzyMatch(int pt = penalty_token::pt_none,
@@ -52,7 +62,11 @@ namespace fuzzy
                std::vector<Match> &matches,
                int min_subseq_length=2,
                float min_subseq_ratio=0,
-               float vocab_idf_penalty=0) const;
+               float vocab_idf_penalty=0,
+               const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
+               ContrastReduce reduce=ContrastReduce::MEAN,
+               int contrast_buffer=-1) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -61,7 +75,11 @@ namespace fuzzy
                std::vector<Match>& matches,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
-               float vocab_idf_penalty=0) const;
+               float vocab_idf_penalty=0,
+               const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
+               ContrastReduce reduce=ContrastReduce::MEAN,
+               int contrast_buffer=-1) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -70,7 +88,11 @@ namespace fuzzy
                std::vector<Match>& matches,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
-               float vocab_idf_penalty=0) const;
+               float vocab_idf_penalty=0,
+               const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
+               ContrastReduce reduce=ContrastReduce::MEAN,
+               int contrast_buffer=-1) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,

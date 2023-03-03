@@ -44,7 +44,7 @@ TEST42	On this point I do not agree with the opinion you have just expressed , C
 TEST43	The more observations are made , the more these findings are confirmed .	0.5	true	2	
 TEST44	That is why , again at the instigation of Dominique Souchet and Astrid Lulling , the European Parliament 's Committee on Agriculture arranged a hearing on the subject on 28 April last .	0.5	true	2	
 TEST45	Gaucho and Regent molecules could therefore be harmful not only to bees but to a much wider environment .	0.5	true	2	
-TEST46	Let us not stop there , either .	0.5	true	2	0.514999986	8407=Ne manquons pas cette occasion .	0.514999986	8521=N ' abandonnons pas les Sahraouis .
+TEST46	Let us not stop there , either .	0.5	true	2	0.5	8407=Ne manquons pas cette occasion .	0.5	8521=N ' abandonnons pas les Sahraouis .
 TEST47	Since these molecules are present in agricultural products used in food or animal feed , we should also be concerned about our own health .	0.5	true	2	
 TEST48	That is why , faced with this risk of widespread poisoning of the ecosystem - and perhaps of man - we are insisting that the precautionary principle be applied .	0.5	true	2	
 TEST49	I heard the Commission 's answers to Mr Souchet 's and Mrs Lulling 's oral question just now .	0.5	true	2	
@@ -70,7 +70,7 @@ TEST68	Mr President , the Commissioner has said that the Commission has no scien
 TEST69	The debate is closed .	0.5	true	2	0.833299994	4924=La discussion commune est close .	0.833299994	4961=La discussion commune est close .
 TEST70	The vote will be on 9 October 2003 .	0.5	true	2	0.579999983	3221=Le vote aura lieu demain à midi .	0.579999983	19470=( La séance est levée à 20 h 09 )
 TEST71	I should like to inform the House that Lord Bethell has informed me of his resignation , with effect from 30 September 2003 .	0.5	true	2	
-TEST72	In accordance with Rule 8 ( 3 ) of the Rules of Procedure , the House takes note of this vacancy .	0.5	true	2	0.680000007	16492=Je communique que j ' ai reçu deux propositions de résolution , conformément à l ' article 40 , paragraphe 5 , du Parlement .
+TEST72	In accordance with Rule 8 ( 3 ) of the Rules of Procedure , the House takes note of this vacancy .	0.5	true	2	0.641799986	16492=Je communique que j ' ai reçu deux propositions de résolution , conformément à l ' article 40 , paragraphe 5 , du Parlement .
 TEST73	Mr President , I do not want to delay the House , but it would inappropriate if I did not mark that particular announcement on behalf of the whole House .	0.5	true	2	
 TEST74	Lord Bethell has been a popular and hard-working Member of this House for very many years .	0.5	true	2	
 TEST75	His service has been appreciated by all sides of the House .	0.5	true	2	
@@ -84,7 +84,7 @@ TEST82	He will be greatly missed by all sides of the House .	0.5	true	2
 TEST83	I should also like to inform the House that Mrs Maij-Weggen has been appointed Royal Commissioner for North Brabant Province in the Netherlands .	0.5	true	2	
 TEST84	She has informed me of her resignation with effect from 1 October 2003 .	0.5	true	2	
 TEST85	I should like to congratulate her on her appointment .	0.5	true	2	0.600000024	646=J ' aimerais également m ' exprimer à ce sujet .	0.574199975	11494=Monsieur le Président , j ' aimerais féliciter Mme Pery pour son rapport .
-TEST86	In accordance with Rule 8 ( 3 ) of the Rules of Procedure , the House takes note of the vacancy .	0.5	true	2	0.680000007	16492=Je communique que j ' ai reçu deux propositions de résolution , conformément à l ' article 40 , paragraphe 5 , du Parlement .
+TEST86	In accordance with Rule 8 ( 3 ) of the Rules of Procedure , the House takes note of the vacancy .	0.5	true	2	0.641799986	16492=Je communique que j ' ai reçu deux propositions de résolution , conformément à l ' article 40 , paragraphe 5 , du Parlement .
 TEST87	I have been informed by the competent Slovak authorities that Jozef Heriban has been appointed as observer in place of Imrich Béres , with effect from 9 September 2003 .	0.5	true	2	
 TEST88	The next item is the vote .	0.5	true	2	0.720000029	11669=Nous passons à l ' heure des questions .	0.667699993	42=Nous passons à l ' ordre des travaux .
 TEST89	( Parliament adopted the text )	0.5	true	2	0.839999974	2258=( Le Parlement adopte la résolution )	0.839999974	2276=( Le Parlement adopte la résolution )
@@ -95,6 +95,6 @@ TEST93	One might as well try to make murder , plunder or abduction more ethical 
 TEST94	The simple fact that the great powers are wasting enormous sums of money on weapons of mass destruction shows that the present organisation of society is barbaric .	0.5	true	2	
 TEST95	Even that , however , is proving impossible .	0.5	true	2	
 TEST96	In an economy where arms dealers are willing to sell the rope to hang themselves if it makes them a profit , how can they be prevented from bypassing government controls ?	0.5	true	2	
-TEST97	( Explanation of vote abbreviated in accordance with Rule 137 ( 1 ) of the Rules of Procedure )	0.5	true	2	0.504700005	18214=Je vous communique que j ' ai reçu une proposition de résolution , conformément à l ' article 37 , paragraphe 2 , du règlement .
+TEST97	( Explanation of vote abbreviated in accordance with Rule 137 ( 1 ) of the Rules of Procedure )	0.5	true	2
 TEST98	I declare adjourned the session of the European Parliament .	0.5	true	2	0.606599987	7668=Je déclare reprise la session du Parlement européen , qui avait été interrompue le jeudi 9 mai 1996 .	0.549000025	12874=Deuxième réflexion : la fonction du Parlement européen .
 TEST99	( The sitting was closed at 4.40 p.m. )	0.5	true	2	0.980000019	10446=( La séance est levée à 19 h 40 )	0.959999979	568=( La séance est levée à 19 h 50 )
