@@ -32,6 +32,14 @@ namespace fuzzy
     }
   };
 
+  struct PairHasher {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+      std::size_t h1 = std::hash<int>()(p.first);
+      std::size_t h2 = std::hash<int>()(p.second);
+      return h1 ^ (h2 << 1);
+    }
+  };
+
   static std::string normalize(const std::string& text_utf8) {
     UErrorCode error_code = U_ZERO_ERROR;
     const auto* normalizer = icu::Normalizer2::getNFCInstance(error_code);
