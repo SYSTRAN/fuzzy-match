@@ -91,6 +91,7 @@ namespace fuzzy
     }
     if (version >= 1)
       ar & _max_tokens_in_pattern;
+    std::cerr << "...loaded" << std::endl;  
   }
 
 }

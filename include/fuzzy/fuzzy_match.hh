@@ -13,18 +13,13 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
-<<<<<<< HEAD
-  // enum class IndexType { SUFFIX, BM25 };
-  struct PairHasher {
-    std::size_t operator()(const std::pair<int, int>& p) const {
-      std::size_t h1 = std::hash<int>()(p.first);
-      std::size_t h2 = std::hash<int>()(p.second);
-      return h1 ^ (h2 << 1);
-    }
-  };
-=======
-
->>>>>>> master
+  // struct PairHasher {
+  //   std::size_t operator()(const std::pair<int, int>& p) const {
+  //     std::size_t h1 = std::hash<int>()(p.first);
+  //     std::size_t h2 = std::hash<int>()(p.second);
+  //     return h1 ^ (h2 << 1);
+  //   }
+  // };
   class FuzzyMatch
   {
   public:
@@ -47,30 +42,6 @@ namespace fuzzy
         int length
       ) : length(length), s(seq) {}
       Match() {}
-<<<<<<< HEAD
-      Match(const Match& other)
-          : score(other.score),
-            penalty(other.penalty),
-            max_subseq(other.max_subseq),
-            s_id(other.s_id),
-            id(other.id),
-            length(other.length),
-            s(other.s) {}
-
-      Match& operator=(const Match& other) {
-        if (this != &other) {
-          score = other.score;
-          penalty = other.penalty;
-          max_subseq = other.max_subseq;
-          s_id = other.s_id;
-          id = other.id;
-          s = other.s;
-          length = other.length;
-        }
-        return *this;
-      }
-=======
->>>>>>> master
       float       score;
       float       penalty;
       int         max_subseq;

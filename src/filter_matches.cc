@@ -28,7 +28,7 @@ namespace fuzzy
   FilterMatches::theoretical_rejection(size_t p_length, size_t s_length, const EditCosts &edit_costs) const
   {
     const float sizeDifference = std::abs((float)p_length - (float)s_length);
-    float remaining_cost = (p_length >= s_length) ? edit_costs._insert : edit_costs._delete;
+    float remaining_cost = (p_length >= s_length) ? edit_costs.insert_cost : edit_costs.delete_cost;
     float theoretical_bound = 1.f - remaining_cost * sizeDifference / Costs::get_normalizer(p_length, s_length, edit_costs);
     return theoretical_bound + 0.000005 < fuzzy_threshold;
   }
@@ -37,16 +37,16 @@ namespace fuzzy
   FilterMatches::theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts &edit_costs) const
   {
     float theoretical_bound;
-    if (edit_costs._insert + edit_costs._delete < edit_costs._replace)
+    if (edit_costs.insert_cost + edit_costs.delete_cost < edit_costs.replace_cost)
     {
-      theoretical_bound = 1.f - (edit_costs._insert * ((float)s_length - (float)cover) +
-                                 edit_costs._delete * ((float)p_length - (float)cover)) /
+      theoretical_bound = 1.f - (edit_costs.insert_cost * ((float)s_length - (float)cover) +
+                                 edit_costs.delete_cost * ((float)p_length - (float)cover)) /
                                     Costs::get_normalizer(p_length, s_length, edit_costs);
     } else {
-      float cost_remaining = (p_length > s_length) ? edit_costs._insert : edit_costs._delete;
+      float cost_remaining = (p_length > s_length) ? edit_costs.insert_cost : edit_costs.delete_cost;
       float min_length = (p_length > s_length) ? s_length : p_length;
       float max_length = (p_length > s_length) ? p_length : s_length;
-      theoretical_bound = 1.f - (edit_costs._replace * (min_length - cover) +
+      theoretical_bound = 1.f - (edit_costs.replace_cost * (min_length - cover) +
                                  cost_remaining * (max_length - min_length)) /
                                     Costs::get_normalizer(p_length, s_length, edit_costs);
     }

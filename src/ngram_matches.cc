@@ -8,19 +8,9 @@ namespace fuzzy
                              unsigned p_length,
                              unsigned min_seq_len,
                              const SuffixArray& suffixArray)
-<<<<<<< HEAD
       /* add a small epsilon to avoid rounding errors counting for an error */
       : FilterMatches(fuzzy, p_length, min_seq_len, suffixArray)
   {}
-=======
-    /* add a small epsilon to avoid rounding errors counting for an error */
-    : fuzzy_threshold(fuzzy),
-      _p_length(p_length),
-      _min_seq_len(min_seq_len),
-      _suffixArray(suffixArray)
-  {
-  }
->>>>>>> master
 
   std::vector<std::pair<unsigned, unsigned>>
   NGramMatches::get_longest_matches() const
