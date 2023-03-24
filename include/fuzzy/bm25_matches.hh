@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <queue>
 #include <fuzzy/bm25.hh>
 #include <fuzzy/costs.hh>
 #include <fuzzy/tsl/hopscotch_map.h>
@@ -8,8 +9,13 @@
 
 namespace fuzzy
 {
+  struct ComparePairs {
+    bool operator()(const std::pair<float, unsigned>& p1, const std::pair<float, unsigned>& p2) {
+        return p1.first < p2.first;
+    }
+  };
   // Sentence ID -> BM25score
-  using BestMatches = tsl::hopscotch_map<unsigned, float, IntHash>;
+  using BestMatches = tsl::hopscotch_map<unsigned, unsigned, IntHash>;
 
   class BM25Matches : public FilterMatches
   {
