@@ -406,14 +406,17 @@ namespace fuzzy
                          float contrastive_factor,
                          ContrastReduce reduce,
                          int contrast_buffer,
-                         IndexType filter_type) const {
+                         IndexType filter_type,
+                         int bm25_buffer,
+                         float bm25_cutoff) const {
 
     Sentence real;
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
                  min_subseq_length, min_subseq_ratio, vocab_idf_penalty,
-                 edit_costs, contrastive_factor, reduce, contrast_buffer, filter_type);
+                 edit_costs, contrastive_factor, reduce, contrast_buffer,
+                 filter_type, bm25_buffer, bm25_cutoff);
   }
 
   /* backward compatibility */
@@ -429,12 +432,15 @@ namespace fuzzy
                     float contrastive_factor,
                     ContrastReduce reduce,
                     int contrast_buffer,
-                    IndexType filter_type) const
+                    IndexType filter_type,
+                    int bm25_buffer,
+                    float bm25_cutoff) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
                  min_subseq_length, min_subseq_ratio, vocab_idf_penalty,
-                 edit_costs, contrastive_factor, reduce, contrast_buffer, filter_type);
+                 edit_costs, contrastive_factor, reduce, contrast_buffer,
+                 filter_type, bm25_buffer, bm25_cutoff);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -452,7 +458,9 @@ namespace fuzzy
                     float contrastive_factor,
                     ContrastReduce reduce,
                     int contrast_buffer,
-                    IndexType filter_type) const
+                    IndexType filter_type,
+                    int bm25_buffer,
+                    float bm25_cutoff) const
   {
     size_t p_length = pattern.size();
     if (contrast_buffer == -1)
@@ -567,7 +575,7 @@ namespace fuzzy
     {
       // std::cerr << "register <<<";
       const BM25& bm25 = static_cast<const BM25&>(filter);
-      filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, 20);
+      filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
       bm25Matches.register_pattern(pattern_wids, edit_costs);
       // std::cerr << std::endl << ">>>";

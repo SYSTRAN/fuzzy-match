@@ -20,7 +20,7 @@ namespace fuzzy
                 unsigned min_seq_len,
                 const BM25&,
                 const unsigned buffer=10,
-                const float _cutoff_threshold=0.);
+                const float cutoff_threshold=0.);
     // Registers a match for this range of suffixes.
     void register_pattern(
       const std::vector<unsigned>& pattern_wids,

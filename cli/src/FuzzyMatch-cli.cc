@@ -201,7 +201,8 @@ public:
             size_t max_tokens_in_pattern, fuzzy::EditCosts edit_cost,
             std::string contrastive_reduce_str,
             int contrastive_buffer,
-            std::string filter_type):
+            std::string filter_type,
+            int bm25_buffer, float bm25_cutoff):
              _fuzzyMatcher(pt, max_tokens_in_pattern),
              _fuzzy(fuzzy),
              _contrastive_factor(contrastive_factor),
@@ -212,7 +213,9 @@ public:
              _idf_penalty(idf_penalty),
              _subseq_idf_weighting(subseq_idf_weighting),
              _cost(edit_cost),
-             _contrastive_buffer(contrastive_buffer) {
+             _contrastive_buffer(contrastive_buffer),
+             _bm25_buffer(bm25_buffer),
+             _bm25_cutoff(bm25_cutoff) {
     if (contrastive_reduce_str == "max")
       _contrastive_reduce = fuzzy::ContrastReduce::MAX;
     else
@@ -285,6 +288,8 @@ private:
   fuzzy::ContrastReduce _contrastive_reduce;
   int _contrastive_buffer;
   fuzzy::IndexType _filter_type;
+  int _bm25_buffer;
+  float _bm25_cutoff;
 };
 
 int main(int argc, char** argv)
@@ -315,10 +320,12 @@ int main(int argc, char** argv)
   float replace_cost;
   float fuzzy;
   float contrastive_factor;
+  float bm25_cutoff;
   int nmatch;
   int nthreads;
   int min_subseq_length;
   int contrastive_buffer;
+  int bm25_buffer;
   float min_subseq_ratio;
   size_t max_tokens_in_pattern;
   fuzzyOptions.add_options()
@@ -350,6 +357,8 @@ int main(int argc, char** argv)
     ("contrast-reduce", po::value(&contrastive_reduce)->default_value("mean"), "Contrastive factor for contrastive fuzzy retrieval (mean, max)")
     ("filter-type", po::value(&filter_type)->default_value("suffix-array"), "Type of filter used (suffix-array, bm25)")
     ("contrast-buffer", po::value(&contrastive_buffer)->default_value(-1), "number of fuzzy matches to place in the buffer")    
+    ("bm25-buffer", po::value(&bm25_buffer)->default_value(10), "number of best BM25 to rerank")
+    ("bm25-cutoff", po::value(&bm25_cutoff)->default_value(0.f), "minimum BM25 score threshold cutoff")
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 
@@ -424,7 +433,7 @@ int main(int argc, char** argv)
               idf_penalty, subseq_idf_weighting,
               max_tokens_in_pattern, edit_cost,
               contrastive_reduce, contrastive_buffer,
-              filter_type);
+              filter_type, bm25_buffer, bm25_cutoff);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);

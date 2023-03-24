@@ -74,7 +74,9 @@ namespace fuzzy
                float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1,
-               IndexType filter_type=IndexType::SUFFIX) const;
+               IndexType filter_type=IndexType::SUFFIX,
+               int bm25_buffer=10,
+               float bm25_cutoff=0) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -88,7 +90,9 @@ namespace fuzzy
                float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1,
-               IndexType filter_type=IndexType::SUFFIX) const;
+               IndexType filter_type=IndexType::SUFFIX,
+               int bm25_buffer=10,
+               float bm25_cutoff=0) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -102,7 +106,9 @@ namespace fuzzy
                float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1,
-               IndexType filter_type=IndexType::SUFFIX) const;
+               IndexType filter_type=IndexType::SUFFIX,
+               int bm25_buffer=10,
+               float bm25_cutoff=0) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,
