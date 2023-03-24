@@ -40,9 +40,9 @@ namespace fuzzy
     double score = 0;
     for (unsigned& term : pattern_wids){
       score += (*_bm25)[term][s_id];
-      std::cerr << term << ":" << (*_bm25)[term][s_id] << " | ";
+      // std::cerr << term << ":" << (*_bm25)[term][s_id] << " | ";
     }
-    std::cerr << std::endl;
+    // std::cerr << std::endl;
     return score;
   }
 
@@ -54,7 +54,7 @@ namespace fuzzy
     std::vector<float>& idf)
   {
     /* BM25 formula */
-    std::cerr << idf[term] * (_k1 + 1) * tf[term][s_id] / (tf[term][s_id] + _k1 * ((1 - _b) + (_b * (get_sentence_length(s_id) / avg_doc_length)))) << " ";
+    // std::cerr << idf[term] * (_k1 + 1) * tf[term][s_id] / (tf[term][s_id] + _k1 * ((1 - _b) + (_b * (get_sentence_length(s_id) / avg_doc_length)))) << " ";
 
     return idf[term] * (_k1 + 1) * tf[term][s_id] / 
           (tf[term][s_id] + _k1 * ((1 - _b) + (_b * (get_sentence_length(s_id) / avg_doc_length))));
@@ -64,7 +64,7 @@ namespace fuzzy
     if (_sorted)
       return;
 
-    std::cerr << "build TF + DF..." << std::endl;
+    // std::cerr << "build TF + DF..." << std::endl;
     // build TF + DF
     boost::multi_array<unsigned, 2> tf(boost::extents[vocab_size][_sentence_pos.size()]);
     std::fill(tf.data(), tf.data() + tf.num_elements(), 0);
@@ -79,7 +79,7 @@ namespace fuzzy
         relative_pos = 0;
         sentence_idx++;
         seen_in_doc.clear();
-        std::cerr << "| ";
+        // std::cerr << "| ";
       }
       else if (_sentence_buffer[pos] != 0)
       {
@@ -88,14 +88,14 @@ namespace fuzzy
         // std::cerr << "(" << result_insert.second << ") ";
         if (result_insert.second)
           doc_freq[_sentence_buffer[pos]]++;
-        std::cerr << _sentence_buffer[pos] << " ";
+        // std::cerr << _sentence_buffer[pos] << " ";
       }
     }
-    std::cerr << std::endl;
-    for (auto &e : doc_freq)
-      std::cerr << e << " ";
-    std::cerr << std::endl;
-    std::cerr << "build IDF from DF..." << std::endl;
+    // std::cerr << std::endl;
+    // for (auto &e : doc_freq)
+    //   std::cerr << e << " ";
+    // std::cerr << std::endl;
+    // std::cerr << "build IDF from DF..." << std::endl;
     // build IDF from DF
     std::vector<float> idf(vocab_size);
     for (unsigned term = 0; term < vocab_size; term++)
@@ -105,16 +105,16 @@ namespace fuzzy
         ((double)doc_freq[term] + 0.5)
       );
     }
-    std::cerr << "build BM25 from TF and IDF..." << std::endl;
+    // std::cerr << "build BM25 from TF and IDF..." << std::endl;
     // build BM25 from TF and IDF
     double avg_doc_length = (double)_sentence_buffer.size() / (double)_sentence_pos.size() - 2;
-    std::cerr << vocab_size << ", " << _sentence_pos.size() << std::endl;
+    // std::cerr << vocab_size << ", " << _sentence_pos.size() << std::endl;
     _bm25 = new boost::multi_array<float, 2>(boost::extents[vocab_size][_sentence_pos.size()]);
     for (unsigned s_id = 0; s_id < _sentence_pos.size(); s_id++)
       for (unsigned term = 0; term < vocab_size; term++)
         (*_bm25)[term][s_id] = bm25_score(term, s_id, avg_doc_length, tf, idf);
 
-    std::cerr << "sorted" << std::endl;
+    // std::cerr << "sorted" << std::endl;
     _sorted = true;
   }
 }

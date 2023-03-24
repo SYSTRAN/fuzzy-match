@@ -39,7 +39,7 @@ namespace fuzzy
     // if (filterIndex->getType() == IndexType::BM25)
     //   std::cerr << "should load BM25..." << std::endl;
 
-    std::cerr << "loading fuzzy_match..." << std::endl;
+    // std::cerr << "loading fuzzy_match..." << std::endl;
 
     FilterIndex* filterIndex = nullptr;
     archive &

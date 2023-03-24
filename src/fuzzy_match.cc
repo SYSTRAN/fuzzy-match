@@ -472,7 +472,6 @@ namespace fuzzy
 
     if ((int)(min_subseq_ratio*p_length) > min_subseq_length)
       min_subseq_length = min_subseq_ratio*p_length;
-
     /* get vocab id once for all */
     const auto pattern_wids = _filterIndex->get_VocabIndexer().getIndex(pattern);
 
@@ -495,7 +494,6 @@ namespace fuzzy
 
       if (p_length == 1)
       {
-        std::cerr << "p_length == 1" << std::endl;
         std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data(), p_length);
 
         if (range_suffixid.first != range_suffixid.second)
@@ -567,12 +565,12 @@ namespace fuzzy
     }
     else if (filter_type == IndexType::BM25)
     {
-      std::cerr << "register <<<";
+      // std::cerr << "register <<<";
       const BM25& bm25 = static_cast<const BM25&>(filter);
       filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, 20);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
       bm25Matches.register_pattern(pattern_wids, edit_costs);
-      std::cerr << std::endl << ">>>";
+      // std::cerr << std::endl << ">>>";
     }
     /* Consolidation of the results */
 
@@ -610,7 +608,7 @@ namespace fuzzy
         /* let us check the candidates */
         const auto sentence_realtok = _filterIndex->real_tokens(s_id);
         const auto cost_upper_bound = lowest_costs.top();
-        std::cerr << "+";
+        // std::cerr << "+";
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,

@@ -21,11 +21,11 @@ static std::string get_temp(const std::string& path) {
   return (temp_dir / path).string();
 }
 
-// TEST(FuzzyMatchTest, nofmi) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher;
-//   ASSERT_THROW(fuzzy::import_binarized_fuzzy_matcher(get_data("non_existing.fmi"), _fuzzyMatcher),
-//                std::exception);
-// }
+TEST(FuzzyMatchTest, nofmi) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  ASSERT_THROW(fuzzy::import_binarized_fuzzy_matcher(get_data("non_existing.fmi"), _fuzzyMatcher),
+               std::exception);
+}
 
 namespace boost {
     template<> 
@@ -101,126 +101,126 @@ static void tests_matches(fuzzy::FuzzyMatch &fm, const std::string &testfile,
   }  
 }
 
-// TEST(FuzzyMatchTest, buildtm1_serialize) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_tag |
-//                                   fuzzy::FuzzyMatch::pt_nbr |
-//                                   fuzzy::FuzzyMatch::pt_cas);
-//   std::ifstream ifs(get_data("tm1"));
-//   std::string srcLine;
-//   int count=0;
-//   while (getline(ifs, srcLine))
-//   {
-//     /* index is the sentence */
-//     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
-//   }
-//   _fuzzyMatcher.sort();
-//   tests_matches(_fuzzyMatcher, "test-tm1");
-//   fuzzy::export_binarized_fuzzy_matcher(get_temp("tm1.fmi"), _fuzzyMatcher);
-//   fuzzy::FuzzyMatch _fuzzyMatcher_reload;
-//   fuzzy::import_binarized_fuzzy_matcher(get_temp("tm1.fmi"), _fuzzyMatcher_reload);
-//   tests_matches(_fuzzyMatcher_reload, "test-tm1");
-// }
+TEST(FuzzyMatchTest, buildtm1_serialize) {
+  fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_tag |
+                                  fuzzy::FuzzyMatch::pt_nbr |
+                                  fuzzy::FuzzyMatch::pt_cas);
+  std::ifstream ifs(get_data("tm1"));
+  std::string srcLine;
+  int count=0;
+  while (getline(ifs, srcLine))
+  {
+    /* index is the sentence */
+    _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
+  }
+  _fuzzyMatcher.sort();
+  tests_matches(_fuzzyMatcher, "test-tm1");
+  fuzzy::export_binarized_fuzzy_matcher(get_temp("tm1.fmi"), _fuzzyMatcher);
+  fuzzy::FuzzyMatch _fuzzyMatcher_reload;
+  fuzzy::import_binarized_fuzzy_matcher(get_temp("tm1.fmi"), _fuzzyMatcher_reload);
+  tests_matches(_fuzzyMatcher_reload, "test-tm1");
+}
 
-// TEST(FuzzyMatchTest, buildtm1_pct) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_pct |
-//                                   fuzzy::FuzzyMatch::pt_nbr |
-//                                   fuzzy::FuzzyMatch::pt_cas);
-//   std::ifstream ifs(get_data("tm1"));
-//   std::string srcLine;
-//   int count=0;
-//   while (getline(ifs, srcLine))
-//   {
-//     testing::internal::CaptureStderr();
-//     /* index is the sentence */
-//     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
-//     std::string warning = testing::internal::GetCapturedStderr();
-//     if (srcLine == ".")
-//       EXPECT_TRUE(warning.find("WARNING") != std::string::npos) << "warning: ["<<warning<<"]";
-//     else
-//       EXPECT_TRUE(warning == "") << "warning: ["<<warning<<"]";
-//   }
-//   _fuzzyMatcher.sort();
-//   tests_matches(_fuzzyMatcher, "test-tm1-pct");
-// }
+TEST(FuzzyMatchTest, buildtm1_pct) {
+  fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_pct |
+                                  fuzzy::FuzzyMatch::pt_nbr |
+                                  fuzzy::FuzzyMatch::pt_cas);
+  std::ifstream ifs(get_data("tm1"));
+  std::string srcLine;
+  int count=0;
+  while (getline(ifs, srcLine))
+  {
+    testing::internal::CaptureStderr();
+    /* index is the sentence */
+    _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
+    std::string warning = testing::internal::GetCapturedStderr();
+    if (srcLine == ".")
+      EXPECT_TRUE(warning.find("WARNING") != std::string::npos) << "warning: ["<<warning<<"]";
+    else
+      EXPECT_TRUE(warning == "") << "warning: ["<<warning<<"]";
+  }
+  _fuzzyMatcher.sort();
+  tests_matches(_fuzzyMatcher, "test-tm1-pct");
+}
 
-// TEST(FuzzyMatchTest, buildtm1_sep) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_tag |
-//                                   fuzzy::FuzzyMatch::pt_sep |
-//                                   fuzzy::FuzzyMatch::pt_cas |
-//                                   fuzzy::FuzzyMatch::pt_nbr);
-//   std::ifstream ifs(get_data("tm1"));
-//   std::string srcLine;
-//   int count=0;
-//   while (getline(ifs, srcLine))
-//   {
-//     /* index is the sentence */
-//     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
-//   }
-//   _fuzzyMatcher.sort();
-//   tests_matches(_fuzzyMatcher, "test-tm1-sep");
-// }
+TEST(FuzzyMatchTest, buildtm1_sep) {
+  fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_tag |
+                                  fuzzy::FuzzyMatch::pt_sep |
+                                  fuzzy::FuzzyMatch::pt_cas |
+                                  fuzzy::FuzzyMatch::pt_nbr);
+  std::ifstream ifs(get_data("tm1"));
+  std::string srcLine;
+  int count=0;
+  while (getline(ifs, srcLine))
+  {
+    /* index is the sentence */
+    _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
+  }
+  _fuzzyMatcher.sort();
+  tests_matches(_fuzzyMatcher, "test-tm1-sep");
+}
 
-// TEST(FuzzyMatchTest, buildtm1_jnr) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_tag |
-//                                   fuzzy::FuzzyMatch::pt_jnr |
-//                                   fuzzy::FuzzyMatch::pt_cas |
-//                                   fuzzy::FuzzyMatch::pt_nbr);
-//   std::ifstream ifs(get_data("tm1"));
-//   std::string srcLine;
-//   int count=0;
-//   while (getline(ifs, srcLine))
-//   {
-//     /* index is the sentence */
-//     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
-//   }
-//   _fuzzyMatcher.sort();
-//   tests_matches(_fuzzyMatcher, "test-tm1-jnr");
-// }
+TEST(FuzzyMatchTest, buildtm1_jnr) {
+  fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_tag |
+                                  fuzzy::FuzzyMatch::pt_jnr |
+                                  fuzzy::FuzzyMatch::pt_cas |
+                                  fuzzy::FuzzyMatch::pt_nbr);
+  std::ifstream ifs(get_data("tm1"));
+  std::string srcLine;
+  int count=0;
+  while (getline(ifs, srcLine))
+  {
+    /* index is the sentence */
+    _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
+  }
+  _fuzzyMatcher.sort();
+  tests_matches(_fuzzyMatcher, "test-tm1-jnr");
+}
 
-// TEST(FuzzyMatchTest, buildtm1_nonbr_nocas) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_none);
-//   std::ifstream ifs(get_data("tm1"));
-//   std::string srcLine;
-//   int count=0;
-//   while (getline(ifs, srcLine))
-//   {
-//     /* index is the sentence */
-//     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
-//   }
-//   _fuzzyMatcher.sort();
-//   tests_matches(_fuzzyMatcher, "test-tm1-nonbr");
-// }
+TEST(FuzzyMatchTest, buildtm1_nonbr_nocas) {
+  fuzzy::FuzzyMatch _fuzzyMatcher(fuzzy::FuzzyMatch::pt_none);
+  std::ifstream ifs(get_data("tm1"));
+  std::string srcLine;
+  int count=0;
+  while (getline(ifs, srcLine))
+  {
+    /* index is the sentence */
+    _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
+  }
+  _fuzzyMatcher.sort();
+  tests_matches(_fuzzyMatcher, "test-tm1-nonbr");
+}
 
-// TEST(FuzzyMatchTest, prebuild_tm1) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher;
-//   fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.fmi"), _fuzzyMatcher);
-//   tests_matches(_fuzzyMatcher, "test-tm1");  
-// }
+TEST(FuzzyMatchTest, prebuild_tm1) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.fmi"), _fuzzyMatcher);
+  tests_matches(_fuzzyMatcher, "test-tm1");  
+}
 
-// TEST(FuzzyMatchTest, prebuild_tm1_oldapi) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher;
-//   fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.fmi"), _fuzzyMatcher);
+TEST(FuzzyMatchTest, prebuild_tm1_oldapi) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.fmi"), _fuzzyMatcher);
 
-//   std::string sentence = "aa bb cc dd";
-//   std::vector<std::string> sentence_split;
-//   boost::split(sentence_split, sentence, boost::is_any_of(" "));
-//   float fuzzy = 0.6;
-//   int nmatches = 0;
-//   std::vector<fuzzy::FuzzyMatch::Match> matches;
-//   _fuzzyMatcher.match(sentence_split, fuzzy, nmatches, matches);
-// }
+  std::string sentence = "aa bb cc dd";
+  std::vector<std::string> sentence_split;
+  boost::split(sentence_split, sentence, boost::is_any_of(" "));
+  float fuzzy = 0.6;
+  int nmatches = 0;
+  std::vector<fuzzy::FuzzyMatch::Match> matches;
+  _fuzzyMatcher.match(sentence_split, fuzzy, nmatches, matches);
+}
 
-// TEST(FuzzyMatchTest, prebuild_old_tm1) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher;
-//   fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.old.fmi"), _fuzzyMatcher);
-//   tests_matches(_fuzzyMatcher, "test-tm1");
-// }
+TEST(FuzzyMatchTest, prebuild_old_tm1) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  fuzzy::import_binarized_fuzzy_matcher(get_data("tm1.old.fmi"), _fuzzyMatcher);
+  tests_matches(_fuzzyMatcher, "test-tm1");
+}
 
-// TEST(FuzzyMatchTest, tm2) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher;
-//   fuzzy::import_binarized_fuzzy_matcher(get_data("tm2.en.gz.fmi"), _fuzzyMatcher);
-//   tests_matches(_fuzzyMatcher, "test-tm2", 3, 0.3);
-// }
+TEST(FuzzyMatchTest, tm2) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  fuzzy::import_binarized_fuzzy_matcher(get_data("tm2.en.gz.fmi"), _fuzzyMatcher);
+  tests_matches(_fuzzyMatcher, "test-tm2", 3, 0.3);
+}
 
 TEST(FuzzyMatchTest, small_sentence_matches) {
   fuzzy::FuzzyMatch _fuzzyMatcher;
@@ -235,448 +235,446 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
     boost::split(sentence_split, sentence, boost::is_any_of(" "));
     std::vector<fuzzy::FuzzyMatch::Match> matches;
     int min_subseq_length = 3; // min_subseq_length > pattern length
-    _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
     EXPECT_EQ(matches.size(), 1);
-    if (matches.size() > 0)
-      EXPECT_EQ(matches[0].s_id, 0);
+    EXPECT_EQ(matches[0].s_id, 0);
   }
 
-  // {
-  //   std::string sentence = "two words";
-  //   std::vector<std::string> sentence_split;
-  //   boost::split(sentence_split, sentence, boost::is_any_of(" "));
-  //   std::vector<fuzzy::FuzzyMatch::Match> matches;
-  //   int min_subseq_length = 3; // min_subseq_length > pattern length
-  //   _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
-  //   EXPECT_EQ(matches.size(), 1);
-  //   EXPECT_EQ(matches[0].s_id, 1);
-  // }
+  {
+    std::string sentence = "two words";
+    std::vector<std::string> sentence_split;
+    boost::split(sentence_split, sentence, boost::is_any_of(" "));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    int min_subseq_length = 3; // min_subseq_length > pattern length
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    EXPECT_EQ(matches.size(), 1);
+    EXPECT_EQ(matches[0].s_id, 1);
+  }
 
-  // {
-  //   std::string sentence = "three kind words";
-  //   std::vector<std::string> sentence_split;
-  //   boost::split(sentence_split, sentence, boost::is_any_of(" "));
-  //   std::vector<fuzzy::FuzzyMatch::Match> matches;
-  //   int min_subseq_length = 3; // min_subseq_length == pattern length
-  //   _fuzzyMatcher.match(sentence_split, 1, 1, matches, 0, min_subseq_length);
-  //   EXPECT_EQ(matches.size(), 1);
-  //   EXPECT_EQ(matches[0].s_id, 2);
-  // }
+  {
+    std::string sentence = "three kind words";
+    std::vector<std::string> sentence_split;
+    boost::split(sentence_split, sentence, boost::is_any_of(" "));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    int min_subseq_length = 3; // min_subseq_length == pattern length
+    _fuzzyMatcher.match(sentence_split, 1, 1, matches, min_subseq_length);
+    EXPECT_EQ(matches.size(), 1);
+    EXPECT_EQ(matches[0].s_id, 2);
+  }
 }
 
-// TEST(FuzzyMatchTest, empty_token) {
-//   fuzzy::FuzzyMatch _fuzzyMatcher;
-//   _fuzzyMatcher.add_tm("", {"NMT", "", "", "neural", "machine", "translation"}); // The empty token produced a visible InvalidRead when launching the tests with Valgrind
-//   _fuzzyMatcher.sort();
+TEST(FuzzyMatchTest, empty_token) {
+  fuzzy::FuzzyMatch _fuzzyMatcher;
+  _fuzzyMatcher.add_tm("", {"NMT", "", "", "neural", "machine", "translation"}); // The empty token produced a visible InvalidRead when launching the tests with Valgrind
+  _fuzzyMatcher.sort();
 
-//   std::vector<fuzzy::FuzzyMatch::Match> matches;
-//   ASSERT_NO_THROW(_fuzzyMatcher.match("NMT neural machine translation", 0.1, 1, false, matches));
-// }
+  std::vector<fuzzy::FuzzyMatch::Match> matches;
+  ASSERT_NO_THROW(_fuzzyMatcher.match("NMT neural machine translation", 0.1, 1, false, matches));
+}
 
-// TEST(FuzzyMatchTest, max_tokens_in_pattern) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 2);
-//     fuzzy_matcher.add_tm("", "single");
-//     fuzzy_matcher.add_tm("", "two words");
-//     fuzzy_matcher.add_tm("", "three kind words");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
+TEST(FuzzyMatchTest, max_tokens_in_pattern) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 2);
+    fuzzy_matcher.add_tm("", "single");
+    fuzzy_matcher.add_tm("", "two words");
+    fuzzy_matcher.add_tm("", "three kind words");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
 
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//     EXPECT_EQ(fuzzy_matcher.max_tokens_in_pattern(), 2);
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+    EXPECT_EQ(fuzzy_matcher.max_tokens_in_pattern(), 2);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"three", "kind", "words"},
-//                         /*fuzzy=*/1,
-//                         /*number_of_matches=*/1,
-//                         matches,
-//                         /*min_subseq_length=*/3);
-//     EXPECT_EQ(matches.size(), 0); // no match since "three kind words" not in TM, because max token in patterns set to 2
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"three", "kind", "words"},
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        matches,
+                        /*min_subseq_length=*/3);
+    EXPECT_EQ(matches.size(), 0); // no match since "three kind words" not in TM, because max token in patterns set to 2
 
-//     fuzzy_matcher.match({"two", "words"},
-//                         /*fuzzy=*/1,
-//                         /*number_of_matches=*/1,
-//                         matches,
-//                         /*min_subseq_length=*/2);
-//     EXPECT_EQ(matches.size(), 1);
-//   }
-// }
+    fuzzy_matcher.match({"two", "words"},
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        matches,
+                        /*min_subseq_length=*/2);
+    EXPECT_EQ(matches.size(), 1);
+  }
+}
 
-// TEST(FuzzyMatchTest, nfc_normalization) {
-//   // The ohm character is normalized into omega under NFC normalization.
-//   const std::string ohm = "Ω";
-//   const std::string omega = "Ω";
+TEST(FuzzyMatchTest, nfc_normalization) {
+  // The ohm character is normalized into omega under NFC normalization.
+  const std::string ohm = "Ω";
+  const std::string omega = "Ω";
 
-//   fuzzy::FuzzyMatch fuzzy_matcher;
-//   fuzzy_matcher.add_tm("", ohm);
-//   fuzzy_matcher.sort();
+  fuzzy::FuzzyMatch fuzzy_matcher;
+  fuzzy_matcher.add_tm("", ohm);
+  fuzzy_matcher.sort();
 
-//   {
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match(ohm,
-//                         /*fuzzy=*/1,
-//                         /*number_of_matches=*/1,
-//                         /*no_perfect=*/false,
-//                         matches,
-//                         /*min_subseq_length=*/1);
-//     EXPECT_EQ(matches.size(), 1);
-//   }
+  {
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match(ohm,
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        /*no_perfect=*/false,
+                        matches,
+                        /*min_subseq_length=*/1);
+    EXPECT_EQ(matches.size(), 1);
+  }
 
-//   {
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match(omega,
-//                         /*fuzzy=*/1,
-//                         /*number_of_matches=*/1,
-//                         /*no_perfect=*/false,
-//                         matches,
-//                         /*min_subseq_length=*/1);
-//     EXPECT_EQ(matches.size(), 1);
-//   }
-// }
+  {
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match(omega,
+                        /*fuzzy=*/1,
+                        /*number_of_matches=*/1,
+                        /*no_perfect=*/false,
+                        matches,
+                        /*min_subseq_length=*/1);
+    EXPECT_EQ(matches.size(), 1);
+  }
+}
 
-// TEST(FuzzyMatchTest, lcs_cost) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c");
-//     fuzzy_matcher.add_tm("", "a b c d e x x x");
-//     fuzzy_matcher.add_tm("", "x x a b c d e f x x x x x");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
+TEST(FuzzyMatchTest, lcs_cost) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c");
+    fuzzy_matcher.add_tm("", "a b c d e x x x");
+    fuzzy_matcher.add_tm("", "x x a b c d e f x x x x x");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
 
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
-//                         /*fuzzy=*/0,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/3,
-//                         /*min_subseq_ratio=*/0.5,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/3,
+                        /*min_subseq_ratio=*/0.5,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
 
-//     EXPECT_EQ(matches.size(), 3);
-//     if (matches.size() >= 1) {
-//       EXPECT_EQ(matches[0].s_id, 2);
-//       EXPECT_NEAR(matches[0].score, 1.f, 1e-3);
-//     }
-//     if (matches.size() >= 2) {
-//       EXPECT_EQ(matches[1].s_id, 1);
-//       EXPECT_NEAR(matches[1].score, 5/6.f, 1e-3);
-//     }
-//     if (matches.size() >= 3) {
-//       EXPECT_EQ(matches[2].s_id, 0); 
-//       EXPECT_NEAR(matches[2].score, 1/2.f, 1e-3);
-//     }
-//   }
-// }
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 2);
+      EXPECT_NEAR(matches[0].score, 1.f, 1e-3);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 1);
+      EXPECT_NEAR(matches[1].score, 5/6.f, 1e-3);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 0); 
+      EXPECT_NEAR(matches[2].score, 1/2.f, 1e-3);
+    }
+  }
+}
 
-// TEST(FuzzyMatchTest, pre_reject) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c d e");
-//     fuzzy_matcher.add_tm("", "a b c d e f");
-//     fuzzy_matcher.add_tm("", "a b c d e f g");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+TEST(FuzzyMatchTest, pre_reject) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c d e");
+    fuzzy_matcher.add_tm("", "a b c d e f");
+    fuzzy_matcher.add_tm("", "a b c d e f g");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c"},
-//                         /*fuzzy=*/0.5,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c"},
+                        /*fuzzy=*/0.5,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
 
-//     EXPECT_EQ(matches.size(), 2); // was previously all rejected...
-//   }
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+    EXPECT_EQ(matches.size(), 2); // was previously all rejected...
+  }
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"},
-//                         /*fuzzy=*/0.5,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"},
+                        /*fuzzy=*/0.5,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
 
-//     EXPECT_EQ(matches.size(), 2);
-//   }
-// }
+    EXPECT_EQ(matches.size(), 2);
+  }
+}
 
-// TEST(FuzzyMatchTest, idf_weight_1) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c");
-//     fuzzy_matcher.add_tm("", "a b d");
-//     fuzzy_matcher.add_tm("", "d d d d d");
-//     fuzzy_matcher.add_tm("", "d e");
-//     fuzzy_matcher.add_tm("", "c");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+TEST(FuzzyMatchTest, idf_weight_1) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c");
+    fuzzy_matcher.add_tm("", "a b d");
+    fuzzy_matcher.add_tm("", "d d d d d");
+    fuzzy_matcher.add_tm("", "d e");
+    fuzzy_matcher.add_tm("", "c");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d"},
-//                         /*fuzzy=*/0.,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/1,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d"},
+                        /*fuzzy=*/0.,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/1,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
 
-//     EXPECT_EQ(matches.size(), 2);
-//     EXPECT_EQ(matches[0].s_id, 0);
-//     EXPECT_EQ(matches[1].s_id, 1);
-//     EXPECT_TRUE(matches[0].score > matches[1].score);
-//     EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
-//     EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
-//   }
-// }
+    EXPECT_EQ(matches.size(), 2);
+    EXPECT_EQ(matches[0].s_id, 0);
+    EXPECT_EQ(matches[1].s_id, 1);
+    EXPECT_TRUE(matches[0].score > matches[1].score);
+    EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
+    EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
+  }
+}
 
-// TEST(FuzzyMatchTest, idf_weight_2) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c e");
-//     fuzzy_matcher.add_tm("", "a b e d");
-//     fuzzy_matcher.add_tm("", "d d d d d");
-//     fuzzy_matcher.add_tm("", "d e");
-//     fuzzy_matcher.add_tm("", "c");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+TEST(FuzzyMatchTest, idf_weight_2) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c e");
+    fuzzy_matcher.add_tm("", "a b e d");
+    fuzzy_matcher.add_tm("", "d d d d d");
+    fuzzy_matcher.add_tm("", "d e");
+    fuzzy_matcher.add_tm("", "c");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d"},
-//                         /*fuzzy=*/0.,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/1,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d"},
+                        /*fuzzy=*/0.,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/1,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 0, 1));
 
-//     EXPECT_EQ(matches.size(), 2);
-//     EXPECT_EQ(matches[0].s_id, 0);
-//     EXPECT_EQ(matches[1].s_id, 1);
-//     EXPECT_TRUE(matches[0].score > matches[1].score);
-//     EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
-//     EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
-//   }
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+    EXPECT_EQ(matches.size(), 2);
+    EXPECT_EQ(matches[0].s_id, 0);
+    EXPECT_EQ(matches[1].s_id, 1);
+    EXPECT_TRUE(matches[0].score > matches[1].score);
+    EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
+    EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
+  }
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d"},
-//                         /*fuzzy=*/0.,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/1,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d"},
+                        /*fuzzy=*/0.,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/1,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1));
 
-//     EXPECT_EQ(matches.size(), 2);
-//     EXPECT_EQ(matches[0].s_id, 0);
-//     EXPECT_EQ(matches[1].s_id, 1);
-//     EXPECT_TRUE(matches[0].score > matches[1].score);
-//     EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
-//     EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
-//   }
-// }
+    EXPECT_EQ(matches.size(), 2);
+    EXPECT_EQ(matches[0].s_id, 0);
+    EXPECT_EQ(matches[1].s_id, 1);
+    EXPECT_TRUE(matches[0].score > matches[1].score);
+    EXPECT_NEAR(matches[0].score, 0.6706515, 1e-4);
+    EXPECT_NEAR(matches[1].score, 0.6076691, 1e-4);
+  }
+}
 
-// TEST(FuzzyMatchTest, contrastive_reduce_mean) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c d");
-//     fuzzy_matcher.add_tm("", "b c d");
-//     fuzzy_matcher.add_tm("", "d e f");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
+TEST(FuzzyMatchTest, contrastive_reduce_mean) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c d");
+    fuzzy_matcher.add_tm("", "b c d");
+    fuzzy_matcher.add_tm("", "d e f");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
 
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
-//                         /*fuzzy=*/0,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
-//                         /*contrastive factor*/1.);
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
+                        /*contrastive factor*/1.);
 
-//     EXPECT_EQ(matches.size(), 3);
-//     if (matches.size() >= 1) {
-//       EXPECT_EQ(matches[0].s_id, 0);
-//       EXPECT_NEAR(matches[0].score - matches[0].penalty, 2/3.f, 1e-3);
-//     }
-//     if (matches.size() >= 2) {
-//       EXPECT_EQ(matches[1].s_id, 2);
-//       EXPECT_NEAR(matches[1].score - matches[1].penalty, 1/2.f, 1e-3);
-//     }
-//     if (matches.size() >= 3) {
-//       EXPECT_EQ(matches[2].s_id, 1); 
-//       EXPECT_NEAR(matches[2].score - matches[2].penalty, 1/8.f, 1e-3);
-//     }
-//   }
-// }
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 0);
+      EXPECT_NEAR(matches[0].score - matches[0].penalty, 2/3.f, 1e-3);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 2);
+      EXPECT_NEAR(matches[1].score - matches[1].penalty, 1/2.f, 1e-3);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 1); 
+      EXPECT_NEAR(matches[2].score - matches[2].penalty, 1/8.f, 1e-3);
+    }
+  }
+}
 
-// TEST(FuzzyMatchTest, contrastive_reduce_max) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c d");
-//     fuzzy_matcher.add_tm("", "b c d");
-//     fuzzy_matcher.add_tm("", "d e f");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
+TEST(FuzzyMatchTest, contrastive_reduce_max) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c d");
+    fuzzy_matcher.add_tm("", "b c d");
+    fuzzy_matcher.add_tm("", "d e f");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
 
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
-//                         /*fuzzy=*/0,
-//                         /*number_of_matches=*/10,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
-//                         /*contrastive factor*/1.,
-//                         fuzzy::ContrastReduce::MAX);
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/10,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
+                        /*contrastive factor*/1.,
+                        fuzzy::ContrastReduce::MAX);
 
-//     EXPECT_EQ(matches.size(), 3);
-//     if (matches.size() >= 1) {
-//       EXPECT_EQ(matches[0].s_id, 0);
-//       EXPECT_NEAR(matches[0].score - matches[0].penalty, 2/3.f, 1e-3);
-//     }
-//     if (matches.size() >= 2) {
-//       EXPECT_EQ(matches[1].s_id, 2);
-//       EXPECT_NEAR(matches[1].score - matches[1].penalty, 1/2.f, 1e-3);
-//     }
-//     if (matches.size() >= 3) {
-//       EXPECT_EQ(matches[2].s_id, 1); 
-//       EXPECT_NEAR(matches[2].score - matches[2].penalty, -1/4.f, 1e-3);
-//     }
-//   }
-// }
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 0);
+      EXPECT_NEAR(matches[0].score - matches[0].penalty, 2/3.f, 1e-3);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 2);
+      EXPECT_NEAR(matches[1].score - matches[1].penalty, 1/2.f, 1e-3);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 1); 
+      EXPECT_NEAR(matches[2].score - matches[2].penalty, -1/4.f, 1e-3);
+    }
+  }
+}
 
-// TEST(FuzzyMatchTest, contrastive_buffer) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
-//     fuzzy_matcher.add_tm("", "a b c d e");
-//     fuzzy_matcher.add_tm("", "b c d e");
-//     fuzzy_matcher.add_tm("", "c d e f");
-//     fuzzy_matcher.add_tm("", "d e f g");
-//     fuzzy_matcher.add_tm("", "h i j");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//   }
+TEST(FuzzyMatchTest, contrastive_buffer) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300);
+    fuzzy_matcher.add_tm("", "a b c d e");
+    fuzzy_matcher.add_tm("", "b c d e");
+    fuzzy_matcher.add_tm("", "c d e f");
+    fuzzy_matcher.add_tm("", "d e f g");
+    fuzzy_matcher.add_tm("", "h i j");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
 
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
-//                         /*fuzzy=*/0,
-//                         /*number_of_matches=*/3,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 0, 1),
-//                         /*contrastive factor*/1.,
-//                         fuzzy::ContrastReduce::MAX,
-//                         /*buffer-size=*/10);
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/3,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 0, 1),
+                        /*contrastive factor*/1.,
+                        fuzzy::ContrastReduce::MAX,
+                        /*buffer-size=*/10);
 
-//     EXPECT_EQ(matches.size(), 3);
-//     if (matches.size() >= 1) {
-//       EXPECT_EQ(matches[0].s_id, 0);
-//     }
-//     if (matches.size() >= 2) {
-//       EXPECT_EQ(matches[1].s_id, 3);
-//     }
-//     if (matches.size() >= 3) {
-//       EXPECT_EQ(matches[2].s_id, 4); 
-//     }
-//   }
-// }
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 0);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 3);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 4); 
+    }
+  }
+}
 
-// TEST(FuzzyMatchTest, bm25) {
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
-//     fuzzy_matcher.add_tm("", "a b c e");
-//     fuzzy_matcher.add_tm("", "a b e d");
-//     fuzzy_matcher.add_tm("", "d d d d d");
-//     fuzzy_matcher.add_tm("", "d e");
-//     fuzzy_matcher.add_tm("", "c");
-//     fuzzy_matcher.sort();
-//     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
-//     std::cerr << "finished export" << std::endl;
-//   }
+TEST(FuzzyMatchTest, bm25) {
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
+    fuzzy_matcher.add_tm("", "a b c e");
+    fuzzy_matcher.add_tm("", "a b e d");
+    fuzzy_matcher.add_tm("", "d d d d d");
+    fuzzy_matcher.add_tm("", "d e");
+    fuzzy_matcher.add_tm("", "c");
+    fuzzy_matcher.sort();
+    fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  }
 
-//   {
-//     fuzzy::FuzzyMatch fuzzy_matcher;
-//     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
+  {
+    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
-//     std::vector<fuzzy::FuzzyMatch::Match> matches;
-//     fuzzy_matcher.match({"a", "b", "c", "d", "x"},
-//                         /*fuzzy=*/0,
-//                         /*number_of_matches=*/3,
-//                         matches,
-//                         /*min_subseq_length=*/0,
-//                         /*min_subseq_ratio=*/0,
-//                         /*vocab_idf_penalty=*/0,
-//                         /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
-//                         /*contrastive_factor=*/0,
-//                         fuzzy::ContrastReduce::MAX,
-//                         /*buffer-size=*/3,
-//                         /*filter-type=*/fuzzy::IndexType::BM25);
+    std::vector<fuzzy::FuzzyMatch::Match> matches;
+    fuzzy_matcher.match({"a", "b", "c", "d", "x"},
+                        /*fuzzy=*/0,
+                        /*number_of_matches=*/3,
+                        matches,
+                        /*min_subseq_length=*/0,
+                        /*min_subseq_ratio=*/0,
+                        /*vocab_idf_penalty=*/0,
+                        /*edit_costs=*/fuzzy::EditCosts(1, 1, 1),
+                        /*contrastive_factor=*/0,
+                        fuzzy::ContrastReduce::MAX,
+                        /*buffer-size=*/3,
+                        /*filter-type=*/fuzzy::IndexType::BM25);
 
-//     EXPECT_EQ(matches.size(), 3);
-//     if (matches.size() >= 1) {
-//       EXPECT_EQ(matches[0].s_id, 0);
-//     }
-//     if (matches.size() >= 2) {
-//       EXPECT_EQ(matches[1].s_id, 1);
-//     }
-//     if (matches.size() >= 3) {
-//       EXPECT_EQ(matches[2].s_id, 4); 
-//     }
-//   }
-// }
+    EXPECT_EQ(matches.size(), 3);
+    if (matches.size() >= 1) {
+      EXPECT_EQ(matches[0].s_id, 0);
+    }
+    if (matches.size() >= 2) {
+      EXPECT_EQ(matches[1].s_id, 1);
+    }
+    if (matches.size() >= 3) {
+      EXPECT_EQ(matches[2].s_id, 4); 
+    }
+  }
+}
 
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);

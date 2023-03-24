@@ -37,13 +37,14 @@ namespace fuzzy
 
   template<class Archive>
   void
-  FilterIndex::save(Archive& ar, unsigned int) const
+  FilterIndex::save(Archive& ar, unsigned int version) const
   {
     if (_type == IndexType::SUFFIX)
     {
       SuffixArray& suffix_array = static_cast<SuffixArray&>(*_filter);
+      if (version >= 2)
+        ar & _type;
       ar
-        // & _type
         & _vocabIndexer
         & suffix_array
         & _ids
@@ -54,7 +55,7 @@ namespace fuzzy
     {
       BM25& bm25 = static_cast<BM25&>(*_filter);
       ar
-        // & _type
+        & _type
         & _vocabIndexer
         & bm25
         & _ids
@@ -66,12 +67,12 @@ namespace fuzzy
   template<class Archive>
   void
   FilterIndex::load(Archive& ar, unsigned int version)
-  {      
-    // ar
-    //   & _type;
+  {
+    if (version >= 2)
+      ar & _type;
     if (_type == IndexType::SUFFIX)
     {
-      std::cerr << "index load suffix..." << std::endl;
+      // std::cerr << "index load suffix..." << std::endl;
       SuffixArray& suffix_array = static_cast<SuffixArray&>(*_filter);
       ar
         & _vocabIndexer
@@ -81,7 +82,7 @@ namespace fuzzy
     }
     else if (_type == IndexType::BM25)
     {
-      std::cerr << "index load bM25..." << std::endl;
+      // std::cerr << "index load bM25..." << std::endl;
       BM25& bm25 = static_cast<BM25&>(*_filter);
       ar
         & _vocabIndexer
@@ -91,9 +92,9 @@ namespace fuzzy
     }
     if (version >= 1)
       ar & _max_tokens_in_pattern;
-    std::cerr << "...loaded" << std::endl;  
+    // std::cerr << "...loaded" << std::endl;  
   }
 
 }
 
-BOOST_CLASS_VERSION(fuzzy::FilterIndex, 1)
+BOOST_CLASS_VERSION(fuzzy::FilterIndex, 2)
