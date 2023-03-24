@@ -495,6 +495,7 @@ namespace fuzzy
 
       if (p_length == 1)
       {
+        std::cerr << "p_length == 1" << std::endl;
         std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data(), p_length);
 
         if (range_suffixid.first != range_suffixid.second)
@@ -592,7 +593,7 @@ namespace fuzzy
 
     for (const auto& pair : filter_matches->get_longest_matches())
     {
-      // std::cerr << "blabla" << std::endl;sorted_matches
+      // std::cerr << "blabla" << std::endl;
       const auto s_id = pair.first;
       const auto longest_match = pair.second;
       size_t s_length = 0;

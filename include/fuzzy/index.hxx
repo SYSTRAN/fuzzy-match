@@ -43,7 +43,7 @@ namespace fuzzy
     {
       SuffixArray& suffix_array = static_cast<SuffixArray&>(*_filter);
       ar
-        & _type
+        // & _type
         & _vocabIndexer
         & suffix_array
         & _ids
@@ -54,7 +54,7 @@ namespace fuzzy
     {
       BM25& bm25 = static_cast<BM25&>(*_filter);
       ar
-        & _type
+        // & _type
         & _vocabIndexer
         & bm25
         & _ids
@@ -67,8 +67,8 @@ namespace fuzzy
   void
   FilterIndex::load(Archive& ar, unsigned int version)
   {      
-    ar
-      & _type;
+    // ar
+    //   & _type;
     if (_type == IndexType::SUFFIX)
     {
       std::cerr << "index load suffix..." << std::endl;
