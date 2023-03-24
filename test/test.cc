@@ -54,7 +54,7 @@ static void tests_matches(fuzzy::FuzzyMatch &fm, const std::string &testfile,
     bool non_perfect = boost::lexical_cast<bool>(split_test[3]);
     int nmatches = boost::lexical_cast<int>(split_test[4]);
     std::vector<fuzzy::FuzzyMatch::Match> matches;
-    fm.match(pattern, fuzzy, nmatches, non_perfect, matches, 0,
+    fm.match(pattern, fuzzy, nmatches, non_perfect, matches,
              min_subseq_length, min_subseq_ratio);
     /* check exact number of matches */
     size_t match_expected = (split_test.size()-5)/2;
@@ -665,7 +665,6 @@ TEST(FuzzyMatchTest, bm25) {
                         /*fuzzy=*/0,
                         /*number_of_matches=*/3,
                         matches,
-                        /*contrastive factor*/0,
                         /*min_subseq_length=*/0,
                         /*min_subseq_ratio=*/0,
                         /*vocab_idf_penalty=*/0,

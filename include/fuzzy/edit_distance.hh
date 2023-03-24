@@ -16,11 +16,11 @@ namespace fuzzy
                        const EditCosts&,
                        const Costs&,
                        float max_fuzziness = std::numeric_limits<float>::max());
-  float _edit_distance_internal(const unsigned* s1, int n1,
-                                const unsigned* s2, int n2,
-                                const EditCosts& edit_costs,
-                                const Costs& costs,
-                                float max_fuzzyness = std::numeric_limits<float>::max());
+  float _edit_distance(const unsigned* s1, int n1,
+                       const unsigned* s2, int n2,
+                       const EditCosts& edit_costs,
+                       const Costs& costs,
+                       float max_fuzzyness = std::numeric_limits<float>::max());
 }
 
 #include <fuzzy/edit_distance.hxx>

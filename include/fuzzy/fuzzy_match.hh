@@ -5,9 +5,6 @@
 #include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
-#include <utility>
-#include <functional>
-#include <unordered_map>
 
 namespace onmt {
   class Tokenizer;
@@ -16,6 +13,7 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
+<<<<<<< HEAD
   // enum class IndexType { SUFFIX, BM25 };
   struct PairHasher {
     std::size_t operator()(const std::pair<int, int>& p) const {
@@ -24,6 +22,9 @@ namespace fuzzy
       return h1 ^ (h2 << 1);
     }
   };
+=======
+
+>>>>>>> master
   class FuzzyMatch
   {
   public:
@@ -46,6 +47,7 @@ namespace fuzzy
         int length
       ) : length(length), s(seq) {}
       Match() {}
+<<<<<<< HEAD
       Match(const Match& other)
           : score(other.score),
             penalty(other.penalty),
@@ -67,6 +69,8 @@ namespace fuzzy
         }
         return *this;
       }
+=======
+>>>>>>> master
       float       score;
       float       penalty;
       int         max_subseq;
@@ -75,6 +79,7 @@ namespace fuzzy
       int length;
       const unsigned* s;
     };
+
     FuzzyMatch(int pt = penalty_token::pt_none,
                size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN,
                IndexType filter_type = IndexType::SUFFIX);
@@ -91,11 +96,11 @@ namespace fuzzy
                float fuzzy,
                unsigned number_of_matches,
                std::vector<Match> &matches,
-               float contrastive_factor=0,
                int min_subseq_length=2,
                float min_subseq_ratio=0,
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX) const;
@@ -105,11 +110,11 @@ namespace fuzzy
                unsigned number_of_matches,
                bool no_perfect,
                std::vector<Match>& matches,
-               float contrastive_factor=0,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX) const;
@@ -119,11 +124,11 @@ namespace fuzzy
                unsigned number_of_matches,
                bool no_perfect,
                std::vector<Match>& matches,
-               float contrastive_factor=0,
                int min_subseq_length=3,
                float min_subseq_ratio=0.3,
                float vocab_idf_penalty=0,
                const EditCosts& edit_costs=EditCosts(),
+               float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX) const;

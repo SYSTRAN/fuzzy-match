@@ -36,6 +36,14 @@ namespace fuzzy
     }
   };
 
+  struct PairHasher {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+      std::size_t h1 = std::hash<int>()(p.first);
+      std::size_t h2 = std::hash<int>()(p.second);
+      return h1 ^ (h2 << 1);
+    }
+  };
+
   static std::string normalize(const std::string& text_utf8) {
     UErrorCode error_code = U_ZERO_ERROR;
     const auto* normalizer = icu::Normalizer2::getNFCInstance(error_code);
@@ -314,7 +322,7 @@ namespace fuzzy
           size_t s_length = 0;
           const auto* thes = SAI.get_Filter().get_sentence(s_id, &s_length);
 
-          const EditCosts edit_costs = EditCosts();
+          const EditCosts edit_costs;
           const Costs costs(p_length, s_length, edit_costs);
 
           /* let us calculate edit_distance  */
@@ -391,11 +399,11 @@ namespace fuzzy
                          unsigned number_of_matches,
                          bool no_perfect,
                          std::vector<Match>& matches,
-                         float contrastive_factor,
                          int min_subseq_length,
                          float min_subseq_ratio,
                          float vocab_idf_penalty,
                          const EditCosts& edit_costs,
+                         float contrastive_factor,
                          ContrastReduce reduce,
                          int contrast_buffer,
                          IndexType filter_type) const {
@@ -404,7 +412,8 @@ namespace fuzzy
     Tokens norm;
     _tokenize_and_normalize(sentence, real, norm);
     return match(real, norm, fuzzy, number_of_matches, no_perfect, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer, filter_type);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty,
+                 edit_costs, contrastive_factor, reduce, contrast_buffer, filter_type);
   }
 
   /* backward compatibility */
@@ -413,18 +422,19 @@ namespace fuzzy
                     float fuzzy,
                     unsigned number_of_matches,
                     std::vector<Match>& matches,
-                    float contrastive_factor,
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
                     const EditCosts& edit_costs,
+                    float contrastive_factor,
                     ContrastReduce reduce,
                     int contrast_buffer,
                     IndexType filter_type) const
   {
     const Sentence real(pattern);
     return match(real, pattern, fuzzy, number_of_matches, false, matches,
-                 contrastive_factor, min_subseq_length, min_subseq_ratio, vocab_idf_penalty, edit_costs, reduce, contrast_buffer, filter_type);
+                 min_subseq_length, min_subseq_ratio, vocab_idf_penalty,
+                 edit_costs, contrastive_factor, reduce, contrast_buffer, filter_type);
   }
 
   /* check for the pattern in the suffix-array index SAI */ 
@@ -435,11 +445,11 @@ namespace fuzzy
                     unsigned number_of_matches,
                     bool no_perfect,
                     std::vector<Match>& matches,
-                    float contrastive_factor,
                     int min_subseq_length,
                     float min_subseq_ratio,
                     float vocab_idf_penalty,
                     const EditCosts& edit_costs,
+                    float contrastive_factor,
                     ContrastReduce reduce,
                     int contrast_buffer,
                     IndexType filter_type) const
@@ -616,7 +626,7 @@ namespace fuzzy
         if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > contrast_buffer))
           lowest_costs.pop();
         if (score >= fuzzy) {
-          Match m = Match(sentence_wids, s_length);
+          Match m(sentence_wids, s_length);
           m.score = score;
           m.max_subseq = longest_match;
           m.s_id = s_id;
@@ -643,7 +653,7 @@ namespace fuzzy
       std::unordered_map<std::pair<int, int>, float, PairHasher> edit_cost_memory;
       while (!candidates.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
       {
-        EditCosts internal_edit_cost = EditCosts();
+        EditCosts internal_edit_cost;
         // rescore penalties of candidates
         for (Match &match : candidates)
         {
@@ -656,7 +666,7 @@ namespace fuzzy
               penalty = it->second;
             } else {
               const Costs costs(match.length, match_memory.length, internal_edit_cost);
-              penalty = _edit_distance_internal(
+              penalty = _edit_distance(
                 match.s, match.length,
                 match_memory.s, match_memory.length,
                 internal_edit_cost,
@@ -681,27 +691,19 @@ namespace fuzzy
         auto it_max = std::max_element(candidates.begin(), candidates.end(), comp);
         matches.push_back(*it_max);
         candidates.erase(it_max);
-        // it_max->score -= contrastive_factor * it_max->penalty;
       }
-      return matches.size();
     }
-    else 
+    else
     {
       while (!result.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
       {
         auto match = result.top();
-#ifdef XDEBUG
-        std::cout << match.score << "\t"
-                  << match.id << std::endl;
-#endif
-
         matches.push_back(match);
 
         result.pop();
       }
-
-      return matches.size() > 0;
     }
+    return matches.size() > 0;
   }
 }
 

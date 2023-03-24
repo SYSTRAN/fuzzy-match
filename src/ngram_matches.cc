@@ -8,9 +8,19 @@ namespace fuzzy
                              unsigned p_length,
                              unsigned min_seq_len,
                              const SuffixArray& suffixArray)
+<<<<<<< HEAD
       /* add a small epsilon to avoid rounding errors counting for an error */
       : FilterMatches(fuzzy, p_length, min_seq_len, suffixArray)
   {}
+=======
+    /* add a small epsilon to avoid rounding errors counting for an error */
+    : fuzzy_threshold(fuzzy),
+      _p_length(p_length),
+      _min_seq_len(min_seq_len),
+      _suffixArray(suffixArray)
+  {
+  }
+>>>>>>> master
 
   std::vector<std::pair<unsigned, unsigned>>
   NGramMatches::get_longest_matches() const
@@ -28,7 +38,7 @@ namespace fuzzy
   NGramMatches::register_suffix_range_match(size_t begin, size_t end, unsigned match_length, const EditCosts &edit_costs)
   {
     // lazy injection feature - if match_length smaller than min_seq_len, we will not process the suffixes for the moment
-    if (match_length < min_exact_match || match_length < _min_seq_len)
+    if (match_length < _min_seq_len)
       return;
     
     const SuffixArray& suffix_array = static_cast<const SuffixArray&>(_filter);
