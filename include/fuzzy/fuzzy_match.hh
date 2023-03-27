@@ -13,13 +13,7 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
-  // struct PairHasher {
-  //   std::size_t operator()(const std::pair<int, int>& p) const {
-  //     std::size_t h1 = std::hash<int>()(p.first);
-  //     std::size_t h2 = std::hash<int>()(p.second);
-  //     return h1 ^ (h2 << 1);
-  //   }
-  // };
+
   class FuzzyMatch
   {
   public:
@@ -43,6 +37,7 @@ namespace fuzzy
       ) : length(length), s(seq) {}
       Match() {}
       float       score;
+      float       secondary_sort;
       float       penalty;
       int         max_subseq;
       unsigned    s_id;

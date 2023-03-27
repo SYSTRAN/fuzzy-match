@@ -22,25 +22,6 @@ namespace fuzzy
   template<class Archive>
   void FuzzyMatch::load(Archive& archive, unsigned int)
   {
-    // IndexType type = _filterIndex->getType();
-    // FilterIndex* filterIndex = new FilterIndex(type);
-    // if (_filterIndex->getType() == IndexType::BM25)
-    // {
-    //   std::cerr << "previous is BM25..." << std::endl;
-
-    //   // filterIndex = new BM25();
-    // }
-    // // else if (_filterIndex->_type == IndexType::SUFFIX)
-    // // {
-    // //   // filterIndex = new SuffixArray();
-    // // }
-    // // FilterIndex* filterIndex = nullptr;
-
-    // if (filterIndex->getType() == IndexType::BM25)
-    //   std::cerr << "should load BM25..." << std::endl;
-
-    // std::cerr << "loading fuzzy_match..." << std::endl;
-
     FilterIndex* filterIndex = nullptr;
     archive &
     _pt &

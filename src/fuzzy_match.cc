@@ -32,7 +32,7 @@ namespace fuzzy
     bool operator()(const FuzzyMatch::Match &x, const FuzzyMatch::Match &y)
     {
       return x.score < y.score || 
-             (x.score == y.score && x.s_id > y.s_id);
+             (x.score == y.score && x.secondary_sort > y.secondary_sort);
     }
   };
 
@@ -341,6 +341,7 @@ namespace fuzzy
             best_match.score = int(10000-cost*100)/10000.0;
             best_match.max_subseq = subseq.length;
             best_match.s_id = s_id;
+            best_match.secondary_sort = s_id;
             best_match.id = SAI.id(s_id);
             unsigned org_it = map_tokens[subseq.position];
             unsigned org_jt = map_tokens[subseq.position + subseq.length];
@@ -573,12 +574,10 @@ namespace fuzzy
     }
     else if (filter_type == IndexType::BM25)
     {
-      // std::cerr << "register <<<";
       const BM25& bm25 = static_cast<const BM25&>(filter);
       filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
       bm25Matches.register_pattern(pattern_wids, edit_costs);
-      // std::cerr << std::endl << ">>>";
     }
     /* Consolidation of the results */
 
@@ -597,9 +596,9 @@ namespace fuzzy
     std::priority_queue<float> lowest_costs;
     lowest_costs.push(std::numeric_limits<float>::max());
 
-    for (const auto& pair : filter_matches->get_longest_matches())
+    unsigned cpt = 0;
+    for (const auto& pair : filter_matches->get_best_matches())
     {
-      // std::cerr << "blabla" << std::endl;
       const auto s_id = pair.first;
       const auto longest_match = pair.second;
       size_t s_length = 0;
@@ -607,7 +606,6 @@ namespace fuzzy
       const auto num_covered_words = (longest_match < p_length
                                       ? pattern_coverage.count_covered_words(sentence_wids, s_length)
                                       : p_length);
-      // std::cerr << "reject" << std::endl;
       /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
       if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
       {
@@ -616,18 +614,17 @@ namespace fuzzy
         /* let us check the candidates */
         const auto sentence_realtok = _filterIndex->real_tokens(s_id);
         const auto cost_upper_bound = lowest_costs.top();
-        // std::cerr << "+";
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
                                     idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
                                     edit_costs,
                                     costs, cost_upper_bound);
-
         if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
           continue;
 
         float score = int(10000-cost*100)/10000.0;
+
 
         lowest_costs.push(cost);
         if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > contrast_buffer))
@@ -638,7 +635,10 @@ namespace fuzzy
           m.max_subseq = longest_match;
           m.s_id = s_id;
           m.id = _filterIndex->id(s_id);
+          m.secondary_sort = (filter_type == IndexType::SUFFIX) ? s_id : cpt;
+          m.penalty = 0;
           result.push(m);
+          cpt++;
         }
       }
     }

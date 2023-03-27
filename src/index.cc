@@ -27,8 +27,6 @@ namespace fuzzy
 
       _real_tokens.push_back(real_tokens);
     }
-    // this.get_Filter();
-    // std::cerr << "+";
     return _ids.size();
   }
 

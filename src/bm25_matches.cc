@@ -28,41 +28,26 @@ namespace fuzzy
       auto s_length = bm25.get_sentence_length(s_id);
       if (theoretical_rejection(_p_length, s_length, edit_costs))
         continue;
-      double bm25_score = bm25.bm25_score_pattern(s_id, pattern_wids);
+      float bm25_score = bm25.bm25_score_pattern(s_id, pattern_wids);
       if (bm25_score <= _cutoff_threshold)
         continue;
       
       k_best.emplace(bm25_score, s_id);
-      if (k_best.size() >_buffer)
+      if (k_best.size() > _buffer)
         k_best.pop();
-      // _best_matches.try_emplace(s_id, bm25_score);
     }
+    _best_matches.reserve(k_best.size());
     while (!k_best.empty())
     {
-      _best_matches.try_emplace(k_best.top().second, 0);
+      _best_matches.push_back({k_best.top().second, 0});
       k_best.pop();
     }
+    std::reverse(_best_matches.begin(), _best_matches.end()); 
   }
 
   std::vector<std::pair<unsigned, unsigned>>
-  BM25Matches::get_longest_matches() const
+  BM25Matches::get_best_matches() const
   {
-    // (s_id, longest_match=1)
-    // std::cerr << "get_longest...";
-    const BM25& bm25 = static_cast<const BM25&>(_filter);
-    std::vector<std::pair<unsigned, unsigned>> k_best(_best_matches.begin(),
-                                                      _best_matches.end());
-    // std::sort(sorted_matches.begin(), sorted_matches.end(),
-    //           [](const std::pair<unsigned, float>& a, const std::pair<unsigned, float>& b) {
-    //             return a.second > b.second || (a.second == b.second && a.first < b.first);
-    //           });
-    
-    // Maximum number of potential matches is _buffer
-    // std::cerr << "done"  << std::endl;
-    // return std::vector<std::pair<unsigned, unsigned>>(
-    //   sorted_matches.begin(),
-    //   sorted_matches.begin() + std::min(_buffer, (unsigned)sorted_matches.size()));
-
-    return k_best;
+    return _best_matches;
   }
 }

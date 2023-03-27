@@ -29,7 +29,7 @@ namespace fuzzy
     using FilterMatches::theoretical_rejection;
     using FilterMatches::theoretical_rejection_cover;
 
-    std::vector<std::pair<unsigned, unsigned>> get_longest_matches() const override;
+    std::vector<std::pair<unsigned, unsigned>> get_best_matches() const override;
 
   private:
     LongestMatches _longest_matches;

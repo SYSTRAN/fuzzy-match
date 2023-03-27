@@ -13,7 +13,7 @@ namespace fuzzy
   {}
 
   std::vector<std::pair<unsigned, unsigned>>
-  NGramMatches::get_longest_matches() const
+  NGramMatches::get_best_matches() const
   {
     std::vector<std::pair<unsigned, unsigned>> sorted_matches(_longest_matches.begin(),
                                                               _longest_matches.end());

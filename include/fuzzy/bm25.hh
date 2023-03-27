@@ -38,14 +38,14 @@ namespace fuzzy
 
     unsigned get_sentence_length(size_t s_id) const;
 
-    double bm25_score_pattern(
+    float bm25_score_pattern(
       unsigned s_id,
       std::vector<unsigned> pattern_wids) const;
 
-    double bm25_score(
+    float bm25_score(
       unsigned term,
       unsigned s_id,
-      double avg_doc_length,
+      float avg_doc_length,
       boost::multi_array<unsigned, 2>& tf,
       std::vector<float>& idf);
 
