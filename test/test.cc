@@ -655,7 +655,7 @@ TEST(FuzzyMatchTest, bm25) {
   */
   {
     // TEST reranking
-    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
     std::vector<fuzzy::FuzzyMatch::Match> matches;
@@ -685,7 +685,7 @@ TEST(FuzzyMatchTest, bm25) {
   }
   {
     // TEST BM25 buffer
-    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
     std::vector<fuzzy::FuzzyMatch::Match> matches;
@@ -714,7 +714,7 @@ TEST(FuzzyMatchTest, bm25) {
   }
   {
     // TEST BM25 cutoff
-    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
     std::vector<fuzzy::FuzzyMatch::Match> matches;
@@ -749,7 +749,7 @@ TEST(FuzzyMatchTest, bm25) {
   }
   {
     // TEST BM25 cutoff + buffer
-    fuzzy::FuzzyMatch fuzzy_matcher;
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
     fuzzy::import_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
 
     std::vector<fuzzy::FuzzyMatch::Match> matches;

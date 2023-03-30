@@ -29,6 +29,7 @@ namespace fuzzy
       if (theoretical_rejection(_p_length, s_length, edit_costs))
         continue;
       float bm25_score = bm25.bm25_score_pattern(s_id, pattern_wids);
+      // float bm25_score = 0;
       if (bm25_score <= _cutoff_threshold)
         continue;
       
@@ -48,6 +49,7 @@ namespace fuzzy
   std::vector<std::pair<unsigned, unsigned>>
   BM25Matches::get_best_matches() const
   {
+    // std::cerr << _best_matches.size();
     return _best_matches;
   }
 }

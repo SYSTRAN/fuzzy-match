@@ -33,6 +33,8 @@ if(NOT DEFINED ICU_INCLUDE_DIRS OR NOT DEFINED ICU_LIBRARIES)
   find_package(ICU COMPONENTS uc i18n data REQUIRED)
 endif()
 
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${ICU_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
@@ -44,4 +46,5 @@ target_link_libraries(${PROJECT_NAME}
   ${ICU_LIBRARIES}
   ${Boost_LIBRARIES}
   Threads::Threads
+  Eigen3::Eigen
   )

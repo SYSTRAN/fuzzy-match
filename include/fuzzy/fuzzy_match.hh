@@ -2,6 +2,7 @@
 
 #include <boost/serialization/vector.hpp>
 
+#include <fuzzy/utils.hh>
 #include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>

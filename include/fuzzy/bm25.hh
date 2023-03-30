@@ -6,8 +6,11 @@
 #include <ostream>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 #include <math.h> 
+#include <Eigen/Sparse>
 
+#include <fuzzy/utils.hh>
 #include <fuzzy/filter.hh>
 
 #include <boost/multi_array.hpp>
@@ -20,6 +23,8 @@
 
 namespace fuzzy
 {
+  typedef Eigen::SparseMatrix<float> SpMat;
+  typedef Eigen::Triplet<float> Triplet;
   // Sentence ID -> BM25-score
   class BM25 : public Filter
   {
@@ -43,17 +48,20 @@ namespace fuzzy
       std::vector<unsigned> pattern_wids) const;
 
     float bm25_score(
-      unsigned term,
-      unsigned s_id,
+      int term,
+      int s_id,
       float avg_doc_length,
-      boost::multi_array<unsigned, 2>& tf,
+      float tf,
       std::vector<float>& idf);
 
   private:
     bool _sorted = false;
 
+    size_t _vocab_size;
     // BM25 (t, d) cache
-    boost::multi_array<float, 2>* _bm25 = nullptr;
+    std::vector<std::pair<std::pair<int, int>, float>> _key_value_bm25;
+    SpMat _reverted_index;
+    
     // BM25 usual parameters
     float _k1 = 1.5;
     float _b = 0.75;

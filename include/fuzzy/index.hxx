@@ -72,6 +72,7 @@ namespace fuzzy
       ar & _type;
     if (_type == IndexType::SUFFIX)
     {
+      _filter = createSuffixArray();
       SuffixArray& suffix_array = static_cast<SuffixArray&>(*_filter);
       ar
         & _vocabIndexer
@@ -81,6 +82,7 @@ namespace fuzzy
     }
     else if (_type == IndexType::BM25)
     {
+      _filter = createBM25();
       BM25& bm25 = static_cast<BM25&>(*_filter);
       ar
         & _vocabIndexer

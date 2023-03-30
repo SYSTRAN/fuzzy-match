@@ -36,14 +36,6 @@ namespace fuzzy
     }
   };
 
-  struct PairHasher {
-    std::size_t operator()(const std::pair<int, int>& p) const {
-      std::size_t h1 = std::hash<int>()(p.first);
-      std::size_t h2 = std::hash<int>()(p.second);
-      return h1 ^ (h2 << 1);
-    }
-  };
-
   static std::string normalize(const std::string& text_utf8) {
     UErrorCode error_code = U_ZERO_ERROR;
     const auto* normalizer = icu::Normalizer2::getNFCInstance(error_code);
@@ -577,7 +569,12 @@ namespace fuzzy
       const BM25& bm25 = static_cast<const BM25&>(filter);
       filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
+      // std::cerr << "register pattern <<<";
+      std::cerr << "#";
+      // std::cerr << pattern_wids.size() << " ";
       bm25Matches.register_pattern(pattern_wids, edit_costs);
+      // std::cerr << "]";
+      // std::cerr << ">>> done" << std::endl;
     }
     /* Consolidation of the results */
 
@@ -597,6 +594,7 @@ namespace fuzzy
     lowest_costs.push(std::numeric_limits<float>::max());
 
     unsigned cpt = 0;
+    // std::cerr << std::endl << filter_matches->get_best_matches().size() << std::endl;
     for (const auto& pair : filter_matches->get_best_matches())
     {
       const auto s_id = pair.first;
@@ -614,6 +612,7 @@ namespace fuzzy
         /* let us check the candidates */
         const auto sentence_realtok = _filterIndex->real_tokens(s_id);
         const auto cost_upper_bound = lowest_costs.top();
+        // std::cerr << "+";
         float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
                                     pattern_wids.data(), pattern_realtok, p_length,
                                     st, sn,
