@@ -164,7 +164,6 @@ std::pair<int, int> process_stream(const Function& function,
       futures.pop();
       std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
-    std::cerr << std::endl;
   };
 
   while (std::getline(in, line))
@@ -181,11 +180,12 @@ std::pair<int, int> process_stream(const Function& function,
     cv.notify_one();
     if (futures.size() >= buffer_size)
       pop_results(/*blocking=*/false);
-    // std::cerr << "\rPROGRESS: " << count_total << "  " << std::flush;
   }
 
   if (!futures.empty())
     pop_results(/*blocking=*/true);
+  
+  std::cerr << std::endl;
 
   {
     std::lock_guard<std::mutex> lock(mutex);
@@ -439,6 +439,9 @@ int main(int argc, char** argv)
     filter_type = fuzzy::IndexType::BM25;
   else
     filter_type = fuzzy::IndexType::SUFFIX;
+#ifdef NO_EIGEN
+  assert(filter_type != fuzzy::IndexType::BM25);
+#endif
   const fuzzy::FilterIndexParams filter_index_params(bm25_ratio_idf, 1.5, 0.75);
   processor O(pt, fuzzy, contrastive_factor, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,

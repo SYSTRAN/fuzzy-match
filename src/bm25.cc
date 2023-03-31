@@ -72,7 +72,7 @@ namespace fuzzy
     float threshold_idf = std::log((1 - _ratio_idf) / _ratio_idf);
     for (const auto& kvp : inverse_index_set) {
       // > 0 => appears in less than half of the sentences
-      if (idf[kvp.first] > threshold_idf) // TODO: parameter or new method
+      if (idf[kvp.first] > threshold_idf)
         _inverse_index[kvp.first] = std::vector<int>(kvp.second.begin(), kvp.second.end());
     }
     inverse_index_set.clear();

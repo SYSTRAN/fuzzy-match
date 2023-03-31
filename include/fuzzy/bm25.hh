@@ -69,10 +69,10 @@ namespace fuzzy
     // Sparse matrix of BM25 (t, d) cache
     SpMat _bm25_inverse_index;
     
-    
     // BM25 usual parameters
     const float _k1;
     const float _b;
+    // Prefilter reverse index idf ratio
     const float _ratio_idf;
 
     friend class boost::serialization::access;

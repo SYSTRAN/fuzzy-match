@@ -51,6 +51,7 @@ namespace fuzzy
         & _real_tokens
         & _max_tokens_in_pattern;
     }
+#ifdef USE_EIGEN
     else if (_type == IndexType::BM25)
     {
       BM25& bm25 = static_cast<BM25&>(*_filter);
@@ -62,6 +63,7 @@ namespace fuzzy
         & _real_tokens
         & _max_tokens_in_pattern;
     }
+#endif
   }
 
   template<class Archive>
@@ -80,6 +82,7 @@ namespace fuzzy
         & _ids
         & _real_tokens;
     }
+#ifdef USE_EIGEN
     else if (_type == IndexType::BM25)
     {
       _filter = createBM25();
@@ -92,8 +95,8 @@ namespace fuzzy
     }
     if (version >= 1)
       ar & _max_tokens_in_pattern;
+#endif
   }
-
 }
 
 BOOST_CLASS_VERSION(fuzzy::FilterIndex, 2)

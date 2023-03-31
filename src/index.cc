@@ -6,9 +6,12 @@ namespace fuzzy
     : _max_tokens_in_pattern(max_tokens_in_pattern),
       _type(type)
   {
+#ifdef USE_EIGEN
     if (_type == IndexType::BM25)
       _filter = createBM25(parms);
-    else if (_type == IndexType::SUFFIX)
+    else 
+#endif
+    if (_type == IndexType::SUFFIX)
       _filter = createSuffixArray();
   }
 

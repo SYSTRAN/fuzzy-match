@@ -16,6 +16,16 @@ set(FUZZY_SOURCES
 if(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
+
+find_package (Eigen3 3.3 QUIET)
+if(TARGET Eigen3::Eigen)
+  message("-- Found Eigen3, building all sources.")
+  add_definitions(-DUSE_EIGEN)
+else()
+  message("-- Eigen3 not found, excluding bm25_matches.cc and bm25.cc.")
+  list(REMOVE_ITEM FUZZY_SOURCES bm25_matches.cc bm25.cc)
+endif()
+
 if (COMMAND create_library)
   create_library(${PROJECT_NAME} SHARED
     ${FUZZY_SOURCES})
@@ -33,8 +43,6 @@ if(NOT DEFINED ICU_INCLUDE_DIRS OR NOT DEFINED ICU_LIBRARIES)
   find_package(ICU COMPONENTS uc i18n data REQUIRED)
 endif()
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${ICU_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
@@ -46,5 +54,8 @@ target_link_libraries(${PROJECT_NAME}
   ${ICU_LIBRARIES}
   ${Boost_LIBRARIES}
   Threads::Threads
-  Eigen3::Eigen
   )
+
+if(TARGET Eigen3::Eigen)
+  target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
+endif()

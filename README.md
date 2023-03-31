@@ -158,6 +158,8 @@ During the match process, we can restrict the candidate sentences by looking at 
 An alternative to Suffix Array algorithm is Okapi BM25. This is a ranking function using TF-IDF-like structures ([see https://en.wikipedia.org/wiki/Okapi_BM25](https://en.wikipedia.org/wiki/Okapi_BM25)).
 The idea is to only consider the k best scoring sentences as well as the sentences scoring above a certain threshold to compute edit distance on.
 
+The indexed values of BM25 scores (term, sentence_id) are stored in a sparse matrix, requiring package Eigen. If not found, BM25 will not compile, and is not usable
+
 ### Edit distance
 
 Last phase of the fuzzy match is to actually perform a standard edit distance between the *unnormalized* tokens to obtain actual fuzzy match.

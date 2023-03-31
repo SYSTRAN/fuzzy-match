@@ -633,6 +633,7 @@ TEST(FuzzyMatchTest, contrastive_buffer) {
   }
 }
 
+#ifdef USE_EIGEN
 TEST(FuzzyMatchTest, bm25) {
   {
     fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25, fuzzy::FilterIndexParams(0.9, 1.5, 0.75));
@@ -777,6 +778,7 @@ TEST(FuzzyMatchTest, bm25) {
     }
   }
 }
+#endif
 
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);
