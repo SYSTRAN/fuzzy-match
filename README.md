@@ -6,12 +6,14 @@
 
 Simplest command is the following:
 ```
-FuzzyMatch-cli -c CORPUS [--penalty-tokens (none|tag,sep/jnr,pct,cas,nbr)] [--max-tokens-in-pattern N]
+FuzzyMatch-cli -c CORPUS [--penalty-tokens (none|tag,sep/jnr,pct,cas,nbr)] [--max-tokens-in-pattern N] [--filter-type (suffix-array|bm25)] [--bm25-ratio-idf BM25_IDF_RATIO]
 ```
 
 * `CORPUS` can be a single file - in which case, the index of each segment is simply the sentence id - or you can provide a target file using `-c CORPUSSOURCE,CORPUSTARGET` and add option `--add-target` to include in the index the actual target sentence (format ID=target). This is useful for having the index fully containing the translation memory. Not useful, if the translation memory is saved in side database.
 * `--penalty-tokens` (default `tag,cas,nbr`) is either `none` or comma-separated list of `tag`, `sep`, `jnr`, `pct`, `nbr`, `cas` modifying normalization (for `cas` performing case normalization, and `nbr` triggering number normalization), removing some tokens from index (`tag` for tags, and `pct` for punctuations), or generates spacer/joiner (`sep`/`jnr`). In each case, a penalty tokens is added.
 * `--max-tokens-in-pattern` (default: 300) limits how long the pattern can be. This is necessary to prevent poor match performance, because the edit distance computation runs in O(T^2) where T is the number of tokens in the pattern.
+* `--filter-type` switch between `suffix-array` or `bm25` (default `suffix-array`).
+* `BM25IDFRATIO` (default: 0.5) prefilter to fasten BM25. The value is in (0, 1) and correspond to the maximum ratio of sentences in memory containing a certain term before building a reverse index for this term. Reasonable ratios can easily be around 0.1.
 
 This option used in index forces the same logic in matching.
 
