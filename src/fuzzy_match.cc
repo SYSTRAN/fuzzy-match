@@ -12,10 +12,10 @@
 #include <fuzzy/suffix_array.hh>
 #ifdef USE_EIGEN
   #include <fuzzy/bm25.hh>
+  #include <fuzzy/bm25_matches.hh>
 #endif
 #include <fuzzy/costs.hh>
 #include <fuzzy/ngram_matches.hh>
-#include <fuzzy/bm25_matches.hh>
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/pattern_coverage.hh>
 
