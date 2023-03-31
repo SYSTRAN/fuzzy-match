@@ -440,7 +440,6 @@ int main(int argc, char** argv)
   else
     filter_type = fuzzy::IndexType::SUFFIX;
   const fuzzy::FilterIndexParams filter_index_params(bm25_ratio_idf, 1.5, 0.75);
-  // std::cerr << ">>>> " << bm25_ratio_idf << std::endl;
   processor O(pt, fuzzy, contrastive_factor, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,

@@ -28,7 +28,6 @@ namespace fuzzy
   {
   public:
     virtual ~Filter() = default;
-    // Filter(const FilterIndexParams& params);
     virtual unsigned add_sentence(const std::vector<unsigned>& sentence);
     virtual void prepare(size_t vocab_size) = 0;
 

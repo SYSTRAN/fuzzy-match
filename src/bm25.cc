@@ -33,7 +33,6 @@ namespace fuzzy
     if (_prepared)
       return;
     _vocab_size = vocab_size;
-    // std::cerr << "build TF + DF" << std::endl;
     // build TF + DF
     std::unordered_map<std::pair<int, int>, float, PairHasher> tf;
     std::vector<unsigned> doc_freq(vocab_size, 0);
@@ -61,7 +60,6 @@ namespace fuzzy
         inverse_index_set[_sentence_buffer[pos]].insert(sentence_idx);
       }
     }
-    // std::cerr << "build IDF from DF" << std::endl;
     // build IDF from DF
     std::vector<float> idf(vocab_size);
     for (unsigned term = 0; term < vocab_size; term++)
@@ -72,15 +70,12 @@ namespace fuzzy
       );
     }
     float threshold_idf = std::log((1 - _ratio_idf) / _ratio_idf);
-    // std::cerr << "ratio idf = " << _ratio_idf << "  thresh = " << threshold_idf << std::endl;
     for (const auto& kvp : inverse_index_set) {
-      // std::cerr << kvp.first << ": " << idf[kvp.first] << std::endl;
       // > 0 => appears in less than half of the sentences
       if (idf[kvp.first] > threshold_idf) // TODO: parameter or new method
         _inverse_index[kvp.first] = std::vector<int>(kvp.second.begin(), kvp.second.end());
     }
     inverse_index_set.clear();
-    // std::cerr << "build BM25 from TF and IDF" << std::endl;
     // build BM25 from TF and IDF
     float avg_doc_length = (float)_sentence_buffer.size() / (float)_sentence_pos.size() - 2;
     _key_value_bm25 = std::vector<std::pair<std::pair<int, int>, float>>(tf.size());
@@ -93,8 +88,6 @@ namespace fuzzy
       };
       i++;
     }
-
     _prepared = true;
-    // std::cerr << "done" << std::endl;
   }
 }

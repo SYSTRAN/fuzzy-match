@@ -60,8 +60,6 @@ namespace fuzzy
     std::unordered_set<int> get_candidates(const std::vector<unsigned>& pattern_wids) const;
 
   private:
-    // bool _sorted = false;
-
     size_t _vocab_size;
 
     // inverse index to access sentences that contain a given term, to be serialized

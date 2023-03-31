@@ -45,8 +45,6 @@ namespace fuzzy
   template<class Archive>
   void BM25::save(Archive& archive, unsigned int) const
   {
-    // std::cerr << "save " << num_sentences() << "  " << _vocab_size << "  " << _key_value_bm25.size() << std::endl;
-    // std::cerr << "[" << num_sentences() << "]" << std::endl;
     archive & num_sentences() & _vocab_size & _key_value_bm25.size();
     for (unsigned i = 0; i < _key_value_bm25.size(); i++)
     {
@@ -65,7 +63,6 @@ namespace fuzzy
     size_t length, num_sents;
     archive & num_sents & _vocab_size & length;
     _key_value_bm25 = std::vector<std::pair<std::pair<int, int>, float>>(length);
-    // _bm25_inverse_index.reserve(length / 0.5);
 
     std::vector<Triplet> triplets;
     int sid;
@@ -76,15 +73,12 @@ namespace fuzzy
     for (unsigned i = 0; i < length; i++)
     {
       archive & sid & term & bm25_value;
-      // _bm25_inverse_index.emplace(std::make_pair(sid, term), bm25_value);
-      // _key_value_bm25[i] = {{sid, term}, bm25_value};
       if (max_sid < sid)
         max_sid = sid;
       if (max_term < term)
         max_term = term;
       triplets.push_back(Triplet(term, sid, bm25_value));
     }
-    // std::cerr << max_sid << " " << max_term << " || " << num_sents << " " << _vocab_size << std::endl;
     _bm25_inverse_index = SpMat(_vocab_size, num_sents);
     _bm25_inverse_index.setFromTriplets(triplets.begin(), triplets.end());
     archive
@@ -92,13 +86,6 @@ namespace fuzzy
     & _sentence_buffer
     & _sentence_pos
     & _quickVocabAccess;
-    // for (const auto& pair : _inverse_index) {
-    //   std::cerr << pair.first << ": [";
-    //   for (const auto& value : pair.second) {
-    //     std::cerr << value << ", ";
-    //   }
-    //   std::cerr << "]" << std::endl;
-    // }
     _prepared = true;
   }
 }

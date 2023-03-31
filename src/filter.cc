@@ -18,7 +18,6 @@ namespace fuzzy
     for (size_t i = 0; i < sentence.size(); i++)
     {
       _sentence_buffer.push_back(sentence[i]);
-      // _suffixes.push_back(SuffixView{static_cast<unsigned int>(sidx), static_cast<unsigned short>(i+1)});
     }
     _sentence_buffer.push_back(fuzzy::VocabIndexer::SENTENCE_SEPARATOR);
     _prepared = false;

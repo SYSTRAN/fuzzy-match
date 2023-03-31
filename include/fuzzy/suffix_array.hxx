@@ -33,7 +33,6 @@ namespace fuzzy
     & _sentence_buffer
     & _sentence_pos
     & _quickVocabAccess;
-    // std::cerr << "SUFFIX - saving..." << std::endl;
   }
 
   template<class Archive>
