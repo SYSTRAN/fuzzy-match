@@ -9,9 +9,10 @@
 #include <algorithm>
 
 #include <unicode/normalizer2.h>
-
 #include <fuzzy/suffix_array.hh>
-#include <fuzzy/bm25.hh>
+#ifdef USE_EIGEN
+  #include <fuzzy/bm25.hh>
+#endif
 #include <fuzzy/costs.hh>
 #include <fuzzy/ngram_matches.hh>
 #include <fuzzy/bm25_matches.hh>

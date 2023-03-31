@@ -9,7 +9,9 @@
 
 #include <fuzzy/filter.hh>
 #include <fuzzy/suffix_array.hh>
-#include <fuzzy/bm25.hh>
+#ifdef USE_EIGEN
+  #include <fuzzy/bm25.hh>
+#endif
 #include <fuzzy/vocab_indexer.hh>
 #include <fuzzy/sentence.hh>
 

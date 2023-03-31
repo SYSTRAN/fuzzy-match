@@ -93,9 +93,9 @@ namespace fuzzy
         & _ids
         & _real_tokens;
     }
+#endif
     if (version >= 1)
       ar & _max_tokens_in_pattern;
-#endif
   }
 }
 
