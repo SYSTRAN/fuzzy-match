@@ -54,9 +54,9 @@ namespace fuzzy
   }
 
 
-  FuzzyMatch::FuzzyMatch(int pt, size_t max_tokens_in_pattern, IndexType filter_type)
+  FuzzyMatch::FuzzyMatch(int pt, size_t max_tokens_in_pattern, IndexType filter_type, const FilterIndexParams& params)
   : _pt(pt)
-  , _filterIndex(boost::make_unique<FilterIndex>(max_tokens_in_pattern, filter_type))
+  , _filterIndex(boost::make_unique<FilterIndex>(max_tokens_in_pattern, filter_type, params))
   {
     _update_tokenizer();
   }
@@ -188,23 +188,23 @@ namespace fuzzy
 
   /* backward compatibility */
   bool
-  FuzzyMatch::add_tm(const std::string& id, const Tokens& norm, bool sort)
+  FuzzyMatch::add_tm(const std::string& id, const Tokens& norm, bool prepare)
   {
     const Sentence real(norm);
-    _filterIndex->add_tm(id, real, norm, sort);
+    _filterIndex->add_tm(id, real, norm, prepare);
 
     return true;
   }
 
   bool
-  FuzzyMatch::add_tm(const std::string& id, const Sentence& source, const Tokens& norm, bool sort)
+  FuzzyMatch::add_tm(const std::string& id, const Sentence& source, const Tokens& norm, bool prepare)
   {
-    _filterIndex->add_tm(id, source, norm, sort);
+    _filterIndex->add_tm(id, source, norm, prepare);
 
     return true;
   }
 
-  bool FuzzyMatch::add_tm(const std::string &id, const std::string &sentence, bool sort)
+  bool FuzzyMatch::add_tm(const std::string &id, const std::string &sentence, bool prepare)
   {
     Sentence real;
     Tokens norm;
@@ -213,7 +213,7 @@ namespace fuzzy
       std::cerr<<"WARNING: cannot index empty segment: "<<sentence<<" ("<<id<<")"<<std::endl;
       return false;
     }
-    add_tm(id, real, norm, sort);
+    add_tm(id, real, norm, prepare);
     return true;
   }
 
@@ -224,9 +224,9 @@ namespace fuzzy
 #endif
 
   void
-  FuzzyMatch::sort()
+  FuzzyMatch::prepare()
   {
-    _filterIndex->sort();
+    _filterIndex->prepare();
   }
 
   struct Subseq {
@@ -487,7 +487,7 @@ namespace fuzzy
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
 
     const Filter& filter = _filterIndex->get_Filter();
-    FilterMatches* filter_matches;
+    FilterMatches* filter_matches = nullptr;
     if (filter_type == IndexType::SUFFIX) {
       const SuffixArray& suffix_array = static_cast<const SuffixArray&>(filter);
       filter_matches = new NGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
@@ -563,6 +563,7 @@ namespace fuzzy
                                                   edit_costs);
       }
       filter_matches = &nGramMatches;
+      // std::cerr << "#";
     }
     else if (filter_type == IndexType::BM25)
     {
@@ -570,7 +571,7 @@ namespace fuzzy
       filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
       // std::cerr << "register pattern <<<";
-      std::cerr << "#";
+      // std::cerr << "#";
       // std::cerr << pattern_wids.size() << " ";
       bm25Matches.register_pattern(pattern_wids, edit_costs);
       // std::cerr << "]";
@@ -626,7 +627,7 @@ namespace fuzzy
 
 
         lowest_costs.push(cost);
-        if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > contrast_buffer))
+        if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
           lowest_costs.pop();
         if (score >= fuzzy) {
           Match m(sentence_wids, s_length);

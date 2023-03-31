@@ -11,12 +11,26 @@
 
 namespace fuzzy
 {
+  struct FilterIndexParams 
+  {
+    float bm25_k1;
+    float bm25_b;
+    float bm25_ratio_idf;
+    FilterIndexParams(
+      float ratio_idf=0.5,
+      float k1=1.5,
+      float b=0.75) :
+      bm25_k1(k1),
+      bm25_b(b),
+      bm25_ratio_idf(ratio_idf) {}
+  };
   class Filter
   {
   public:
-    ~Filter() = default;
+    virtual ~Filter() = default;
+    // Filter(const FilterIndexParams& params);
     virtual unsigned add_sentence(const std::vector<unsigned>& sentence);
-    virtual void sort(size_t vocab_size) = 0;
+    virtual void prepare(size_t vocab_size) = 0;
 
     std::ostream& dump(std::ostream&) const;
 
@@ -25,7 +39,7 @@ namespace fuzzy
     const unsigned* get_sentence(size_t sentence_id, size_t* length = nullptr) const;
 
   protected:
-    bool _sorted = false;
+    bool _prepared = false;
 
     // the concatenated sentences, as 0-terminated sequences of vocab
     std::vector<unsigned>         _sentence_buffer;

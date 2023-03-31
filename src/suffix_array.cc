@@ -21,15 +21,15 @@ namespace fuzzy
       _suffixes.push_back(SuffixView{static_cast<unsigned int>(sidx), static_cast<unsigned short>(i+1)});
     }
     _sentence_buffer.push_back(fuzzy::VocabIndexer::SENTENCE_SEPARATOR);
-    _sorted = false;
+    _prepared = false;
 
     return sidx;
   }
 
   void
-  SuffixArray::sort(size_t vocab_size)
+  SuffixArray::prepare(size_t vocab_size)
   {
-    if (_sorted)
+    if (_prepared)
       return;
 
     // word id => prefixes
@@ -67,7 +67,7 @@ namespace fuzzy
     }
 
     _quickVocabAccess[vocab_size] = _suffixes.size();
-    _sorted = true;
+    _prepared = true;
 
     compute_sentence_length();
   }
@@ -76,7 +76,7 @@ namespace fuzzy
   std::pair<size_t, size_t>
   SuffixArray::equal_range(const unsigned* ngram, size_t length, size_t min, size_t max) const
   {
-    assert(_suffixes.empty() || _sorted);
+    assert(_suffixes.empty() || _prepared);
 
     if (length == 0)
       return std::pair<size_t, size_t>(0, 0);

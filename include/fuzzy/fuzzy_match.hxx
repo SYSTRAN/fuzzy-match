@@ -9,7 +9,7 @@ namespace fuzzy
   }
 
   template<class Archive>
-  void FuzzyMatch::save(Archive& archive, unsigned int version) const
+  void FuzzyMatch::save(Archive& archive, unsigned int) const
   {
     // Older versions of operator& (e.g. in Boost 1.58) do not accept a rvalue pointer,
     // so we first store the pointer value in a local variable.
@@ -20,7 +20,7 @@ namespace fuzzy
   }
 
   template<class Archive>
-  void FuzzyMatch::load(Archive& archive, unsigned int version)
+  void FuzzyMatch::load(Archive& archive, unsigned int)
   {
     FilterIndex* filterIndex;
 

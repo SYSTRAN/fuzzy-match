@@ -49,7 +49,8 @@ namespace fuzzy
 
     FuzzyMatch(int pt = penalty_token::pt_none,
                size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN,
-               IndexType filter_type = IndexType::SUFFIX);
+               IndexType filter_type = IndexType::SUFFIX,
+               const FilterIndexParams& params = FilterIndexParams());
     ~FuzzyMatch();
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);
@@ -57,7 +58,7 @@ namespace fuzzy
     /* integrated tokenization */
     bool add_tm(const std::string& id, const std::string &sentence, bool sort = true);
 
-    void sort();
+    void prepare();
     /* backward compatibility */
     bool match(const Tokens& pattern,
                float fuzzy,

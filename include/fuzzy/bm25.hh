@@ -15,6 +15,9 @@
 
 #include <boost/multi_array.hpp>
 #include <boost/format.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -29,7 +32,7 @@ namespace fuzzy
   class BM25 : public Filter
   {
   public:
-    BM25(float k1=1.5, float b=0.75);
+    BM25(const FilterIndexParams &params=FilterIndexParams());
     ~BM25();
     unsigned add_sentence(const std::vector<unsigned>& sentence) override;
 
@@ -37,7 +40,7 @@ namespace fuzzy
     using Filter::num_sentences;
     using Filter::get_sentence;
 
-    void sort(size_t vocab_size);
+    void prepare(size_t vocab_size);
 
     std::ostream& dump(std::ostream&) const;
 
@@ -54,17 +57,25 @@ namespace fuzzy
       float tf,
       std::vector<float>& idf);
 
+    std::unordered_set<int> get_candidates(const std::vector<unsigned>& pattern_wids) const;
+
   private:
-    bool _sorted = false;
+    // bool _sorted = false;
 
     size_t _vocab_size;
-    // BM25 (t, d) cache
+
+    // inverse index to access sentences that contain a given term, to be serialized
+    std::unordered_map<int, std::vector<int>> _inverse_index;
+    // BM25 (t, d) to be serialized
     std::vector<std::pair<std::pair<int, int>, float>> _key_value_bm25;
-    SpMat _reverted_index;
+    // Sparse matrix of BM25 (t, d) cache
+    SpMat _bm25_inverse_index;
+    
     
     // BM25 usual parameters
-    float _k1 = 1.5;
-    float _b = 0.75;
+    const float _k1;
+    const float _b;
+    const float _ratio_idf;
 
     friend class boost::serialization::access;
 

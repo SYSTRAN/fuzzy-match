@@ -2,12 +2,12 @@
 
 namespace fuzzy
 {
-  FilterIndex::FilterIndex(size_t max_tokens_in_pattern, IndexType type)
+  FilterIndex::FilterIndex(size_t max_tokens_in_pattern, IndexType type, const FilterIndexParams& parms)
     : _max_tokens_in_pattern(max_tokens_in_pattern),
       _type(type)
   {
     if (_type == IndexType::BM25)
-      _filter = createBM25();
+      _filter = createBM25(parms);
     else if (_type == IndexType::SUFFIX)
       _filter = createSuffixArray();
   }
@@ -16,7 +16,7 @@ namespace fuzzy
   FilterIndex::add_tm(const std::string& id,
                       const Sentence& real_tokens,
                       const Tokens& norm_tokens,
-                      bool sort)
+                      bool)
   {
     if (!real_tokens.empty() && norm_tokens.size() <= _max_tokens_in_pattern) // patterns greater than this size would be ignored in match
     {

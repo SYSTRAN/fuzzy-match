@@ -22,8 +22,12 @@ namespace fuzzy
   {
     const BM25& bm25 = static_cast<const BM25&>(_filter);
 
+    std::unordered_set<int> candidates = bm25.get_candidates(pattern_wids);
+
     std::priority_queue<std::pair<float, unsigned>, std::vector<std::pair<float, unsigned>>, ComparePairs> k_best;
-    for (unsigned s_id = 0; s_id < bm25.num_sentences(); s_id++)
+    // for (unsigned s_id = 0; s_id < bm25.num_sentences(); s_id++)
+    // std::cerr << candidates.size();
+    for (const unsigned &s_id : candidates)
     {
       auto s_length = bm25.get_sentence_length(s_id);
       if (theoretical_rejection(_p_length, s_length, edit_costs))

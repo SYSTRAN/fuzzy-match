@@ -113,7 +113,7 @@ TEST(FuzzyMatchTest, buildtm1_serialize) {
     /* index is the sentence */
     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
   }
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
   tests_matches(_fuzzyMatcher, "test-tm1");
   fuzzy::export_binarized_fuzzy_matcher(get_temp("tm1.fmi"), _fuzzyMatcher);
   fuzzy::FuzzyMatch _fuzzyMatcher_reload;
@@ -139,7 +139,7 @@ TEST(FuzzyMatchTest, buildtm1_pct) {
     else
       EXPECT_TRUE(warning == "") << "warning: ["<<warning<<"]";
   }
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
   tests_matches(_fuzzyMatcher, "test-tm1-pct");
 }
 
@@ -156,7 +156,7 @@ TEST(FuzzyMatchTest, buildtm1_sep) {
     /* index is the sentence */
     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
   }
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
   tests_matches(_fuzzyMatcher, "test-tm1-sep");
 }
 
@@ -173,7 +173,7 @@ TEST(FuzzyMatchTest, buildtm1_jnr) {
     /* index is the sentence */
     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
   }
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
   tests_matches(_fuzzyMatcher, "test-tm1-jnr");
 }
 
@@ -187,7 +187,7 @@ TEST(FuzzyMatchTest, buildtm1_nonbr_nocas) {
     /* index is the sentence */
     _fuzzyMatcher.add_tm(boost::lexical_cast<std::string>(++count)+"="+srcLine, srcLine);
   }
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
   tests_matches(_fuzzyMatcher, "test-tm1-nonbr");
 }
 
@@ -227,7 +227,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
   _fuzzyMatcher.add_tm("", "single");
   _fuzzyMatcher.add_tm("", "two words");
   _fuzzyMatcher.add_tm("", "three kind words");
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
 
   {
     std::string sentence = "single";
@@ -266,7 +266,7 @@ TEST(FuzzyMatchTest, small_sentence_matches) {
 TEST(FuzzyMatchTest, empty_token) {
   fuzzy::FuzzyMatch _fuzzyMatcher;
   _fuzzyMatcher.add_tm("", {"NMT", "", "", "neural", "machine", "translation"}); // The empty token produced a visible InvalidRead when launching the tests with Valgrind
-  _fuzzyMatcher.sort();
+  _fuzzyMatcher.prepare();
 
   std::vector<fuzzy::FuzzyMatch::Match> matches;
   ASSERT_NO_THROW(_fuzzyMatcher.match("NMT neural machine translation", 0.1, 1, false, matches));
@@ -278,7 +278,7 @@ TEST(FuzzyMatchTest, max_tokens_in_pattern) {
     fuzzy_matcher.add_tm("", "single");
     fuzzy_matcher.add_tm("", "two words");
     fuzzy_matcher.add_tm("", "three kind words");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
 
@@ -311,7 +311,7 @@ TEST(FuzzyMatchTest, nfc_normalization) {
 
   fuzzy::FuzzyMatch fuzzy_matcher;
   fuzzy_matcher.add_tm("", ohm);
-  fuzzy_matcher.sort();
+  fuzzy_matcher.prepare();
 
   {
     std::vector<fuzzy::FuzzyMatch::Match> matches;
@@ -342,7 +342,7 @@ TEST(FuzzyMatchTest, lcs_cost) {
     fuzzy_matcher.add_tm("", "a b c");
     fuzzy_matcher.add_tm("", "a b c d e x x x");
     fuzzy_matcher.add_tm("", "x x a b c d e f x x x x x");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
 
@@ -382,7 +382,7 @@ TEST(FuzzyMatchTest, pre_reject) {
     fuzzy_matcher.add_tm("", "a b c d e");
     fuzzy_matcher.add_tm("", "a b c d e f");
     fuzzy_matcher.add_tm("", "a b c d e f g");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
   {
@@ -427,7 +427,7 @@ TEST(FuzzyMatchTest, idf_weight_1) {
     fuzzy_matcher.add_tm("", "d d d d d");
     fuzzy_matcher.add_tm("", "d e");
     fuzzy_matcher.add_tm("", "c");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
   {
@@ -461,7 +461,7 @@ TEST(FuzzyMatchTest, idf_weight_2) {
     fuzzy_matcher.add_tm("", "d d d d d");
     fuzzy_matcher.add_tm("", "d e");
     fuzzy_matcher.add_tm("", "c");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
   {
@@ -514,7 +514,7 @@ TEST(FuzzyMatchTest, contrastive_reduce_mean) {
     fuzzy_matcher.add_tm("", "a b c d");
     fuzzy_matcher.add_tm("", "b c d");
     fuzzy_matcher.add_tm("", "d e f");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
 
@@ -555,7 +555,7 @@ TEST(FuzzyMatchTest, contrastive_reduce_max) {
     fuzzy_matcher.add_tm("", "a b c d");
     fuzzy_matcher.add_tm("", "b c d");
     fuzzy_matcher.add_tm("", "d e f");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
 
@@ -599,7 +599,7 @@ TEST(FuzzyMatchTest, contrastive_buffer) {
     fuzzy_matcher.add_tm("", "c d e f");
     fuzzy_matcher.add_tm("", "d e f g");
     fuzzy_matcher.add_tm("", "h i j");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
 
@@ -635,13 +635,13 @@ TEST(FuzzyMatchTest, contrastive_buffer) {
 
 TEST(FuzzyMatchTest, bm25) {
   {
-    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25);
+    fuzzy::FuzzyMatch fuzzy_matcher(fuzzy::FuzzyMatch::penalty_token::pt_none, 300, fuzzy::IndexType::BM25, fuzzy::FilterIndexParams(0.9, 1.5, 0.75));
     fuzzy_matcher.add_tm("", "a b c e");
     fuzzy_matcher.add_tm("", "a b e d");
     fuzzy_matcher.add_tm("", "d d d d d");
     fuzzy_matcher.add_tm("", "d e");
     fuzzy_matcher.add_tm("", "c");
-    fuzzy_matcher.sort();
+    fuzzy_matcher.prepare();
     fuzzy::export_binarized_fuzzy_matcher(get_temp("tm.fmi"), fuzzy_matcher);
   }
   /*

@@ -32,7 +32,7 @@ namespace fuzzy
     using Filter::num_sentences;
     using Filter::get_sentence;
 
-    void sort(size_t vocab_size);
+    void prepare(size_t vocab_size);
 
     const unsigned* get_suffix(const SuffixView& p, size_t* length = nullptr) const;
     const SuffixView& get_suffix_view(size_t suffix_id) const;
@@ -49,7 +49,7 @@ namespace fuzzy
     void compute_sentence_length();
     int start_by(const SuffixView& p, const unsigned* ngram, size_t length) const;
 
-    bool _sorted = false;
+    // bool _sorted = false;
 
     // ordered sequence of sentence id, pos in sentence
     std::vector<SuffixView>              _suffixes;

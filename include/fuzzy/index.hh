@@ -7,11 +7,11 @@
 
 #include <boost/serialization/vector.hpp>
 
-#include "fuzzy/filter.hh"
-#include "fuzzy/suffix_array.hh"
-#include "fuzzy/bm25.hh"
-#include "fuzzy/vocab_indexer.hh"
-#include "fuzzy/sentence.hh"
+#include <fuzzy/filter.hh>
+#include <fuzzy/suffix_array.hh>
+#include <fuzzy/bm25.hh>
+#include <fuzzy/vocab_indexer.hh>
+#include <fuzzy/sentence.hh>
 
 namespace fuzzy
 {
@@ -22,7 +22,8 @@ namespace fuzzy
   public:
     FilterIndex(
       size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN,
-      IndexType type = IndexType::SUFFIX
+      IndexType type = IndexType::SUFFIX,
+      const FilterIndexParams& parms = FilterIndexParams()
     );
 
     const Filter &get_Filter() const;
@@ -31,8 +32,8 @@ namespace fuzzy
     int                add_tm(const std::string& id,
                               const Sentence& real_tokens,
                               const Tokens& norm_tokens,
-                              bool sort = true);
-    void               sort();
+                              bool prepare = true);
+    void               prepare();
     const std::string& id(unsigned int index);
     size_t             size() const;
     const Sentence    &real_tokens(size_t s_id) const;
@@ -56,7 +57,7 @@ namespace fuzzy
     VocabIndexer _vocabIndexer;
     std::shared_ptr<Filter> _filter;
     inline std::shared_ptr<Filter> createSuffixArray() { return std::make_shared<SuffixArray>(); }
-    inline std::shared_ptr<Filter> createBM25() { return std::make_shared<BM25>(); }
+    inline std::shared_ptr<Filter> createBM25(const FilterIndexParams &params = FilterIndexParams()) { return std::make_shared<BM25>(params); }
     std::vector<std::string> _ids;
     std::vector<Sentence>    _real_tokens;
     size_t _max_tokens_in_pattern;

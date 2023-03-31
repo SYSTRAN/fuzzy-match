@@ -13,9 +13,9 @@ namespace fuzzy
   }
 
   inline void
-  FilterIndex::sort()
+  FilterIndex::prepare()
   {
-    _filter->sort(_vocabIndexer.size());
+    _filter->prepare(_vocabIndexer.size());
   }
 
   inline size_t

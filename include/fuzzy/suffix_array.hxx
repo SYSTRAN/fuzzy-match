@@ -28,7 +28,7 @@ namespace fuzzy
   void SuffixArray::save(Archive& archive, unsigned int) const
   {
     archive
-    & _sorted
+    & _prepared
     & _suffixes
     & _sentence_buffer
     & _sentence_pos
@@ -42,7 +42,7 @@ namespace fuzzy
     if (version == 1)
     {
       archive
-      & _sorted
+      & _prepared
       & _suffixes
       & _sentence_buffer
       & _sentence_pos
@@ -53,7 +53,7 @@ namespace fuzzy
       std::vector<std::pair<unsigned, unsigned short>> suffixes;
 
       archive
-      & _sorted
+      & _prepared
       & suffixes
       & _sentence_buffer
       & _sentence_pos
