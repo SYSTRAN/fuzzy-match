@@ -596,7 +596,7 @@ namespace fuzzy
         float score = int(10000-cost*100)/10000.0;
 
         lowest_costs.push(cost);
-        if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > contrast_buffer))
+        if (score < fuzzy || (contrast_buffer > 0 && lowest_costs.size() > size_t(contrast_buffer)))
           lowest_costs.pop();
         if (score >= fuzzy) {
           Match m(sentence_wids, s_length);

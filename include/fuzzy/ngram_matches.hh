@@ -34,8 +34,8 @@ namespace fuzzy
       unsigned match_length,
       const EditCosts& edit_costs=EditCosts()
     );
-    const bool theoretical_rejection(size_t p_length, size_t s_length, const EditCosts& edit_costs) const;
-    const bool theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts& edit_costs) const;
+    bool theoretical_rejection(size_t p_length, size_t s_length, const EditCosts& edit_costs) const;
+    bool theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts& edit_costs) const;
 
     std::vector<std::pair<unsigned, unsigned>> get_longest_matches() const;
 

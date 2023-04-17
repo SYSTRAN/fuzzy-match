@@ -22,7 +22,7 @@ namespace fuzzy
 
   template<class Archive>
   void
-  Sentence::serialize(Archive& ar, const unsigned int version)
+  Sentence::serialize(Archive& ar, const unsigned int)
   {
     ar &
       _tokstring &
