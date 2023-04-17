@@ -28,7 +28,7 @@ namespace fuzzy
     return sorted_matches;
   }
 
-  const bool
+  bool
   NGramMatches::theoretical_rejection(size_t p_length, size_t s_length, const EditCosts &edit_costs) const
   {
     const float sizeDifference = std::abs((float)p_length - (float)s_length);
@@ -38,7 +38,7 @@ namespace fuzzy
     return theoretical_bound + 0.000005 < fuzzy_threshold;
   }
 
-  const bool
+  bool
   NGramMatches::theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts &edit_costs) const
   {
     float theoretical_bound;

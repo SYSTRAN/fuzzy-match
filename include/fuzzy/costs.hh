@@ -30,7 +30,7 @@ namespace fuzzy
 
   struct Costs
   {
-    static const float get_normalizer(
+    static float get_normalizer(
       size_t pattern_length,
       size_t sentence_length,
       const EditCosts& edit_costs
