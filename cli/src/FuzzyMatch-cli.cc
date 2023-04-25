@@ -129,7 +129,8 @@ std::pair<int, int> process_stream(const Function& function,
       if (!res.empty())
         count_nonempty++;
       out << res << std::endl;
-      std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
+      if (count_nonempty % 1000 == 0)
+        std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
     std::cerr << std::endl;
     return std::make_pair(count_nonempty, count_total);
@@ -162,7 +163,8 @@ std::pair<int, int> process_stream(const Function& function,
         count_nonempty++;
       out << res << std::endl;
       futures.pop();
-      std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
+      if (count_nonempty % 1000 == 0)
+        std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
   };
 

@@ -488,18 +488,22 @@ namespace fuzzy
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
 
     const Filter& filter = _filterIndex->get_Filter();
-    FilterMatches* filter_matches = nullptr;
+    // FilterMatches* filter_matches = nullptr;
+    // std::unique_ptr<FilterMatches> filter_matches;
+    std::shared_ptr<FilterMatches> filter_matches;
     if (filter_type == IndexType::SUFFIX) {
       const SuffixArray& suffix_array = static_cast<const SuffixArray&>(filter);
-      filter_matches = new NGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
-      NGramMatches& nGramMatches = static_cast<NGramMatches&>(*filter_matches);
+      // filter_matches = new NGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
+      auto nGramMatches = std::make_shared<NGramMatches>(fuzzy, p_length, min_subseq_length, suffix_array);
+      filter_matches = std::shared_ptr<FilterMatches>(nGramMatches, &*nGramMatches);
+      // NGramMatches& nGramMatches = static_cast<NGramMatches&>(*filter_matches);
 
       if (p_length == 1)
       {
         std::pair<size_t, size_t> range_suffixid = suffix_array.equal_range(pattern_wids.data(), p_length);
 
         if (range_suffixid.first != range_suffixid.second)
-          nGramMatches.register_suffix_range_match(range_suffixid.first,
+          nGramMatches->register_suffix_range_match(range_suffixid.first,
                                                   range_suffixid.second,
                                                   p_length,
                                                   edit_costs);
@@ -539,11 +543,11 @@ namespace fuzzy
             if (subseq_length > 2)
             {
               /* register (n-1) grams */
-              nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
+              nGramMatches->register_suffix_range_match(previous_range_suffixid.first,
                                                       range_suffixid.first,
                                                       subseq_length - 1,
                                                       edit_costs);
-              nGramMatches.register_suffix_range_match(range_suffixid.second,
+              nGramMatches->register_suffix_range_match(range_suffixid.second,
                                                       previous_range_suffixid.second,
                                                       subseq_length - 1,
                                                       edit_costs);
@@ -558,18 +562,19 @@ namespace fuzzy
           }
         }
         if (subseq_length >= 2)
-          nGramMatches.register_suffix_range_match(previous_range_suffixid.first,
+          nGramMatches->register_suffix_range_match(previous_range_suffixid.first,
                                                   previous_range_suffixid.second,
                                                   subseq_length,
                                                   edit_costs);
       }
-      filter_matches = &nGramMatches;
+      // filter_matches = &nGramMatches;
     }
 #ifdef USE_EIGEN
     else if (filter_type == IndexType::BM25)
     {
       const BM25& bm25 = static_cast<const BM25&>(filter);
-      filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
+      filter_matches = std::make_shared<BM25Matches>(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
+      // filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
       bm25Matches.register_pattern(pattern_wids, edit_costs);
     }
@@ -637,7 +642,7 @@ namespace fuzzy
         }
       }
     }
-    delete[] filter_matches;
+    // delete filter_matches;
     /* Contrastive reranking */
     if (contrastive_factor > 0)
     {

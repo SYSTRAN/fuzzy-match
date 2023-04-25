@@ -6,6 +6,7 @@
 #include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
+#include <memory>
 
 namespace onmt {
   class Tokenizer;

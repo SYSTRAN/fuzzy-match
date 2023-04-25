@@ -27,6 +27,7 @@ namespace fuzzy
                  unsigned p_length,
                  unsigned min_seq_len,
                  const Filter&);
+    virtual ~FilterMatches() {}
 
     bool theoretical_rejection(size_t p_length, size_t s_length, const EditCosts& edit_costs) const;
     bool theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts& edit_costs) const;
