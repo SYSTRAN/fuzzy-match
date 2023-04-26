@@ -30,15 +30,14 @@ namespace fuzzy
     }
     return score;
   }
-  inline std::unordered_set<int> BM25::get_candidates(const std::vector<unsigned>& pattern_wids) const
+  inline std::vector<std::vector<int>> BM25::get_vec_candidates(const std::vector<unsigned>& pattern_wids) const
   {
-    std::unordered_set<int> candidates;
+    std::vector<std::vector<int>> candidates;
     for (const unsigned &term : pattern_wids)
     {
       auto it = _inverse_index.find(term);
       if (it != _inverse_index.end())
-        for (const int &sid : it->second)
-          candidates.insert(sid);
+        candidates.push_back(it->second);
     }
     return candidates;
   }

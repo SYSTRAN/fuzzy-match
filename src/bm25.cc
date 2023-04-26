@@ -73,7 +73,10 @@ namespace fuzzy
     for (const auto& kvp : inverse_index_set) {
       // > 0 => appears in less than half of the sentences
       if (idf[kvp.first] > threshold_idf)
+      {
         _inverse_index[kvp.first] = std::vector<int>(kvp.second.begin(), kvp.second.end());
+        std::sort(_inverse_index[kvp.first].begin(), _inverse_index[kvp.first].end());
+      }
     }
     inverse_index_set.clear();
     // build BM25 from TF and IDF

@@ -24,6 +24,7 @@ if(TARGET Eigen3::Eigen)
 else()
   message("-- Eigen3 not found, excluding bm25_matches.cc and bm25.cc.")
   list(REMOVE_ITEM FUZZY_SOURCES bm25_matches.cc bm25.cc)
+  add_definitions(-DNO_EIGEN)
 endif()
 
 if (COMMAND create_library)

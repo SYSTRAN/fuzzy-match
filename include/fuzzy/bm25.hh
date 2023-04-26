@@ -57,7 +57,7 @@ namespace fuzzy
       float tf,
       std::vector<float>& idf);
 
-    std::unordered_set<int> get_candidates(const std::vector<unsigned>& pattern_wids) const;
+    std::vector<std::vector<int>> get_vec_candidates(const std::vector<unsigned>& pattern_wids) const;
 
   private:
     size_t _vocab_size;

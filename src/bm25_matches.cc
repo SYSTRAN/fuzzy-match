@@ -22,22 +22,48 @@ namespace fuzzy
   {
     const BM25& bm25 = static_cast<const BM25&>(_filter);
 
-    std::unordered_set<int> candidates = bm25.get_candidates(pattern_wids);
-
+    std::vector<std::vector<int>> candidates = bm25.get_vec_candidates(pattern_wids);
     std::priority_queue<std::pair<float, unsigned>, std::vector<std::pair<float, unsigned>>, ComparePairs> k_best;
-    for (const unsigned &s_id : candidates)
+
+    bool done = false;
+    std::vector<int> cursors(candidates.size(), 0);
+    while (candidates.size() > 0 && !done)
     {
+      int s_id = std::numeric_limits<int>::max();
+      for (int i = 0; i < candidates.size(); ++i) {
+        if (cursors[i] < candidates[i].size() && candidates[i][cursors[i]] < s_id) {
+          s_id = candidates[i][cursors[i]];
+        }
+      }
+
       auto s_length = bm25.get_sentence_length(s_id);
-      if (theoretical_rejection(_p_length, s_length, edit_costs))
-        continue;
-      float bm25_score = bm25.bm25_score_pattern(s_id, pattern_wids);
-      if (bm25_score <= _cutoff_threshold)
-        continue;
-      
-      k_best.emplace(bm25_score, s_id);
-      if (k_best.size() > _buffer)
-        k_best.pop();
+      if (!theoretical_rejection(_p_length, s_length, edit_costs))
+      {
+        float bm25_score = bm25.bm25_score_pattern(s_id, pattern_wids);
+        if (bm25_score > _cutoff_threshold)
+        {
+          k_best.emplace(bm25_score, s_id);
+          if (k_best.size() > _buffer)
+            k_best.pop();
+        }
+      }
+
+      for (int i = 0; i < candidates.size(); i++) {
+        if (cursors[i] < candidates[i].size() && candidates[i][cursors[i]] == s_id) {
+          cursors[i]++;
+        }
+      }
+
+      // Check if we're done
+      done = true;
+      for (int i = 0; i < candidates.size(); i++) {
+        if (cursors[i] < candidates[i].size()) {
+          done = false;
+          break;
+        }
+      }
     }
+
     _best_matches.reserve(k_best.size());
     while (!k_best.empty())
     {
