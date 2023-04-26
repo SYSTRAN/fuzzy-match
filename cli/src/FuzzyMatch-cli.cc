@@ -129,7 +129,7 @@ std::pair<int, int> process_stream(const Function& function,
       if (!res.empty())
         count_nonempty++;
       out << res << std::endl;
-      if (count_nonempty % 1000 == 0)
+      if (count_nonempty % 100 == 0)
         std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
     std::cerr << std::endl;
@@ -163,7 +163,7 @@ std::pair<int, int> process_stream(const Function& function,
         count_nonempty++;
       out << res << std::endl;
       futures.pop();
-      if (count_nonempty % 1000 == 0)
+      if (count_nonempty % 100 == 0)
         std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
   };
@@ -441,7 +441,7 @@ int main(int argc, char** argv)
     filter_type = fuzzy::IndexType::BM25;
   else
     filter_type = fuzzy::IndexType::SUFFIX;
-#ifndef USE_EIGEN
+#ifdef NO_EIGEN
   assert(filter_type != fuzzy::IndexType::BM25);
 #endif
   const fuzzy::FilterIndexParams filter_index_params(bm25_ratio_idf, 1.5, 0.75);
