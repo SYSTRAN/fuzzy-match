@@ -59,6 +59,9 @@ namespace fuzzy
 
     std::vector<std::vector<int>> get_vec_candidates(const std::vector<unsigned>& pattern_wids) const;
 
+    inline int get_vocab_size() const { return _vocab_size; }
+    Eigen::SparseVector<float> compute_product(const Eigen::SparseVector<float>& pattern_voc) const;
+
   private:
     size_t _vocab_size;
 

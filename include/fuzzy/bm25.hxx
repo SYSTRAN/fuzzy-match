@@ -26,7 +26,7 @@ namespace fuzzy
   {
     float score = 0;
     for (unsigned& term : pattern_wids){
-      score += _bm25_inverse_index.coeff(term, s_id);
+      score += _bm25_inverse_index.coeff(s_id, term);
     }
     return score;
   }
@@ -40,6 +40,10 @@ namespace fuzzy
         candidates.push_back(it->second);
     }
     return candidates;
+  }
+  inline Eigen::SparseVector<float> BM25::compute_product(const Eigen::SparseVector<float>& pattern_voc) const
+  {
+    return _bm25_inverse_index * pattern_voc;
   }
   template<class Archive>
   void BM25::save(Archive& archive, unsigned int) const
@@ -76,9 +80,9 @@ namespace fuzzy
         max_sid = sid;
       if (max_term < term)
         max_term = term;
-      triplets.push_back(Triplet(term, sid, bm25_value));
+      triplets.push_back(Triplet(sid, term, bm25_value));
     }
-    _bm25_inverse_index = SpMat(_vocab_size, num_sents);
+    _bm25_inverse_index = SpMat(num_sents, _vocab_size);
     _bm25_inverse_index.setFromTriplets(triplets.begin(), triplets.end());
     archive
     & _inverse_index

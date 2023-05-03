@@ -5,6 +5,7 @@
 #include <fuzzy/bm25.hh>
 #include <fuzzy/costs.hh>
 #include <fuzzy/filter_matches.hh>
+#include <Eigen/Sparse>
 
 namespace fuzzy
 {
