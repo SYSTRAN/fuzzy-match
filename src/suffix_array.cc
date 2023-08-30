@@ -21,44 +21,15 @@ namespace fuzzy
       _suffixes.push_back(SuffixView{static_cast<unsigned int>(sidx), static_cast<unsigned short>(i+1)});
     }
     _sentence_buffer.push_back(fuzzy::VocabIndexer::SENTENCE_SEPARATOR);
-    _sorted = false;
+    _prepared = false;
 
     return sidx;
   }
 
-#ifndef NDEBUG
-  std::ostream&
-  SuffixArray::dump(std::ostream& os)const
-  {
-    os << "   ===text===" << std::endl;
-
-    for (size_t i = 0; i < _sentence_pos.size(); i++)
-    {
-      size_t idx = _sentence_pos[i];
-      for (size_t j = 0; _sentence_buffer[j+idx]; j++)
-        os << _sentence_buffer[j+idx] << " ";
-      os << std::endl;
-    }
-
-    os << "   ===suffixes===" << std::endl;
-
-    for (size_t i = 0; i < _suffixes.size(); i++)
-    {
-      os << i << "(" << _suffixes[i].sentence_id << "/" << _suffixes[i].subsentence_pos << "):: ";
-      size_t idx = _sentence_pos[_suffixes[i].sentence_id];
-      for (size_t j = _suffixes[i].subsentence_pos; _sentence_buffer[idx+j]; j++)
-        os << _sentence_buffer[idx+j] << " ";
-      os << std::endl;
-    }
-
-    return os;
-  }
-#endif
-
   void
-  SuffixArray::sort(size_t vocab_size)
+  SuffixArray::prepare(size_t vocab_size)
   {
-    if (_sorted)
+    if (_prepared)
       return;
 
     // word id => prefixes
@@ -96,7 +67,7 @@ namespace fuzzy
     }
 
     _quickVocabAccess[vocab_size] = _suffixes.size();
-    _sorted = true;
+    _prepared = true;
 
     compute_sentence_length();
   }
@@ -105,7 +76,7 @@ namespace fuzzy
   std::pair<size_t, size_t>
   SuffixArray::equal_range(const unsigned* ngram, size_t length, size_t min, size_t max) const
   {
-    assert(_suffixes.empty() || _sorted);
+    assert(_suffixes.empty() || _prepared);
 
     if (length == 0)
       return std::pair<size_t, size_t>(0, 0);

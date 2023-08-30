@@ -1,5 +1,10 @@
 add_executable(${PROJECT_NAME}-test test.cc)
 
+find_package (Eigen3 3.3 QUIET)
+if(TARGET Eigen3::Eigen)
+  add_definitions(-DUSE_EIGEN)
+endif()
+
 find_package(GTest REQUIRED)
 
 find_package(Boost COMPONENTS filesystem REQUIRED)

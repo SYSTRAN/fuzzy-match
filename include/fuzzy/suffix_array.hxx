@@ -2,22 +2,6 @@
 
 namespace fuzzy
 {
-  inline size_t
-  SuffixArray::num_sentences() const
-  {
-    return _sentence_pos.size();
-  }
-
-  inline const unsigned*
-  SuffixArray::get_sentence(size_t sentence_id, size_t* length) const
-  {
-    const auto offset = _sentence_pos[sentence_id];
-    const auto* sentence = _sentence_buffer.data() + offset;
-    if (length)
-      *length = *sentence;
-    return sentence + 1;
-  }
-
   inline const unsigned*
   SuffixArray::get_suffix(const SuffixView& p, size_t* length) const
   {
@@ -40,12 +24,11 @@ namespace fuzzy
     return _sentence_length[suffix_id];
   }
 
-
   template<class Archive>
   void SuffixArray::save(Archive& archive, unsigned int) const
   {
     archive
-    & _sorted
+    & _prepared
     & _suffixes
     & _sentence_buffer
     & _sentence_pos
@@ -58,7 +41,7 @@ namespace fuzzy
     if (version == 1)
     {
       archive
-      & _sorted
+      & _prepared
       & _suffixes
       & _sentence_buffer
       & _sentence_pos
@@ -69,7 +52,7 @@ namespace fuzzy
       std::vector<std::pair<unsigned, unsigned short>> suffixes;
 
       archive
-      & _sorted
+      & _prepared
       & suffixes
       & _sentence_buffer
       & _sentence_pos

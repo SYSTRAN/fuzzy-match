@@ -2,9 +2,11 @@
 
 #include <boost/serialization/vector.hpp>
 
-#include <fuzzy/suffix_array_index.hh>
+#include <fuzzy/utils.hh>
+#include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
+#include <memory>
 
 namespace onmt {
   class Tokenizer;
@@ -37,6 +39,7 @@ namespace fuzzy
       ) : length(length), s(seq) {}
       Match() {}
       float       score;
+      float       secondary_sort;
       float       penalty;
       int         max_subseq;
       unsigned    s_id;
@@ -46,7 +49,9 @@ namespace fuzzy
     };
 
     FuzzyMatch(int pt = penalty_token::pt_none,
-               size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
+               size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN,
+               IndexType filter_type = IndexType::SUFFIX,
+               const FilterIndexParams& params = FilterIndexParams());
     ~FuzzyMatch();
 
     bool add_tm(const std::string& id, const Tokens& norm, bool sort = true);
@@ -54,7 +59,7 @@ namespace fuzzy
     /* integrated tokenization */
     bool add_tm(const std::string& id, const std::string &sentence, bool sort = true);
 
-    void sort();
+    void prepare();
     /* backward compatibility */
     bool match(const Tokens& pattern,
                float fuzzy,
@@ -66,7 +71,10 @@ namespace fuzzy
                const EditCosts& edit_costs=EditCosts(),
                float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
-               int contrast_buffer=-1) const;
+               int contrast_buffer=-1,
+               IndexType filter_type=IndexType::SUFFIX,
+               int bm25_buffer=10,
+               float bm25_cutoff=0) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -79,7 +87,10 @@ namespace fuzzy
                const EditCosts& edit_costs=EditCosts(),
                float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
-               int contrast_buffer=-1) const;
+               int contrast_buffer=-1,
+               IndexType filter_type=IndexType::SUFFIX,
+               int bm25_buffer=10,
+               float bm25_cutoff=0) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -92,7 +103,10 @@ namespace fuzzy
                const EditCosts& edit_costs=EditCosts(),
                float contrastive_factor=0,
                ContrastReduce reduce=ContrastReduce::MEAN,
-               int contrast_buffer=-1) const;
+               int contrast_buffer=-1,
+               IndexType filter_type=IndexType::SUFFIX,
+               int bm25_buffer=10,
+               float bm25_cutoff=0) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,
@@ -142,8 +156,8 @@ namespace fuzzy
     int                    _pt;
     /* open-nmt tokenizer */
     std::unique_ptr<onmt::Tokenizer> _ptokenizer;
-    /* Suffix-Array Index */
-    std::unique_ptr<SuffixArrayIndex> _suffixArrayIndex;
+    /* Filter Index */
+    std::unique_ptr<FilterIndex> _filterIndex;
   };
 }
 

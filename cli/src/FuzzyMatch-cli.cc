@@ -14,6 +14,8 @@
 #include <chrono>
 #include <ctime>
 
+#include <fuzzy/index.hh>
+#include <fuzzy/filter.hh>
 #include <fuzzy/costs.hh>
 #include <fuzzy/fuzzy_match.hh>
 #include <fuzzy/fuzzy_matcher_binarization.hh>
@@ -127,7 +129,10 @@ std::pair<int, int> process_stream(const Function& function,
       if (!res.empty())
         count_nonempty++;
       out << res << std::endl;
+      if (count_nonempty % 100 == 0)
+        std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
+    std::cerr << std::endl;
     return std::make_pair(count_nonempty, count_total);
   }
 
@@ -158,6 +163,8 @@ std::pair<int, int> process_stream(const Function& function,
         count_nonempty++;
       out << res << std::endl;
       futures.pop();
+      if (count_nonempty % 100 == 0)
+        std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
   };
 
@@ -179,6 +186,8 @@ std::pair<int, int> process_stream(const Function& function,
 
   if (!futures.empty())
     pop_results(/*blocking=*/true);
+  
+  std::cerr << std::endl;
 
   {
     std::lock_guard<std::mutex> lock(mutex);
@@ -199,8 +208,10 @@ public:
             float idf_penalty, bool subseq_idf_weighting,
             size_t max_tokens_in_pattern, fuzzy::EditCosts edit_cost,
             std::string contrastive_reduce_str,
-            int contrastive_buffer):
-             _fuzzyMatcher(pt, max_tokens_in_pattern),
+            int contrastive_buffer,
+            fuzzy::IndexType filter_type,
+            int bm25_buffer, float bm25_cutoff, const fuzzy::FilterIndexParams& filter_index_params):
+             _fuzzyMatcher(pt, max_tokens_in_pattern, filter_type, filter_index_params),
              _fuzzy(fuzzy),
              _contrastive_factor(contrastive_factor),
              _nmatch(nmatch),
@@ -210,7 +221,10 @@ public:
              _idf_penalty(idf_penalty),
              _subseq_idf_weighting(subseq_idf_weighting),
              _cost(edit_cost),
-             _contrastive_buffer(contrastive_buffer) {
+             _contrastive_buffer(contrastive_buffer),
+             _filter_type(filter_type),
+             _bm25_buffer(bm25_buffer),
+             _bm25_cutoff(bm25_cutoff) {
     if (contrastive_reduce_str == "max")
       _contrastive_reduce = fuzzy::ContrastReduce::MAX;
     else
@@ -221,7 +235,8 @@ public:
 
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
                         _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost,
-                        _contrastive_factor, _contrastive_reduce, _contrastive_buffer);
+                        _contrastive_factor, _contrastive_reduce, _contrastive_buffer,
+                        _filter_type, _bm25_buffer, _bm25_cutoff);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -276,6 +291,9 @@ private:
   fuzzy::EditCosts _cost;
   fuzzy::ContrastReduce _contrastive_reduce;
   int _contrastive_buffer;
+  fuzzy::IndexType _filter_type;
+  int _bm25_buffer;
+  float _bm25_cutoff;
 };
 
 int main(int argc, char** argv)
@@ -299,16 +317,20 @@ int main(int argc, char** argv)
   std::string index_file;
   std::string penalty_tokens;
   std::string contrastive_reduce;
+  std::string filter_type_str;
   float idf_penalty;
   float insert_cost;
   float delete_cost;
   float replace_cost;
   float fuzzy;
   float contrastive_factor;
+  float bm25_cutoff;
+  float bm25_ratio_idf;
   int nmatch;
   int nthreads;
   int min_subseq_length;
   int contrastive_buffer;
+  int bm25_buffer;
   float min_subseq_ratio;
   size_t max_tokens_in_pattern;
   fuzzyOptions.add_options()
@@ -337,8 +359,12 @@ int main(int argc, char** argv)
     ("subseq-idf-weighting,w", po::bool_switch(), "use idf weighting in finding longest subsequence")
     ("max-tokens-in-pattern", po::value(&max_tokens_in_pattern)->default_value(fuzzy::DEFAULT_MAX_TOKENS_IN_PATTERN), "Patterns containing more tokens than this value are ignored")
     ("contrast", po::value(&contrastive_factor)->default_value(0.f), "Contrastive factor for contrastive fuzzy retrieval")
-    ("contrast-reduce", po::value(&contrastive_reduce)->default_value("mean"), "Contrastive factor for contrastive fuzzy retrieval")
+    ("contrast-reduce", po::value(&contrastive_reduce)->default_value("mean"), "Contrastive factor for contrastive fuzzy retrieval (mean, max)")
+    ("filter-type", po::value(&filter_type_str)->default_value("suffix-array"), "Type of filter used (suffix-array, bm25)")
     ("contrast-buffer", po::value(&contrastive_buffer)->default_value(-1), "number of fuzzy matches to place in the buffer")    
+    ("bm25-ratio-idf", po::value(&bm25_ratio_idf)->default_value(0.5f), "filter in the reverse index to consider only terms rare enough (close to 0 = ignores a lot : close to 1 = considers a lot)")
+    ("bm25-buffer", po::value(&bm25_buffer)->default_value(10), "number of best BM25 to rerank")
+    ("bm25-cutoff", po::value(&bm25_cutoff)->default_value(0.f), "minimum BM25 score threshold cutoff")
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 
@@ -408,11 +434,21 @@ int main(int argc, char** argv)
   }
 
   fuzzy::EditCosts edit_cost(insert_cost, delete_cost, replace_cost);
+  fuzzy::IndexType filter_type;
+  if (filter_type_str == "bm25")
+    filter_type = fuzzy::IndexType::BM25;
+  else
+    filter_type = fuzzy::IndexType::SUFFIX;
+#ifdef NO_EIGEN
+  assert(filter_type != fuzzy::IndexType::BM25);
+#endif
+  const fuzzy::FilterIndexParams filter_index_params(bm25_ratio_idf, 1.5, 0.75);
   processor O(pt, fuzzy, contrastive_factor, nmatch, no_perfect,
               min_subseq_length, min_subseq_ratio,
               idf_penalty, subseq_idf_weighting,
               max_tokens_in_pattern, edit_cost,
-              contrastive_reduce, contrastive_buffer);
+              contrastive_reduce, contrastive_buffer,
+              filter_type, bm25_buffer, bm25_cutoff, filter_index_params);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);
@@ -428,8 +464,8 @@ int main(int argc, char** argv)
       return 2;
     }
 
-    TICK("Sorting Index");
-    O._fuzzyMatcher.sort();
+    TICK("Preparing Index");
+    O._fuzzyMatcher.prepare();
 
     // work
     if (action == "index")

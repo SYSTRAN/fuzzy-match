@@ -5,7 +5,7 @@ namespace fuzzy
 {
   inline size_t FuzzyMatch::max_tokens_in_pattern() const
   {
-    return _suffixArrayIndex->max_tokens_in_pattern();
+    return _filterIndex->max_tokens_in_pattern();
   }
 
   template<class Archive>
@@ -13,23 +13,21 @@ namespace fuzzy
   {
     // Older versions of operator& (e.g. in Boost 1.58) do not accept a rvalue pointer,
     // so we first store the pointer value in a local variable.
-    const SuffixArrayIndex* suffixArrayIndex = _suffixArrayIndex.get();
+    const FilterIndex* filterIndex = _filterIndex.get();
     archive
     & _pt
-    & suffixArrayIndex;
+    & filterIndex;
   }
 
   template<class Archive>
   void FuzzyMatch::load(Archive& archive, unsigned int)
   {
-    SuffixArrayIndex* suffixArrayIndex = nullptr;
+    FilterIndex* filterIndex;
 
-    archive &
-    _pt &
-    suffixArrayIndex;
+    archive & _pt & filterIndex;
 
-    _suffixArrayIndex = std::unique_ptr<SuffixArrayIndex>(suffixArrayIndex);
+    _filterIndex = std::unique_ptr<FilterIndex>(filterIndex);
   }
 }
 
-BOOST_CLASS_VERSION(fuzzy::FuzzyMatch, 1)
+BOOST_CLASS_VERSION(fuzzy::FuzzyMatch, 2)

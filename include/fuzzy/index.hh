@@ -3,31 +3,39 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <boost/serialization/vector.hpp>
 
-#include "fuzzy/suffix_array.hh"
-#include "fuzzy/vocab_indexer.hh"
-#include "fuzzy/sentence.hh"
+#include <fuzzy/filter.hh>
+#include <fuzzy/suffix_array.hh>
+#ifdef USE_EIGEN
+  #include <fuzzy/bm25.hh>
+#endif
+#include <fuzzy/vocab_indexer.hh>
+#include <fuzzy/sentence.hh>
 
 namespace fuzzy
 {
   constexpr size_t DEFAULT_MAX_TOKENS_IN_PATTERN = 300; // if you change this value, update README.md
-  
-  class SuffixArrayIndex
+  enum class IndexType { SUFFIX, BM25 };
+  class FilterIndex
   {
   public:
-    SuffixArrayIndex(size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN);
+    FilterIndex(
+      size_t max_tokens_in_pattern = DEFAULT_MAX_TOKENS_IN_PATTERN,
+      IndexType type = IndexType::SUFFIX,
+      const FilterIndexParams& parms = FilterIndexParams()
+    );
 
-    const SuffixArray &get_SuffixArray() const;
+    const Filter &get_Filter() const;
     const VocabIndexer& get_VocabIndexer() const;
 
     int                add_tm(const std::string& id,
                               const Sentence& real_tokens,
                               const Tokens& norm_tokens,
-                              bool sort = true);
-
-    void               sort();
+                              bool prepare = true);
+    void               prepare();
     const std::string& id(unsigned int index);
     size_t             size() const;
     const Sentence    &real_tokens(size_t s_id) const;
@@ -35,6 +43,7 @@ namespace fuzzy
     std::ostream&      dump(std::ostream& os) const;
 
     size_t max_tokens_in_pattern() const;
+    IndexType getType() const;
 
   private:
     friend class boost::serialization::access;
@@ -48,11 +57,16 @@ namespace fuzzy
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     VocabIndexer _vocabIndexer;
-    SuffixArray  _suffixArray;
+    std::shared_ptr<Filter> _filter;
+    inline std::shared_ptr<Filter> createSuffixArray() { return std::make_shared<SuffixArray>(); }
+#ifdef USE_EIGEN
+    inline std::shared_ptr<Filter> createBM25(const FilterIndexParams &params = FilterIndexParams()) { return std::make_shared<BM25>(params); }
+#endif
     std::vector<std::string> _ids;
     std::vector<Sentence>    _real_tokens;
     size_t _max_tokens_in_pattern;
+    IndexType _type;
   };
 }
 
-#include <fuzzy/suffix_array_index.hxx>
+#include <fuzzy/index.hxx>

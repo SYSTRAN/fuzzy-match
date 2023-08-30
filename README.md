@@ -6,12 +6,14 @@
 
 Simplest command is the following:
 ```
-FuzzyMatch-cli -c CORPUS [--penalty-tokens (none|tag,sep/jnr,pct,cas,nbr)] [--max-tokens-in-pattern N]
+FuzzyMatch-cli -c CORPUS [--penalty-tokens (none|tag,sep/jnr,pct,cas,nbr)] [--max-tokens-in-pattern N] [--filter-type (suffix-array|bm25)] [--bm25-ratio-idf BM25_IDF_RATIO]
 ```
 
 * `CORPUS` can be a single file - in which case, the index of each segment is simply the sentence id - or you can provide a target file using `-c CORPUSSOURCE,CORPUSTARGET` and add option `--add-target` to include in the index the actual target sentence (format ID=target). This is useful for having the index fully containing the translation memory. Not useful, if the translation memory is saved in side database.
 * `--penalty-tokens` (default `tag,cas,nbr`) is either `none` or comma-separated list of `tag`, `sep`, `jnr`, `pct`, `nbr`, `cas` modifying normalization (for `cas` performing case normalization, and `nbr` triggering number normalization), removing some tokens from index (`tag` for tags, and `pct` for punctuations), or generates spacer/joiner (`sep`/`jnr`). In each case, a penalty tokens is added.
 * `--max-tokens-in-pattern` (default: 300) limits how long the pattern can be. This is necessary to prevent poor match performance, because the edit distance computation runs in O(T^2) where T is the number of tokens in the pattern.
+* `--filter-type` switch between `suffix-array` or `bm25` (default `suffix-array`).
+* `BM25IDFRATIO` (default: 0.5) prefilter to fasten BM25. The value is in (0, 1) and corresponds to the maximum ratio of sentences in memory containing a certain term before building a reverse index for this term. Reasonable ratios can easily be around 0.1, which implies that indexed terms are in at most 10% of the sentences.
 
 This option used in index forces the same logic in matching.
 
@@ -20,17 +22,20 @@ The above command generates a file `CORPUS.fmi`.
 ## Fuzzy Lookup
 
 ```
-FuzzyMatch-cli -i CORPUS.fmi -a match -f FUZZY -N NTHREAD -n NMATCH [--ml ML] [--mr MR] --idf-penalty IDFPENALTYRATIO --insert-cost ICOST --delete-cost DCOST --replace-cost RCOST --contrast CONTRASTFACTOR --contrast-buffer CONTRASTBUFF < INPUTFILE > MATCHES 
+FuzzyMatch-cli -i CORPUS.fmi -a match -f FUZZY -N NTHREAD -n NMATCH --filter-type FILTERTYPE [--ml ML] [--mr MR] [--bm25-buffer BM25BUFF] [--bm25-cutoff BM25CUTOFF] --idf-penalty IDFPENALTYRATIO --insert-cost ICOST --delete-cost DCOST --replace-cost RCOST --contrast CONTRASTFACTOR --contrast-buffer CONTRASTBUFF < INPUTFILE > MATCHES 
 ```
 
 * `CORPUS.fmi` path to the complete generated index file
 * `FUZZY`, the fuzzy threshold in [0,1]. Not really relevant < 0.5.
 * `NTHREAD` number of thread to use - default 4. Scales well with the number of threads.
-* `NMATCH` number of match to return
+* `NMATCH` number of match to return.
+* `FILTERTYPE` switch between `suffix-array` or `bm25` (default `suffix-array`).
 * `ML` minimal length of the longest subsequence (in tokens) - defaut 3. If the pattern size is strictly less than `ML`, then this parameter is ignored.
-* `MR` minimal ratio of the longest subsequence (in tokens) - default 0. Interesting to use for lowest fuzzy - for instance a value of 0.5, used with fuzzy threshold 0.5, will guarantee the presence of at least 50% of the sentence length
+* `MR` minimal ratio of the longest subsequence (in tokens) - default 0. Interesting to use for lowest fuzzy - for instance a value of 0.5, used with fuzzy threshold 0.5, will guarantee the presence of at least 50% of the sentence length.
+* `BM25BUFF` number of best BM25 to rerank with edit distance. The default is 10.
+* `BM25CUTOFF` minimum BM25 score threshold cutoff. The default is 0.
 * `IDFPENALTYRATIO` if not null, gives extra penalty to word missing weighted on IDF: a value of 1 is equivalent to give a penalty of one additional missing word for a word appearing only once in all the translation memory.
-* `ICOST`, `DCOST`, `RCOST`, positive real values, respectively costs for *insertion*, *deletion* and *replace* in the edit distance. The defalut are 1, 1, 1. For coverage similarity, choose 1, 0, 1.
+* `ICOST`, `DCOST`, `RCOST`, positive real values, respectively costs for *insertion*, *deletion* and *replace* in the edit distance. The default are 1, 1, 1. For coverage similarity, choose 1, 0, 1.
 * `CONTRAST` contrastive factor for iterative contrastive retrieval (see [paper](https://aclanthology.org/2022.emnlp-main.235/)). Default is 0. The greater, the more diversity in the retrieved sequences.
 * `CONTRASTBUFF` contrastive buffer (default `NMATCH`, only useful when `CONTRAST`>0) is the number of candidates with highest matches considered for contrastive reranking. If not set, it will just rerank the `NMATCH` scores.
 
@@ -77,9 +82,13 @@ Also, the more generous is the "normalization", the better the fuzzy matcher wil
 Fuzzy matching is performed on normalized forms, but final score is calculated on real forms with potential penalties.
 
 
-## Suffix Arrays and Fuzzy Matching
+## Suffix Arrays, BM25 and Edit distance
 
-The base structure used for fuzzy matching index is a suffix array. This structure is implemented in `suffix-array.hh`and works as following: each sentence can be seen as a sequence of suffix. For instance the sentence `A B C A D` is containing suffixes `A B C A D`, `B C A D`, `C A D`, `A D` and `D`. In a suffix array the suffix are sorted by lexicographical order and suffixes are simply indicated as their position in the sentence.
+### Suffix Arrays
+
+The base structure used for fuzzy matching index is a suffix array.
+Its role is to act as a filter to avoid computing edit distance with every single candidate. We identify the candidates containing a common n-gram with the query (pattern) that covers at least a certain ratio and has a minimal length.
+The structure of suffix array is implemented in `suffix-array.hh`and works as following: each sentence can be seen as a sequence of suffix. For instance the sentence `A B C A D` is containing suffixes `A B C A D`, `B C A D`, `C A D`, `A D` and `D`. In a suffix array the suffix are sorted by lexicographical order and suffixes are simply indicated as their position in the sentence.
 
 The suffix array corresponding to the sentences 0: `A B C A D` and 1: `D A B A` is:
 
@@ -143,6 +152,15 @@ Sentence 2: `A B A`
 These occurrences might overlap, so a second step in the process is building a `pattern_map` matching all tokens covered by the ngrams while completing with unigrams.
 
 During the match process, we can restrict the candidate sentences by looking at their length. Indeed a 70% fuzzy on a 100 tokens match can not match sentence shorter than 70 tokens or longer than 130 tokens.
+
+### BM25
+
+An alternative to Suffix Array algorithm is Okapi BM25. This is a ranking function using TF-IDF-like structures ([see https://en.wikipedia.org/wiki/Okapi_BM25](https://en.wikipedia.org/wiki/Okapi_BM25)).
+The idea is to only consider the k best scoring sentences as well as the sentences scoring above a certain threshold to compute edit distance on.
+
+The indexed values of BM25 scores (term, sentence_id) are stored in a sparse matrix, requiring package Eigen. If not found, BM25 will not compile, and is not usable
+
+### Edit distance
 
 Last phase of the fuzzy match is to actually perform a standard edit distance between the *unnormalized* tokens to obtain actual fuzzy match.
 

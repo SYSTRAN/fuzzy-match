@@ -5,6 +5,8 @@
 #include <iostream>
 #include <ostream>
 
+#include <fuzzy/filter.hh>
+
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
@@ -21,17 +23,17 @@ namespace fuzzy
     void serialize(Archive& archive, const unsigned int);
   };
 
-  class SuffixArray
+  class SuffixArray : public Filter
   {
   public:
-    unsigned add_sentence(const std::vector<unsigned>& sentence);
-    void sort(size_t vocab_size);
+    unsigned add_sentence(const std::vector<unsigned>& sentence) override;
 
-    std::ostream& dump(std::ostream&) const;
+    using Filter::dump;
+    using Filter::num_sentences;
+    using Filter::get_sentence;
 
-    size_t num_sentences() const;
+    void prepare(size_t vocab_size);
 
-    const unsigned* get_sentence(size_t sentence_id, size_t* length = nullptr) const;
     const unsigned* get_suffix(const SuffixView& p, size_t* length = nullptr) const;
     const SuffixView& get_suffix_view(size_t suffix_id) const;
     unsigned short get_sentence_length(size_t suffix_id) const;
@@ -42,21 +44,15 @@ namespace fuzzy
                                           size_t min = 0,
                                           size_t max = 0) const;
 
-  private:
+  protected:
     int comp(const SuffixView& a, const SuffixView& b) const;
     void compute_sentence_length();
     int start_by(const SuffixView& p, const unsigned* ngram, size_t length) const;
 
-    bool _sorted = false;
+    // bool _sorted = false;
 
     // ordered sequence of sentence id, pos in sentence
     std::vector<SuffixView>              _suffixes;
-    // the concatenated sentences, as 0-terminated sequences of vocab
-    std::vector<unsigned>         _sentence_buffer;
-    // sentence id > position in sentence buffer
-    std::vector<unsigned>         _sentence_pos;
-    /* index first word in _sentences */
-    std::vector<unsigned>         _quickVocabAccess;
     // cache friendly access to the sentence length associated with the prefix (used to speed up NGramMatches::register_ranges)
     std::vector<unsigned short> _sentence_length;
 
