@@ -264,7 +264,7 @@ public:
     return out;    
   }
   std::pair<int, int>
-  apply_stream(std::istream &, std::ostream &, size_t num_threads, size_t, bool domatch) {
+  apply_stream(std::istream &in, std::ostream &out, size_t num_threads, size_t buffer_size, bool domatch) {
     if (domatch) {
       auto function_match = [this](const std::string& sentence) { 
         return match(sentence);
