@@ -2,6 +2,8 @@
 
 `FuzzyMatch-cli` is a commandline utility allowing to compile FuzzyMatch indexes and use them to lookup fuzzy matches.
 
+Okapi BM25 prefiltering is available on branch [`bm25`](https://github.com/SYSTRAN/fuzzy-match/tree/bm25).
+
 ## Compiling a Fuzzy match index
 
 Simplest command is the following:
