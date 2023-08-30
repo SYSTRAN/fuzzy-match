@@ -269,14 +269,12 @@ public:
       auto function_match = [this](const std::string& sentence) { 
         return match(sentence);
       };
-      return process_stream(function_match,
-                     std::cin, std::cout, num_threads, 1000);
+      return process_stream(function_match, in, out, num_threads, buffer_size);
     } else {
       auto function_subsequence = [this](const std::string& sentence) { 
         return subsequence(sentence);
       };
-      return process_stream(function_subsequence,
-                     std::cin, std::cout, num_threads, 1000);      
+      return process_stream(function_subsequence, in, out, num_threads, buffer_size);
     }
   }
   fuzzy::FuzzyMatch _fuzzyMatcher;
