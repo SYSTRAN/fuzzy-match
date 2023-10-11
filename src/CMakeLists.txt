@@ -12,6 +12,8 @@ set(FUZZY_SOURCES
   pattern_coverage.cc
   filter.cc
   index.cc
+  no_filter.cc
+  no_matches.cc
 )
 if(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)

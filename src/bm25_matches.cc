@@ -44,7 +44,7 @@ namespace fuzzy
     _best_matches.reserve(k_best.size());
     while (!k_best.empty())
     {
-      _best_matches.push_back({k_best.top().second, 0});
+      _best_matches.push_back({k_best.top().second, (int)(k_best.top().first * 1000)});
       k_best.pop();
     }
     std::reverse(_best_matches.begin(), _best_matches.end()); 

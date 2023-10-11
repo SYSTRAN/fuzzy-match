@@ -13,6 +13,8 @@ namespace fuzzy
 #endif
     if (_type == IndexType::SUFFIX)
       _filter = createSuffixArray();
+    else if (_type == IndexType::NO)
+      _filter = createNo();
   }
 
   int

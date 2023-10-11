@@ -129,10 +129,10 @@ std::pair<int, int> process_stream(const Function& function,
       if (!res.empty())
         count_nonempty++;
       out << res << std::endl;
-      if (count_nonempty % 100 == 0)
-        std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
+      // if (count_nonempty % 100 == 0)
+      //   std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
-    std::cerr << std::endl;
+    // std::cerr << std::endl;
     return std::make_pair(count_nonempty, count_total);
   }
 
@@ -163,8 +163,8 @@ std::pair<int, int> process_stream(const Function& function,
         count_nonempty++;
       out << res << std::endl;
       futures.pop();
-      if (count_nonempty % 100 == 0)
-        std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
+      // if (count_nonempty % 100 == 0)
+      //   std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
     }
   };
 
@@ -187,7 +187,7 @@ std::pair<int, int> process_stream(const Function& function,
   if (!futures.empty())
     pop_results(/*blocking=*/true);
   
-  std::cerr << std::endl;
+  // std::cerr << std::endl;
 
   {
     std::lock_guard<std::mutex> lock(mutex);
@@ -437,6 +437,8 @@ int main(int argc, char** argv)
   fuzzy::IndexType filter_type;
   if (filter_type_str == "bm25")
     filter_type = fuzzy::IndexType::BM25;
+  else if (filter_type_str == "no")
+    filter_type = fuzzy::IndexType::NO;
   else
     filter_type = fuzzy::IndexType::SUFFIX;
 #ifdef NO_EIGEN
