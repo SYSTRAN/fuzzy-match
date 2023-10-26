@@ -2,7 +2,7 @@ add_executable(${PROJECT_NAME}-test test.cc)
 
 find_package(GTest REQUIRED)
 
-find_package(Boost COMPONENTS filesystem REQUIRED)
+find_package(Boost COMPONENTS filesystem system serialization REQUIRED)
 
 include_directories(
   ${source_dir}/include
@@ -17,8 +17,9 @@ target_include_directories(${PROJECT_NAME}-test PUBLIC
 target_link_libraries(${PROJECT_NAME}-test
   ${PROJECT_NAME}
   GTest::GTest GTest::Main
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${GTEST_LIBRARIES}
+  Boost::filesystem
+  Boost::serialization
+  Boost::system
   )
 
 set(${PROJECT_NAME}-test-args "${CMAKE_CURRENT_LIST_DIR}/data/")
