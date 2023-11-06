@@ -6,7 +6,7 @@ find_package(Boost COMPONENTS filesystem system serialization REQUIRED)
 
 include_directories(
   ${source_dir}/include
-  ${GTEST_INCLUDE_DIRS}
+  ${GTest_INCLUDE_DIRS}
   )
 
 target_include_directories(${PROJECT_NAME}-test PUBLIC
