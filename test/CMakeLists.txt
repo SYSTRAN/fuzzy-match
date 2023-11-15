@@ -20,7 +20,6 @@ target_link_libraries(${PROJECT_NAME}-test
   Boost::filesystem
   Boost::serialization
   Boost::system
-  gperftools::tcmalloc_minimal
   )
 
 set(${PROJECT_NAME}-test-args "${CMAKE_CURRENT_LIST_DIR}/data/")
