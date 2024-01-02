@@ -628,73 +628,73 @@ namespace fuzzy
     // }
 
     // ONLY BM25
-    for (const auto& pair : filter_matches->get_best_matches())
-    {
-      const auto s_id = pair.first;
-      const auto bm25_score = pair.second;
-      size_t s_length = 0;
-      const auto* sentence_wids = _filterIndex->get_Filter().get_sentence(s_id, &s_length);
-      Match m(sentence_wids, s_length);
-      m.score = (float)bm25_score / (float)1000.;
-      m.max_subseq = 0;
-      m.s_id = s_id;
-      m.id = _filterIndex->id(s_id);
-      m.secondary_sort = s_id;
-      m.penalty = 0;
-      result.push(m);
-      cpt++;
-      if (cpt > contrast_buffer)
-        break;
-    }
-
-
     // for (const auto& pair : filter_matches->get_best_matches())
     // {
-    //   // num_filtered++;
     //   const auto s_id = pair.first;
-    //   const auto longest_match = pair.second;
+    //   const auto bm25_score = pair.second;
     //   size_t s_length = 0;
     //   const auto* sentence_wids = _filterIndex->get_Filter().get_sentence(s_id, &s_length);
-    //   const auto num_covered_words = (longest_match < p_length
-    //                                   ? pattern_coverage.count_covered_words(sentence_wids, s_length)
-    //                                   : p_length);
-    //   /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-    //   // if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
-    //   // {
-    //     const Costs costs(p_length, s_length, edit_costs);
-
-    //     /* let us check the candidates */
-    //     const auto sentence_realtok = _filterIndex->real_tokens(s_id);
-    //     const auto cost_upper_bound = lowest_costs.top();
-    //     float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
-    //                                 pattern_wids.data(), pattern_realtok, p_length,
-    //                                 st, sn,
-    //                                 idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
-    //                                 edit_costs,
-    //                                 costs, cost_upper_bound);
-    //     // float cost = 0.1;
-    //     if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
-    //       continue;
-
-    //     float score = int(10000-cost*100)/10000.0;
-
-
-    //     lowest_costs.push(cost);
-    //     if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
-    //       lowest_costs.pop();
-    //     if (score >= fuzzy) {
-    //       Match m(sentence_wids, s_length);
-    //       m.score = score;
-    //       m.max_subseq = longest_match;
-    //       m.s_id = s_id;
-    //       m.id = _filterIndex->id(s_id);
-    //       m.secondary_sort = (filter_type == IndexType::SUFFIX) ? s_id : cpt;
-    //       m.penalty = 0;
-    //       result.push(m);
-    //       cpt++;
-    //     }
-    //   // }
+    //   Match m(sentence_wids, s_length);
+    //   m.score = (float)bm25_score / (float)1000.;
+    //   m.max_subseq = 0;
+    //   m.s_id = s_id;
+    //   m.id = _filterIndex->id(s_id);
+    //   m.secondary_sort = s_id;
+    //   m.penalty = 0;
+    //   result.push(m);
+    //   cpt++;
+    //   if (cpt > contrast_buffer)
+    //     break;
     // }
+
+
+    for (const auto& pair : filter_matches->get_best_matches())
+    {
+      // num_filtered++;
+      const auto s_id = pair.first;
+      const auto longest_match = pair.second;
+      size_t s_length = 0;
+      const auto* sentence_wids = _filterIndex->get_Filter().get_sentence(s_id, &s_length);
+      const auto num_covered_words = (longest_match < p_length
+                                      ? pattern_coverage.count_covered_words(sentence_wids, s_length)
+                                      : p_length);
+      /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
+      // if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
+      // {
+        const Costs costs(p_length, s_length, edit_costs);
+
+        /* let us check the candidates */
+        const auto sentence_realtok = _filterIndex->real_tokens(s_id);
+        const auto cost_upper_bound = lowest_costs.top();
+        float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
+                                    pattern_wids.data(), pattern_realtok, p_length,
+                                    st, sn,
+                                    idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
+                                    edit_costs,
+                                    costs, cost_upper_bound);
+        // float cost = 0.1;
+        if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
+          continue;
+
+        float score = int(10000-cost*100)/10000.0;
+
+
+        lowest_costs.push(cost);
+        if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
+          lowest_costs.pop();
+        if (score >= fuzzy) {
+          Match m(sentence_wids, s_length);
+          m.score = score;
+          m.max_subseq = longest_match;
+          m.s_id = s_id;
+          m.id = _filterIndex->id(s_id);
+          m.secondary_sort = (filter_type == IndexType::SUFFIX) ? s_id : cpt;
+          m.penalty = 0;
+          result.push(m);
+          cpt++;
+        }
+      // }
+    }
     // COUT filter
     // std::cerr << num_filtered << std::endl;
     // std::cerr << filter_matches->get_best_matches().size() << std::endl;
