@@ -210,7 +210,9 @@ public:
             std::string contrastive_reduce_str,
             int contrastive_buffer,
             fuzzy::IndexType filter_type,
-            int bm25_buffer, float bm25_cutoff, float submodular_shrinking_factor, const fuzzy::FilterIndexParams& filter_index_params):
+            int bm25_buffer, float bm25_cutoff,
+            float submodular_shrinking_factor, fuzzy::SubmodularFunction submodular_function, fuzzy::SubmodularNormalization submodular_normalization,
+            const fuzzy::FilterIndexParams& filter_index_params):
              _fuzzyMatcher(pt, max_tokens_in_pattern, filter_type, filter_index_params),
              _fuzzy(fuzzy),
              _contrastive_factor(contrastive_factor),
@@ -225,7 +227,9 @@ public:
              _filter_type(filter_type),
              _bm25_buffer(bm25_buffer),
              _bm25_cutoff(bm25_cutoff),
-             _submodular_shrinking_factor(submodular_shrinking_factor) {
+             _submodular_shrinking_factor(submodular_shrinking_factor),
+             _submodular_function(submodular_function),
+             _submodular_normalization(submodular_normalization) {
     if (contrastive_reduce_str == "max")
       _contrastive_reduce = fuzzy::ContrastReduce::MAX;
     else
@@ -237,7 +241,8 @@ public:
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
                         _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost,
                         _contrastive_factor, _contrastive_reduce, _contrastive_buffer,
-                        _filter_type, _bm25_buffer, _bm25_cutoff, _submodular_shrinking_factor);
+                        _filter_type, _bm25_buffer, _bm25_cutoff,
+                        _submodular_shrinking_factor, _submodular_function, _submodular_normalization);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -296,6 +301,8 @@ private:
   int _bm25_buffer;
   float _bm25_cutoff;
   float _submodular_shrinking_factor;
+  fuzzy::SubmodularFunction _submodular_function;
+  fuzzy::SubmodularNormalization _submodular_normalization;
 };
 
 int main(int argc, char** argv)
@@ -329,6 +336,8 @@ int main(int argc, char** argv)
   float bm25_cutoff;
   float bm25_ratio_idf;
   float submodular_shrinking_factor;
+  std::string submodular_function_str;
+  std::string submodular_normalization_str;
   int nmatch;
   int nthreads;
   int min_subseq_length;
@@ -369,6 +378,8 @@ int main(int argc, char** argv)
     ("bm25-buffer", po::value(&bm25_buffer)->default_value(10), "number of best BM25 to rerank")
     ("bm25-cutoff", po::value(&bm25_cutoff)->default_value(0.f), "minimum BM25 score threshold cutoff")
     ("submodular-shrinking-factor,lambda", po::value(&submodular_shrinking_factor)->default_value(1.f), "In submodularity coverage, weight shrinking factor of each covered salient aspect of the source") 
+    ("submodular-function", po::value(&submodular_function_str)->default_value("NO"), "submodularity coverage function category (NO|BOW|NGRAM|ED)") 
+    ("submodular-norm", po::value(&submodular_normalization_str)->default_value("NO"), "Normalization in submodular coverage score") 
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 
@@ -445,6 +456,18 @@ int main(int argc, char** argv)
     filter_type = fuzzy::IndexType::NO;
   else
     filter_type = fuzzy::IndexType::SUFFIX;
+  fuzzy::SubmodularFunction submodular_function;
+  if (submodular_function_str == "BOW")
+    submodular_function = fuzzy::SubmodularFunction::BOW;
+  else if (submodular_function_str == "ED")
+    submodular_function = fuzzy::SubmodularFunction::ED;
+  else
+    submodular_function = fuzzy::SubmodularFunction::NO;
+  fuzzy::SubmodularNormalization submodular_normalization;
+  if (submodular_normalization_str == "BM25")
+    submodular_normalization = fuzzy::SubmodularNormalization::BM25;
+  else
+    submodular_normalization = fuzzy::SubmodularNormalization::NO;
 #ifdef NO_EIGEN
   assert(filter_type != fuzzy::IndexType::BM25);
 #endif
@@ -454,8 +477,9 @@ int main(int argc, char** argv)
               idf_penalty, subseq_idf_weighting,
               max_tokens_in_pattern, edit_cost,
               contrastive_reduce, contrastive_buffer,
-              filter_type, bm25_buffer, bm25_cutoff, submodular_shrinking_factor, filter_index_params);
-
+              filter_type, bm25_buffer, bm25_cutoff,
+              submodular_shrinking_factor, submodular_function, submodular_normalization,
+              filter_index_params);
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);
     import_binarized_fuzzy_matcher(index_file, O._fuzzyMatcher);

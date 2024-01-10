@@ -15,8 +15,8 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
-  enum class SubmodularFunction { BOW, BM25, NGRAM, ED };
-  enum class SubmodularNormalization { NO, IDF };
+  enum class SubmodularFunction { NO, BOW, NGRAM, ED };
+  enum class SubmodularNormalization { NO, BM25 };
 
   class FuzzyMatch
   {
@@ -78,7 +78,9 @@ namespace fuzzy
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
                float bm25_cutoff=0,
-               float shrinking_factor=1.f) const;
+               float shrinking_factor=1.f,
+               SubmodularFunction submod_fun=SubmodularFunction::NO,
+               SubmodularNormalization submod_norm=SubmodularNormalization::NO) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -95,7 +97,9 @@ namespace fuzzy
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
                float bm25_cutoff=0,
-               float shrinking_factor=1.f) const;
+               float shrinking_factor=1.f,
+               SubmodularFunction submod_fun=SubmodularFunction::NO,
+               SubmodularNormalization submod_norm=SubmodularNormalization::NO) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -112,7 +116,9 @@ namespace fuzzy
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
                float bm25_cutoff=0,
-               float shrinking_factor=1.f) const;
+               float shrinking_factor=1.f,
+               SubmodularFunction submod_fun=SubmodularFunction::NO,
+               SubmodularNormalization submod_norm=SubmodularNormalization::NO) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,
