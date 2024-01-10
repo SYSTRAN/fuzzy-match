@@ -16,7 +16,7 @@ namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
   enum class SubmodularFunction { NO, BOW, NGRAM, ED };
-  enum class SubmodularNormalization { NO, BM25 };
+  enum class SubmodularNormalization { NO, IDF, BM25 };
 
   class FuzzyMatch
   {

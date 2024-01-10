@@ -622,6 +622,7 @@ namespace fuzzy
     std::vector<unsigned> sorted_pattern_terms;
     std::vector<unsigned> count_terms;
     std::vector<std::pair<unsigned, int>> best_matches = filter_matches->get_best_matches();
+    std::vector<float> norm_weight;
 
     switch(submod_fun) // Salient aspects enumeration
     {
@@ -656,18 +657,21 @@ namespace fuzzy
       default:
         ;
     }
+    std::vector<float> sorted_pattern_terms_idf;
+    if (submod_norm == SubmodularNormalization::IDF)
+      sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_terms);
 
-    // std::cerr << "sorted unique terms" << ": ";
-    // for (const auto& c : sorted_pattern_terms)
-    //   std::cerr << c << ", ";
-    // std::cerr << std::endl;
-    // std::cerr << "counts" << ": ";
-    // for (const auto& c : count_terms)
-    //   std::cerr << c << ", ";
-    // std::cerr << std::endl;
+    std::cerr << "sorted unique terms" << ": ";
+    for (const auto& c : sorted_pattern_terms)
+      std::cerr << c << ", ";
+    std::cerr << std::endl;
+    std::cerr << "Idf" << ": ";
+    for (const auto& c : sorted_pattern_terms_idf)
+      std::cerr << c << ", ";
+    std::cerr << std::endl;
     /////////////
 
-    // std::cerr << std::endl << "num best match after bm25 = " << best_matches.size() << std::endl << std::flush;
+    std::cerr << std::endl << "num best match after bm25 = " << best_matches.size() << std::endl << std::flush;
 
     for (const auto& pair : best_matches)
     {
@@ -680,7 +684,6 @@ namespace fuzzy
       //                                 ? pattern_coverage.count_covered_words(sentence_wids, s_length)
       //                                 : p_length);
       // const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
-      // TODO: adapt to filter n-gram existence
 
       std::vector<float> s_cover;
       float score;
@@ -690,31 +693,58 @@ namespace fuzzy
 
       if (submod_norm == SubmodularNormalization::BM25)
       {
+        std::cerr << "BM25 norm..." << std::endl << std::flush;
         score = (float)score_filter / 1000.f;
         assert((filter_type == IndexType::BM25));
         BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
         s_cover = bm25Matches.cover(sorted_pattern_terms, count_terms, s_id);
-        break;
       }
       else if (submod_norm == SubmodularNormalization::NO)
       {
-        const auto sentence_realtok = _filterIndex->real_tokens(s_id);
+        std::cerr << "No norm..." << std::endl << std::flush;
         get_bow_score(
           sorted_pattern_terms,
           count_terms,
-          sentence_realtok,
-          s_length
-        )
-        // score = 0;
-        // s_cover;
-        // TODO: function to compute those
+          sentence_wids,
+          s_length,
+          score,
+          s_cover);
       }
+      else if (submod_norm == SubmodularNormalization::IDF)
+      {
+        std::cerr << "IDF norm..." << std::endl << std::flush;
+        get_bow_score_idf(
+          sorted_pattern_terms,
+          count_terms,
+          sentence_wids,
+          s_length,
+          sorted_pattern_terms_idf,
+          score,
+          s_cover);
+      }
+      // std::cerr << "q:       ";
+      // for (unsigned i = 0; i < sorted_pattern_terms.size(); i++)
+      //   std::cerr << sorted_pattern_terms[i] << ",";
+      // std::cerr << std::endl;
+      // std::cerr << "q count: ";
+      // for (unsigned i = 0; i < sorted_pattern_terms.size(); i++)
+      //   std::cerr << count_terms[i] << ",";
+      // std::cerr << std::endl;
+      std::cerr << "sent:    ";
+      for (unsigned i = 0; i < s_length; i++)
+        std::cerr << sentence_wids[i] << ",";
+      std::cerr << std::endl;
+      std::cerr << "cover:   ";
+      for (unsigned i = 0; i < s_cover.size(); i++)
+        std::cerr << s_cover[i] << ",";
+      std::cerr << std::endl;
+      std::cerr << "score:   " << score << std::endl;
+      std::cerr << "...done" << std::endl << std::flush;
 
       switch(submod_fun) // salient aspect weighted cover
       {
         case SubmodularFunction::BOW:
-          ;
-
+          break;
         default:
           const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
           /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */

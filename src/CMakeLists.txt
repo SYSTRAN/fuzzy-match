@@ -14,6 +14,7 @@ set(FUZZY_SOURCES
   index.cc
   no_filter.cc
   no_matches.cc
+  submodular.cc
 )
 if(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
