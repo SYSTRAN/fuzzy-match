@@ -15,6 +15,8 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
+  enum class SubmodularFunction { BOW, BM25, NGRAM, ED };
+  enum class SubmodularNormalization { NO, IDF };
 
   class FuzzyMatch
   {
@@ -44,6 +46,7 @@ namespace fuzzy
       int         max_subseq;
       unsigned    s_id;
       std::string id;
+      std::vector<float> cover;
       int length;
       const unsigned* s;
     };
@@ -74,7 +77,8 @@ namespace fuzzy
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
-               float bm25_cutoff=0) const;
+               float bm25_cutoff=0,
+               float shrinking_factor=1.f) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -90,7 +94,8 @@ namespace fuzzy
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
-               float bm25_cutoff=0) const;
+               float bm25_cutoff=0,
+               float shrinking_factor=1.f) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -106,7 +111,8 @@ namespace fuzzy
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
-               float bm25_cutoff=0) const;
+               float bm25_cutoff=0,
+               float shrinking_factor=1.f) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,

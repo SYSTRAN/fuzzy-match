@@ -19,9 +19,9 @@ namespace fuzzy
         using FilterMatches::theoretical_rejection_cover;
 
         void load_all();
-        std::vector<std::pair<unsigned, unsigned>> get_best_matches() const override;
+        std::vector<std::pair<unsigned, int>> get_best_matches() const override;
 
     private:
-        std::vector<std::pair<unsigned, unsigned>> _all_matches;
+        std::vector<std::pair<unsigned, int>> _all_matches;
     };
 }

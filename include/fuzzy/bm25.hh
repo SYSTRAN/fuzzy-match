@@ -61,6 +61,7 @@ namespace fuzzy
 
     inline int get_vocab_size() const { return _vocab_size; }
     Eigen::SparseVector<float> compute_product(const Eigen::SparseVector<float>& pattern_voc) const;
+    Eigen::SparseVector<float> get_cover(const Eigen::SparseVector<float>& pattern_voc, unsigned s_id) const;
 
   private:
     size_t _vocab_size;

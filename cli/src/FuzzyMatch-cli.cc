@@ -210,7 +210,7 @@ public:
             std::string contrastive_reduce_str,
             int contrastive_buffer,
             fuzzy::IndexType filter_type,
-            int bm25_buffer, float bm25_cutoff, const fuzzy::FilterIndexParams& filter_index_params):
+            int bm25_buffer, float bm25_cutoff, float submodular_shrinking_factor, const fuzzy::FilterIndexParams& filter_index_params):
              _fuzzyMatcher(pt, max_tokens_in_pattern, filter_type, filter_index_params),
              _fuzzy(fuzzy),
              _contrastive_factor(contrastive_factor),
@@ -224,7 +224,8 @@ public:
              _contrastive_buffer(contrastive_buffer),
              _filter_type(filter_type),
              _bm25_buffer(bm25_buffer),
-             _bm25_cutoff(bm25_cutoff) {
+             _bm25_cutoff(bm25_cutoff),
+             _submodular_shrinking_factor(submodular_shrinking_factor) {
     if (contrastive_reduce_str == "max")
       _contrastive_reduce = fuzzy::ContrastReduce::MAX;
     else
@@ -236,7 +237,7 @@ public:
     _fuzzyMatcher.match(sentence, _fuzzy, _nmatch, _no_perfect, matches,
                         _min_subseq_length, _min_subseq_ratio, _idf_penalty, _cost,
                         _contrastive_factor, _contrastive_reduce, _contrastive_buffer,
-                        _filter_type, _bm25_buffer, _bm25_cutoff);
+                        _filter_type, _bm25_buffer, _bm25_cutoff, _submodular_shrinking_factor);
 
     std::string   out;
     for(const fuzzy::FuzzyMatch::Match &m: matches) {
@@ -294,6 +295,7 @@ private:
   fuzzy::IndexType _filter_type;
   int _bm25_buffer;
   float _bm25_cutoff;
+  float _submodular_shrinking_factor;
 };
 
 int main(int argc, char** argv)
@@ -326,6 +328,7 @@ int main(int argc, char** argv)
   float contrastive_factor;
   float bm25_cutoff;
   float bm25_ratio_idf;
+  float submodular_shrinking_factor;
   int nmatch;
   int nthreads;
   int min_subseq_length;
@@ -365,6 +368,7 @@ int main(int argc, char** argv)
     ("bm25-ratio-idf", po::value(&bm25_ratio_idf)->default_value(0.5f), "filter in the reverse index to consider only terms rare enough (close to 0 = ignores a lot : close to 1 = considers a lot)")
     ("bm25-buffer", po::value(&bm25_buffer)->default_value(10), "number of best BM25 to rerank")
     ("bm25-cutoff", po::value(&bm25_cutoff)->default_value(0.f), "minimum BM25 score threshold cutoff")
+    ("submodular-shrinking-factor,lambda", po::value(&submodular_shrinking_factor)->default_value(1.f), "In submodularity coverage, weight shrinking factor of each covered salient aspect of the source") 
     ("nthreads,N", po::value(&nthreads)->default_value(4), "number of thread to use for match")
     ;
 
@@ -450,7 +454,7 @@ int main(int argc, char** argv)
               idf_penalty, subseq_idf_weighting,
               max_tokens_in_pattern, edit_cost,
               contrastive_reduce, contrastive_buffer,
-              filter_type, bm25_buffer, bm25_cutoff, filter_index_params);
+              filter_type, bm25_buffer, bm25_cutoff, submodular_shrinking_factor, filter_index_params);
 
   if (index_file.length()) {
     TICK("Loading index_file: "+index_file);

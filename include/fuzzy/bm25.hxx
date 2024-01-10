@@ -45,6 +45,11 @@ namespace fuzzy
   {
     return _bm25_inverse_index * pattern_voc;
   }
+  inline Eigen::SparseVector<float> BM25::get_cover(const Eigen::SparseVector<float>& pattern_voc, unsigned s_id) const
+  {
+    Eigen::SparseVector<float> row_s = _bm25_inverse_index.row(s_id);
+    return row_s.cwiseProduct(pattern_voc);
+  }
   template<class Archive>
   void BM25::save(Archive& archive, unsigned int) const
   {

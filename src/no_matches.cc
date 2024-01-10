@@ -13,7 +13,7 @@ namespace fuzzy
     {
     }
 
-    std::vector<std::pair<unsigned, unsigned>>
+    std::vector<std::pair<unsigned, int>>
     NoMatches::get_best_matches() const
     {
         return _all_matches;
@@ -21,7 +21,7 @@ namespace fuzzy
 
     void NoMatches::load_all()
     {
-        _all_matches = std::vector<std::pair<unsigned, unsigned>>(_filter.num_sentences());
+        _all_matches = std::vector<std::pair<unsigned, int>>(_filter.num_sentences());
         size_t *length;
 
         for (unsigned i = 0; i < _filter.num_sentences(); i++)
