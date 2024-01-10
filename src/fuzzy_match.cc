@@ -698,6 +698,13 @@ namespace fuzzy
       }
       else if (submod_norm == SubmodularNormalization::NO)
       {
+        const auto sentence_realtok = _filterIndex->real_tokens(s_id);
+        get_bow_score(
+          sorted_pattern_terms,
+          count_terms,
+          sentence_realtok,
+          s_length
+        )
         // score = 0;
         // s_cover;
         // TODO: function to compute those
