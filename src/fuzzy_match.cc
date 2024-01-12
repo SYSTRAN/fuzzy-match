@@ -652,6 +652,7 @@ namespace fuzzy
     {
       case SubmodularFunction::BOW:
       {
+        // all terms bow
         std::vector<unsigned> sorted_pattern_wids(pattern_wids);
         std::sort(sorted_pattern_wids.begin(), sorted_pattern_wids.end());
 
@@ -659,32 +660,11 @@ namespace fuzzy
 
         if (submod_norm == SubmodularNormalization::IDF)
           sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_terms);
-
-        // sorted_pattern_terms.reserve(pattern_wids.size());
-        // count_terms.reserve(pattern_wids.size());
-        // if (sorted_pattern_wids.size() > 0)
-        // {
-        //   unsigned current_term = sorted_pattern_wids[0];
-        //   unsigned current_count = 1;
-        //   for (unsigned i = 1; i < sorted_pattern_wids.size(); i++)
-        //   {
-        //     if (current_term != sorted_pattern_wids[i])
-        //     {
-        //       sorted_pattern_terms.push_back(current_term);
-        //       count_terms.push_back(current_count);
-        //       current_term = sorted_pattern_wids[i];
-        //       current_count = 1;
-        //     }
-        //     else
-        //       current_count++;
-        //   }
-        //   sorted_pattern_terms.push_back(current_term);
-        //   count_terms.push_back(current_count);
-        // }
-        // break;
+        break;
       }
       case SubmodularFunction::NGRAM:
       {
+        // all ngrams bow
         get_all_ngrams(
           pattern_wids.data(),
           p_length,
@@ -693,6 +673,15 @@ namespace fuzzy
           count_terms);
         if (submod_norm == SubmodularNormalization::IDF)
           sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_ngrams);
+        break;
+      }
+      case SubmodularFunction::ED:
+      {
+        // sentence indices
+        sorted_pattern_terms = std::vector<unsigned>(pattern_wids);
+        if (submod_norm == SubmodularNormalization::IDF)
+          sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_terms);
+        break;
       }
       default:
         ;
@@ -708,8 +697,6 @@ namespace fuzzy
     std::cerr << std::endl;
     /////////////
 
-    std::cerr << std::endl << "num best match after bm25 = " << best_matches.size() << std::endl << std::flush;
-
     for (const auto& pair : best_matches)
     {
       // num_filtered++;
@@ -717,10 +704,6 @@ namespace fuzzy
       const auto score_filter = pair.second;
       size_t s_length = 0;
       const auto* sentence_wids = _filterIndex->get_Filter().get_sentence(s_id, &s_length);
-      // const auto num_covered_words = (score_filter < p_length
-      //                                 ? pattern_coverage.count_covered_words(sentence_wids, s_length)
-      //                                 : p_length);
-      // const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
 
       std::vector<float> s_cover;
       float score;
@@ -736,17 +719,6 @@ namespace fuzzy
         BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
         s_cover = bm25Matches.cover(sorted_pattern_terms, count_terms, s_id);
       }
-      // else if (submod_norm == SubmodularNormalization::NO)
-      // {
-      //   std::cerr << "No norm..." << std::endl << std::flush;
-      //   get_bow_score(
-      //     sorted_pattern_terms,
-      //     count_terms,
-      //     sentence_wids,
-      //     s_length,
-      //     score,
-      //     s_cover);
-      // }
       else if (submod_norm == SubmodularNormalization::IDF || submod_norm == SubmodularNormalization::NO)
       {
         std::cerr 
@@ -771,7 +743,84 @@ namespace fuzzy
             score,
             s_cover,
             sorted_pattern_terms_idf);
+        else if (submod_fun == SubmodularFunction::ED)
+        { 
+          const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
+          /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
+          if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
+          {
+            const Costs costs(p_length, s_length, edit_costs);
+            /* let us check the candidates */
+            const auto sentence_realtok = _filterIndex->real_tokens(s_id);
+            const auto cost_upper_bound = lowest_costs.top();
+            s_cover = std::vector<float>(p_length, 0.f);
+            if (idf_penalty.size() == 0 && submod_norm == SubmodularNormalization::IDF)
+              idf_penalty = compute_idf_penalty(pattern_wids);
+            float cost = _edit_distance_cover(sentence_wids, sentence_realtok, s_length,
+                                              pattern_wids.data(), pattern_realtok, p_length,
+                                              st, sn,
+                                              idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
+                                              edit_costs,
+                                              costs, 
+                                              s_cover,
+                                              submod_norm == SubmodularNormalization::IDF,
+                                              cost_upper_bound);
+            if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
+              continue;
+            float score = int(10000 - cost * 100) / 10000.0;
+
+            lowest_costs.push(cost);
+            if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
+              lowest_costs.pop();
+          }
+          else 
+          {
+            continue;
+          }
+        }
+        else
+        {
+          const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
+          /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
+          if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
+          {
+            const Costs costs(p_length, s_length, edit_costs);
+            /* let us check the candidates */
+            const auto sentence_realtok = _filterIndex->real_tokens(s_id);
+            const auto cost_upper_bound = lowest_costs.top();
+            float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
+                                        pattern_wids.data(), pattern_realtok, p_length,
+                                        st, sn,
+                                        idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
+                                        edit_costs,
+                                        costs, cost_upper_bound);
+            // float cost = 0.1;
+            if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
+              continue;
+            score = int(10000 - cost * 100) / 10000.0;
+
+            lowest_costs.push(cost);
+            if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
+              lowest_costs.pop();
+          }
+          else 
+          {
+            continue;
+          }
+        }
       }
+
+      // switch(submod_fun) 
+      // {
+      //   case SubmodularFunction::BOW:
+      //   case SubmodularFunction::NGRAM:
+      //     break;
+      //   case SubmodularFunction::ED:
+        
+      //   default:
+          
+      // }
+
       // std::cerr << "q:       ";
       // for (unsigned i = 0; i < sorted_pattern_terms.size(); i++)
       //   std::cerr << sorted_pattern_terms[i] << ",";
@@ -791,40 +840,6 @@ namespace fuzzy
       std::cerr << "score:   " << score << std::endl;
       std::cerr << "...done" << std::endl << std::flush;
 
-      switch(submod_fun) // salient aspect weighted cover
-      {
-        case SubmodularFunction::BOW:
-        case SubmodularFunction::NGRAM:
-          break;
-        default:
-          const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
-          /* do not care checking sentences that do not have enough ngram matches for the fuzzy threshold */
-          if (!filter_matches->theoretical_rejection_cover(p_length, s_length, num_covered_words, edit_costs))
-          {
-            const Costs costs(p_length, s_length, edit_costs);
-            /* let us check the candidates */
-            const auto sentence_realtok = _filterIndex->real_tokens(s_id);
-            const auto cost_upper_bound = lowest_costs.top();
-            float cost = _edit_distance(sentence_wids, sentence_realtok, s_length,
-                                        pattern_wids.data(), pattern_realtok, p_length,
-                                        st, sn,
-                                        idf_penalty, costs.diff_word*vocab_idf_penalty/idf_max,
-                                        edit_costs,
-                                        costs, cost_upper_bound);
-            // float cost = 0.1;
-          if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
-            continue;
-          float score = int(10000 - cost * 100) / 10000.0;
-
-          lowest_costs.push(cost);
-          if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
-            lowest_costs.pop();
-          }
-          else 
-          {
-            continue;
-          }
-      }
 
       if (score >= fuzzy) {
         Match m(sentence_wids, s_length);
@@ -851,7 +866,8 @@ namespace fuzzy
 
     if (shrinking_factor < 1.f) // submodular coverage
     {
-      std::vector<float> cover_weights(count_terms.size(), 1.f);
+      const unsigned cover_length = (submod_fun == SubmodularFunction::ED) ? p_length : count_terms.size();
+      std::vector<float> cover_weights(cover_length, 1.f);
       std::list<Match> candidates;
       while (!result.empty())
       {
@@ -864,6 +880,7 @@ namespace fuzzy
       };
       while (!candidates.empty() && (number_of_matches == 0 || matches.size() < number_of_matches))
       {
+        // TODO: not compute it the first iteration
         // rescore penalties of candidates
         for (Match &match : candidates)
         {
