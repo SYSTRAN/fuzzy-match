@@ -459,6 +459,8 @@ int main(int argc, char** argv)
   fuzzy::SubmodularFunction submodular_function;
   if (submodular_function_str == "BOW")
     submodular_function = fuzzy::SubmodularFunction::BOW;
+  else if (submodular_function_str == "NGRAM")
+    submodular_function = fuzzy::SubmodularFunction::NGRAM;
   else if (submodular_function_str == "ED")
     submodular_function = fuzzy::SubmodularFunction::ED;
   else

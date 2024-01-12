@@ -6,6 +6,7 @@
 #include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
+#include <fuzzy/submodular.hh>
 #include <memory>
 
 namespace onmt {
@@ -162,6 +163,9 @@ namespace fuzzy
 
     std::vector<float>
     compute_idf_penalty(const std::vector<unsigned int>& pattern_wids,
+                        float unknown_vocab_word_penalty = 0) const;
+    std::vector<float>
+    compute_idf_penalty(const std::vector<NGram>& pattern_ngrams,
                         float unknown_vocab_word_penalty = 0) const;
 
     /* penalty tokens */

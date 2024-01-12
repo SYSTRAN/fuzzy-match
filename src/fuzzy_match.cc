@@ -391,6 +391,29 @@ namespace fuzzy
     return idf_penalty;
   }
 
+  std::vector<float> FuzzyMatch::compute_idf_penalty(const std::vector<NGram>& pattern_ngrams,
+                                                     float unknown_vocab_word_penalty) const {
+    std::vector<float> idf_penalty;
+    idf_penalty.reserve(pattern_ngrams.size());
+
+    const unsigned num_sentences = _filterIndex->get_Filter().num_sentences();
+
+    const std::vector<unsigned>& word_frequency_in_sentences = _filterIndex->get_VocabIndexer().getSFreq();
+    unsigned n;
+    float tot_idf;
+    for (const NGram& ngram : pattern_ngrams) {
+      for (n = 0, tot_idf = 0.f; n < ngram._N; n++)
+      {
+        if (ngram._start[n] != fuzzy::VocabIndexer::VOCAB_UNK)
+          tot_idf += std::log((float)num_sentences/(float)word_frequency_in_sentences[ngram._start[n]]);
+        else
+          tot_idf += unknown_vocab_word_penalty;
+      }
+      idf_penalty.push_back(tot_idf / (float)n);
+    }
+    return idf_penalty;
+  } 
+
   /* interface with integrated tokenization */
   bool FuzzyMatch::match(const std::string &sentence,
                          float fuzzy,
@@ -620,46 +643,62 @@ namespace fuzzy
     unsigned cpt = 0;
       
     std::vector<unsigned> sorted_pattern_terms;
+    std::vector<NGram> sorted_pattern_ngrams;
     std::vector<unsigned> count_terms;
     std::vector<std::pair<unsigned, int>> best_matches = filter_matches->get_best_matches();
     std::vector<float> norm_weight;
+    std::vector<float> sorted_pattern_terms_idf;
 
-    switch(submod_fun) // Salient aspects enumeration
+    /* Salient aspects enumeration */
+    switch(submod_fun)
     {
       case SubmodularFunction::BOW:
       {
         std::vector<unsigned> sorted_pattern_wids(pattern_wids);
         std::sort(sorted_pattern_wids.begin(), sorted_pattern_wids.end());
 
-        sorted_pattern_terms.reserve(pattern_wids.size());
-        count_terms.reserve(pattern_wids.size());
-        if (sorted_pattern_wids.size() > 0)
-        {
-          unsigned current_term = sorted_pattern_wids[0];
-          unsigned current_count = 1;
-          for (unsigned i = 1; i < sorted_pattern_wids.size(); i++)
-          {
-            if (current_term != sorted_pattern_wids[i])
-            {
-              sorted_pattern_terms.push_back(current_term);
-              count_terms.push_back(current_count);
-              current_term = sorted_pattern_wids[i];
-              current_count = 1;
-            }
-            else
-              current_count++;
-          }
-          sorted_pattern_terms.push_back(current_term);
-          count_terms.push_back(current_count);
-        }
-        break;
+        get_unique_with_count(sorted_pattern_wids, sorted_pattern_terms, count_terms);
+
+        if (submod_norm == SubmodularNormalization::IDF)
+          sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_terms);
+
+        // sorted_pattern_terms.reserve(pattern_wids.size());
+        // count_terms.reserve(pattern_wids.size());
+        // if (sorted_pattern_wids.size() > 0)
+        // {
+        //   unsigned current_term = sorted_pattern_wids[0];
+        //   unsigned current_count = 1;
+        //   for (unsigned i = 1; i < sorted_pattern_wids.size(); i++)
+        //   {
+        //     if (current_term != sorted_pattern_wids[i])
+        //     {
+        //       sorted_pattern_terms.push_back(current_term);
+        //       count_terms.push_back(current_count);
+        //       current_term = sorted_pattern_wids[i];
+        //       current_count = 1;
+        //     }
+        //     else
+        //       current_count++;
+        //   }
+        //   sorted_pattern_terms.push_back(current_term);
+        //   count_terms.push_back(current_count);
+        // }
+        // break;
+      }
+      case SubmodularFunction::NGRAM:
+      {
+        get_all_ngrams(
+          pattern_wids.data(),
+          p_length,
+          4,
+          sorted_pattern_ngrams,
+          count_terms);
+        if (submod_norm == SubmodularNormalization::IDF)
+          sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_ngrams);
       }
       default:
         ;
     }
-    std::vector<float> sorted_pattern_terms_idf;
-    if (submod_norm == SubmodularNormalization::IDF)
-      sorted_pattern_terms_idf = compute_idf_penalty(sorted_pattern_terms);
 
     std::cerr << "sorted unique terms" << ": ";
     for (const auto& c : sorted_pattern_terms)
@@ -699,28 +738,41 @@ namespace fuzzy
         BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
         s_cover = bm25Matches.cover(sorted_pattern_terms, count_terms, s_id);
       }
-      else if (submod_norm == SubmodularNormalization::NO)
+      // else if (submod_norm == SubmodularNormalization::NO)
+      // {
+      //   std::cerr << "No norm..." << std::endl << std::flush;
+      //   get_bow_score(
+      //     sorted_pattern_terms,
+      //     count_terms,
+      //     sentence_wids,
+      //     s_length,
+      //     score,
+      //     s_cover);
+      // }
+      else if (submod_norm == SubmodularNormalization::IDF || submod_norm == SubmodularNormalization::NO)
       {
-        std::cerr << "No norm..." << std::endl << std::flush;
-        get_bow_score(
-          sorted_pattern_terms,
-          count_terms,
-          sentence_wids,
-          s_length,
-          score,
-          s_cover);
-      }
-      else if (submod_norm == SubmodularNormalization::IDF)
-      {
-        std::cerr << "IDF norm..." << std::endl << std::flush;
-        get_bow_score_idf(
-          sorted_pattern_terms,
-          count_terms,
-          sentence_wids,
-          s_length,
-          sorted_pattern_terms_idf,
-          score,
-          s_cover);
+        std::cerr 
+          << (submod_norm == SubmodularNormalization::IDF ? "IDF" : "NO")
+          << " norm..." << std::endl << std::flush;
+        if (submod_fun == SubmodularFunction::BOW)
+          get_bow_score(
+            sorted_pattern_terms,
+            count_terms,
+            sentence_wids,
+            s_length,
+            score,
+            s_cover,
+            sorted_pattern_terms_idf);
+        else if (submod_fun == SubmodularFunction::NGRAM)
+          get_ngram_score(
+            sorted_pattern_ngrams,
+            4,
+            count_terms,
+            sentence_wids,
+            s_length,
+            score,
+            s_cover,
+            sorted_pattern_terms_idf);
       }
       // std::cerr << "q:       ";
       // for (unsigned i = 0; i < sorted_pattern_terms.size(); i++)
@@ -744,6 +796,7 @@ namespace fuzzy
       switch(submod_fun) // salient aspect weighted cover
       {
         case SubmodularFunction::BOW:
+        case SubmodularFunction::NGRAM:
           break;
         default:
           const auto num_covered_words = pattern_coverage.count_covered_words(sentence_wids, s_length);
@@ -763,17 +816,16 @@ namespace fuzzy
             // float cost = 0.1;
           if ((no_perfect && cost == 0 && (s_length == p_length)) || cost > cost_upper_bound)
             continue;
-            float score = int(10000 - cost * 100) / 10000.0;
+          float score = int(10000 - cost * 100) / 10000.0;
 
-            lowest_costs.push(cost);
-            if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
-              lowest_costs.pop();
+          lowest_costs.push(cost);
+          if (score < fuzzy || (contrast_buffer > 0 && (int)lowest_costs.size() > contrast_buffer))
+            lowest_costs.pop();
           }
           else 
           {
             continue;
           }
-
       }
 
       if (score >= fuzzy) {
@@ -801,13 +853,11 @@ namespace fuzzy
 
     if (shrinking_factor < 1.f) // submodular coverage
     {
-      std::vector<float> cover_weights(sorted_pattern_terms.size(), 1.f);
+      std::vector<float> cover_weights(count_terms.size(), 1.f);
       std::list<Match> candidates;
       while (!result.empty())
       {
         auto match = result.top();
-        // match.penalty = match.score; // initialize corr. to weights of 1
-        // match.penalty = match.score; // initialize corr. to weights of 1
         candidates.push_back(match);
         result.pop();
       }
@@ -820,20 +870,20 @@ namespace fuzzy
         for (Match &match : candidates)
         {
           float rescore = 0.f;
-          // std::cerr << "rescore " << match.s_id << " : (";
+          std::cerr << "rescore " << match.s_id << " : (";
           for (unsigned i = 0; i < cover_weights.size(); i++)
           {  
             rescore += cover_weights[i] * match.cover[i];
-            // if (match.cover[i] != 0) 
-            //   std::cerr << cover_weights[i] << "*" << match.cover[i] << "+";
+            if (match.cover[i] != 0) 
+              std::cerr << cover_weights[i] << "*" << match.cover[i] << "+";
           }
           
-          // std::cerr << ") " << match.penalty << " -> " << rescore << std::endl;
+          std::cerr << ") " << match.penalty << " -> " << rescore << std::endl;
           match.penalty = rescore;
         }
         auto it_max = std::max_element(candidates.begin(), candidates.end(), comp);
         matches.push_back(*it_max);
-        // std::cerr << "choose No " << it_max->s_id << std::endl;
+        std::cerr << "choose No " << it_max->s_id << std::endl;
         // update cover_weights
         for (unsigned i = 0; i < cover_weights.size(); i++)
           if (it_max->cover[i] > 0)
