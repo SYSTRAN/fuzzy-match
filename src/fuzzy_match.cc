@@ -403,12 +403,10 @@ namespace fuzzy
     float tot_idf;
     for (const NGram& ngram : pattern_ngrams) {
       for (n = 0, tot_idf = 0.f; n < ngram._N; n++)
-      {
         if (ngram._start[n] != fuzzy::VocabIndexer::VOCAB_UNK)
           tot_idf += std::log((float)num_sentences/(float)word_frequency_in_sentences[ngram._start[n]]);
         else
           tot_idf += unknown_vocab_word_penalty;
-      }
       idf_penalty.push_back(tot_idf / (float)n);
     }
     return idf_penalty;
