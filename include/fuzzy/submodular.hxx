@@ -29,7 +29,7 @@ namespace fuzzy
         cover = std::vector<float>(sorted_pattern_terms.size(), 0.f);
         score = 0.f;
         for (
-            unsigned i, j, k = 0;
+            unsigned i = 0, j = 0, k = 0;
             (i < sorted_pattern_terms.size()) && (j < sorted_sentence_terms.size());
             j++)
         {

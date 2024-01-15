@@ -8,6 +8,7 @@
 #include <fuzzy/edit_distance.hh>
 #include <fuzzy/submodular.hh>
 #include <memory>
+#include <numeric>
 
 namespace onmt {
   class Tokenizer;

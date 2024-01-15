@@ -37,6 +37,12 @@ namespace fuzzy
         std::cerr << '\t';
     }
 
+    std::ostream& operator<<(std::ostream &s, const NGram &ngram) {
+        for (unsigned i = 0; i < ngram._N; i++)
+            s << ngram._start[i] << ",";
+        return s << '\t';
+    }
+
     void get_bow_score(
         std::vector<unsigned>& sorted_pattern_terms,
         std::vector<unsigned>& count_terms,

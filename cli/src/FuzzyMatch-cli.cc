@@ -466,7 +466,7 @@ int main(int argc, char** argv)
   else
     submodular_function = fuzzy::SubmodularFunction::NO;
   fuzzy::SubmodularNormalization submodular_normalization;
-  std::cerr << "submodular_normalization_str = " << submodular_normalization_str << std::endl;
+  // std::cerr << "submodular_normalization_str = " << submodular_normalization_str << std::endl;
   if (submodular_normalization_str == "BM25")
     submodular_normalization = fuzzy::SubmodularNormalization::BM25;
   else if (submodular_normalization_str == "IDF")

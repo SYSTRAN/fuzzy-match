@@ -220,7 +220,7 @@ namespace fuzzy
         case 3:
           i--;
           j--;
-          std::cerr << "idf cover " << j << "  " << idf_penalty.size() << std::endl << std::flush;
+          // std::cerr << "idf cover " << j << "  " << idf_penalty.size() << std::endl << std::flush;
           cover[j] = idf_cover ? idf_penalty[j] : 1.f;
           break;
         default:
