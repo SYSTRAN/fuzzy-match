@@ -125,12 +125,15 @@ std::pair<int, int> process_stream(const Function& function,
   if (num_threads <= 1) // Fast path for sequential processing.
   {
     while (std::getline(in, line)) {
+      std::cerr << "#" << std::flush;
       std::string res = function(line);
+      std::cerr << "+" << std::flush;
       if (!res.empty())
         count_nonempty++;
       out << res << std::endl;
       // if (count_nonempty % 100 == 0)
       //   std::cerr << "\rPROGRESS: " << count_nonempty << "  " << std::flush;
+      std::cerr << "+" << std::endl << std::flush;
     }
     // std::cerr << std::endl;
     return std::make_pair(count_nonempty, count_total);

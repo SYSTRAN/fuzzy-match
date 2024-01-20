@@ -24,12 +24,15 @@ namespace fuzzy
 
     std::priority_queue<std::pair<float, unsigned>, std::vector<std::pair<float, unsigned>>, ComparePairs> k_best;
 
+    std::cerr << "1" << std::flush;
     Eigen::SparseVector<float> pattern_sparse_vec(bm25.get_vocab_size());
     for (const unsigned& wid : pattern_wids)
       pattern_sparse_vec.coeffRef(wid) += 1.0;
 
+    std::cerr << "2" << std::flush;
     Eigen::SparseVector<float> scores = bm25.compute_product(pattern_sparse_vec);
 
+    std::cerr << "3" << std::flush;
     for (Eigen::SparseVector<float>::InnerIterator it(scores); it; ++it) {
       int s_id = it.index();
       float bm25_score = it.value();
@@ -41,6 +44,7 @@ namespace fuzzy
       }
     }
 
+    std::cerr << "4" << std::flush;
     _best_matches.reserve(k_best.size());
     while (!k_best.empty())
     {

@@ -505,6 +505,8 @@ namespace fuzzy
     if (!p_length)
       return false;
 
+    std::cerr << "[" << std::flush;
+
     if ((std::size_t)(min_subseq_length) > pattern.size())
       min_subseq_length = pattern.size();
 
@@ -527,6 +529,8 @@ namespace fuzzy
     // FilterMatches* filter_matches = nullptr;
     // std::unique_ptr<FilterMatches> filter_matches;
     std::shared_ptr<FilterMatches> filter_matches;
+
+    std::cerr << "$" << std::flush;
     if (filter_type == IndexType::SUFFIX) {
       const SuffixArray& suffix_array = static_cast<const SuffixArray&>(filter);
       // filter_matches = new NGramMatches(fuzzy, p_length, min_subseq_length, suffix_array);
@@ -611,6 +615,7 @@ namespace fuzzy
       filter_matches = std::make_shared<BM25Matches>(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       // filter_matches = new BM25Matches(fuzzy, p_length, min_subseq_length, bm25, bm25_buffer, bm25_cutoff);
       BM25Matches& bm25Matches = static_cast<BM25Matches&>(*filter_matches);
+      std::cerr << "!" << std::flush;
       bm25Matches.register_pattern(pattern_wids, edit_costs);
     }
 #endif
@@ -622,7 +627,7 @@ namespace fuzzy
       no_matches.load_all();
     }
     /* Consolidation of the results */
-
+    std::cerr << "~" << std::flush;
     /* now explore for the best segments */
 
     PatternCoverage pattern_coverage(pattern_wids);
@@ -646,6 +651,8 @@ namespace fuzzy
     std::vector<std::pair<unsigned, int>> best_matches = filter_matches->get_best_matches();
     std::vector<float> norm_weight;
     std::vector<float> sorted_pattern_terms_idf;
+
+    std::cerr << "|" << std::flush;
 
     /* Salient aspects enumeration */
     switch(submod_fun)
@@ -706,6 +713,7 @@ namespace fuzzy
 
     for (const auto& pair : best_matches)
     {
+      // std::cerr << "-" << std::flush;
       // num_filtered++;
       const auto s_id = pair.first;
       const auto score_filter = pair.second;
@@ -856,7 +864,10 @@ namespace fuzzy
         m.id = _filterIndex->id(s_id);
         m.secondary_sort = (filter_type == IndexType::SUFFIX) ? s_id : cpt;
         m.penalty = 0;
-        m.cover = s_cover;
+        // m.cover = s_cover;
+        // m.cover = std::vector<float>(s_cover);
+        // m.cover = std::vector<float>(s_cover.size());
+        // std::copy(s_cover.begin(), s_cover.end(), m.cover.begin());
         result.push(m);
         // std::cerr << m.s_id << ": ";
         // for (const auto& c : m.cover)
@@ -868,6 +879,7 @@ namespace fuzzy
       }
     }
     // COUT filter
+    std::cerr << "]" << std::flush;
     // std::cerr << num_filtered << std::endl;
     // std::cerr << filter_matches->get_best_matches().size() << std::endl;
 
@@ -896,7 +908,9 @@ namespace fuzzy
           // std::cerr << "rescore " << match.s_id << " : (";
           for (unsigned i = 0; i < cover_weights.size(); i++)
           {  
-            rescore += cover_weights[i] * match.cover[i];
+            ///////////////////////////////// TODO: uncomment
+            // rescore += cover_weights[i] * match.cover[i];
+            rescore += cover_weights[i];
             // if (match.cover[i] != 0) 
             //   std::cerr << cover_weights[i] << "*" << match.cover[i] << "+";
           }
@@ -907,9 +921,10 @@ namespace fuzzy
         matches.push_back(*it_max);
         // std::cerr << "choose No " << it_max->s_id << std::endl;
         // update cover_weights
-        for (unsigned i = 0; i < cover_weights.size(); i++)
-          if (it_max->cover[i] > 0)
-            cover_weights[i] *= shrinking_factor;
+        ///////////////////////////////// TODO: uncomment
+        // for (unsigned i = 0; i < cover_weights.size(); i++)
+        //   if (it_max->cover[i] > 0)
+        //     cover_weights[i] *= shrinking_factor;
         candidates.erase(it_max);
         if (shrinking_factor < 1e-20f)
         {
@@ -987,6 +1002,7 @@ namespace fuzzy
         result.pop();
       }
     }
+    std::cerr << "|" << std::flush;
 
     // std::cerr << "final matches " << " : ";
     // for (unsigned i = 0; i < matches.size(); i++)
@@ -999,6 +1015,9 @@ namespace fuzzy
     //   std::cerr << matches[i].id;
     // }
     // std::cerr << std::endl;
+
+    //// Attempts to free memory which is corrupted
+    //// Probably from vector
     return matches.size() > 0;
   }
 }
