@@ -42,14 +42,13 @@ namespace fuzzy
         int length
       ) : length(length), s(seq) {}
       Match() {}
-      ~Match() {}
       float       score;
       float       secondary_sort;
       float       penalty;
       int         max_subseq;
       unsigned    s_id;
       std::string id;
-      float* cover;
+      std::vector<float> cover;
       int length;
       const unsigned* s;
     };

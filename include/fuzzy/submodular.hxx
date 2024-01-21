@@ -18,6 +18,7 @@ namespace fuzzy
     }
 
     template <typename T>
+    inline
     void get_score(
         std::vector<T>& sorted_pattern_terms,
         std::vector<T>& sorted_sentence_terms,
@@ -27,16 +28,20 @@ namespace fuzzy
         std::vector<float>& idf_penalty)
     {
         cover = std::vector<float>(sorted_pattern_terms.size(), 0.f);
+        // std::cerr << sorted_pattern_terms.size() << "|"
+        //           << sorted_sentence_terms.size() << ">" 
+        //           << std::flush;
         score = 0.f;
         for (
-            unsigned i = 0, j = 0, k = 0;
+            unsigned i = 0, j = 0;
             (i < sorted_pattern_terms.size()) && (j < sorted_sentence_terms.size());
             j++)
         {
             while (
-                (i < sorted_pattern_terms.size()) && 
+                (i < sorted_pattern_terms.size() - 1) && 
                 (sorted_pattern_terms[i] < sorted_sentence_terms[j]))
                 i++;
+
             if (sorted_pattern_terms[i] == sorted_sentence_terms[j])
                 if (idf_penalty.size() > 0)
                 {
@@ -55,6 +60,7 @@ namespace fuzzy
     }
 
     template <typename T>
+    inline
     void get_unique_with_count(
         std::vector<T>& sorted_salient,
         std::vector<T>& unique,
