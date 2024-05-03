@@ -75,6 +75,8 @@ namespace fuzzy
     _ptokenizer->add_alphabet_to_segment("Kanbun");
     _ptokenizer->add_alphabet_to_segment("Katakana");
     _ptokenizer->add_alphabet_to_segment("Hiragana");
+    _ptokenizer->add_alphabet_to_segment("Thai");
+    _ptokenizer->add_alphabet_to_segment("Myanmar");  // Burmese
   }
 
   void
