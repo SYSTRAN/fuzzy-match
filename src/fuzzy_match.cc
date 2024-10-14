@@ -41,6 +41,16 @@ namespace fuzzy
     }
   };
 
+  class CompareMatchInverse
+  {
+  public:
+    bool operator()(const FuzzyMatch::Match &x, const FuzzyMatch::Match &y)
+    {
+      return x.score > y.score || 
+             (x.score == y.score && x.secondary_sort < y.secondary_sort);
+    }
+  };
+
   static std::string normalize(const std::string& text_utf8) {
     UErrorCode error_code = U_ZERO_ERROR;
     const auto* normalizer = icu::Normalizer2::getNFCInstance(error_code);
@@ -522,6 +532,7 @@ namespace fuzzy
 
     /* result map - normalized error => sentence */
     std::priority_queue<Match, std::vector<Match>, CompareMatch> result;
+    std::priority_queue<Match, std::vector<Match>, CompareMatchInverse> result_best;
 
     const Filter& filter = _filterIndex->get_Filter();
     // FilterMatches* filter_matches = nullptr;
@@ -822,11 +833,19 @@ namespace fuzzy
         m.secondary_sort = (filter_type == IndexType::SUFFIX) ? s_id : cpt;
         m.penalty = 0;
         m.cover = s_cover;
-        result.push(m);
+        // result.push(m);
+        result_best.push(m);
+        if (contrast_buffer > 0 && (int)result_best.size() > contrast_buffer)
+          result_best.pop();
         cpt++;
-        if (cpt > contrast_buffer)
-          break;
+        // if (cpt > contrast_buffer)
+        //   break
       }
+    }
+    while (result_best.size() > 0)
+    {
+      result.push(result_best.top());
+      result_best.pop();
     }
     // COUT filter
     // std::cerr << num_filtered << std::endl;
