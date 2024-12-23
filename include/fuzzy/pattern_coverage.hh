@@ -19,4 +19,5 @@ namespace fuzzy
     std::unordered_map<unsigned, unsigned> _words_count;
   };
 
+  bool equal_arrays(const size_t s_len, const size_t p_len, const unsigned* s, const unsigned* p);
 }

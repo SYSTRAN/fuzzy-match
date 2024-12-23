@@ -32,7 +32,7 @@ namespace fuzzy
     bool theoretical_rejection(size_t p_length, size_t s_length, const EditCosts& edit_costs) const;
     bool theoretical_rejection_cover(size_t p_length, size_t s_length, size_t cover, const EditCosts& edit_costs) const;
 
-    virtual std::vector<std::pair<unsigned, unsigned>> get_best_matches() const = 0;
+    virtual std::vector<std::pair<unsigned, int>> get_best_matches() const = 0;
 
     float fuzzy_threshold;
     // unsigned max_differences_with_pattern;

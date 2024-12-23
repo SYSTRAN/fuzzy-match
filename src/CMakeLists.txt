@@ -12,6 +12,9 @@ set(FUZZY_SOURCES
   pattern_coverage.cc
   filter.cc
   index.cc
+  no_filter.cc
+  no_matches.cc
+  submodular.cc
 )
 if(MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -52,7 +55,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME}
   ${OPENNMT_TOKENIZER_LIB}
-  ${ICU_LIBRARIES}
+  # ${ICU_LIBRARIES}
   ${Boost_LIBRARIES}
   Threads::Threads
   )

@@ -10,6 +10,7 @@ namespace fuzzy
   Filter::add_sentence(const std::vector<unsigned>& sentence)
   {
     size_t sidx = _sentence_pos.size();
+    // std::cerr << sidx << std::endl;
     _sentence_pos.push_back(_sentence_buffer.size());
 
     /* first token in sentence buffer is the sentence size */

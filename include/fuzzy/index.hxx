@@ -64,6 +64,17 @@ namespace fuzzy
         & _max_tokens_in_pattern;
     }
 #endif
+    else if (_type == IndexType::NO)
+    {
+      NoFilter& no_filter = static_cast<NoFilter&>(*_filter);
+        ar
+          & _type
+          & _vocabIndexer
+          & no_filter
+          & _ids
+          & _real_tokens
+          & _max_tokens_in_pattern;
+    }
   }
 
   template<class Archive>
@@ -94,6 +105,16 @@ namespace fuzzy
         & _real_tokens;
     }
 #endif
+    else if (_type == IndexType::NO)
+    {
+      _filter = createNo();
+      NoFilter& no_filter = static_cast<NoFilter&>(*_filter);
+      ar
+        & _vocabIndexer
+        & no_filter
+        & _ids
+        & _real_tokens;
+    }
     if (version >= 1)
       ar & _max_tokens_in_pattern;
   }

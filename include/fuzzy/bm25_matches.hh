@@ -33,12 +33,13 @@ namespace fuzzy
     using FilterMatches::theoretical_rejection;
     using FilterMatches::theoretical_rejection_cover;
 
-    std::vector<std::pair<unsigned, unsigned>> get_best_matches() const override;
+    std::vector<std::pair<unsigned, int>> get_best_matches() const override;
+    std::vector<float> cover(const std::vector<unsigned>& unique_pattern_wids, const std::vector<unsigned>& count, unsigned s_id) const;
 
   private:
     // Num of sentences to place in the buffer
     const unsigned _buffer;
     const float _cutoff_threshold;
-    std::vector<std::pair<unsigned, unsigned>> _best_matches;
+    std::vector<std::pair<unsigned, int>> _best_matches;
   };
 }

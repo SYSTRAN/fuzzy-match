@@ -12,13 +12,14 @@
 #ifdef USE_EIGEN
   #include <fuzzy/bm25.hh>
 #endif
+#include <fuzzy/no_filter.hh>
 #include <fuzzy/vocab_indexer.hh>
 #include <fuzzy/sentence.hh>
 
 namespace fuzzy
 {
   constexpr size_t DEFAULT_MAX_TOKENS_IN_PATTERN = 300; // if you change this value, update README.md
-  enum class IndexType { SUFFIX, BM25 };
+  enum class IndexType { SUFFIX, BM25, NO };
   class FilterIndex
   {
   public:
@@ -62,6 +63,7 @@ namespace fuzzy
 #ifdef USE_EIGEN
     inline std::shared_ptr<Filter> createBM25(const FilterIndexParams &params = FilterIndexParams()) { return std::make_shared<BM25>(params); }
 #endif
+    inline std::shared_ptr<Filter> createNo() { return std::make_shared<NoFilter>(); }
     std::vector<std::string> _ids;
     std::vector<Sentence>    _real_tokens;
     size_t _max_tokens_in_pattern;

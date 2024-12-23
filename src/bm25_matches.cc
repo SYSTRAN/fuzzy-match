@@ -44,15 +44,35 @@ namespace fuzzy
     _best_matches.reserve(k_best.size());
     while (!k_best.empty())
     {
-      _best_matches.push_back({k_best.top().second, 0});
+      _best_matches.push_back({k_best.top().second, (int)(k_best.top().first * 1000)});
       k_best.pop();
     }
     std::reverse(_best_matches.begin(), _best_matches.end()); 
   }
 
-  std::vector<std::pair<unsigned, unsigned>>
+  std::vector<std::pair<unsigned, int>>
   BM25Matches::get_best_matches() const
   {
     return _best_matches;
+  }
+
+  std::vector<float>
+  BM25Matches::cover(const std::vector<unsigned>& unique_pattern_wids, const std::vector<unsigned>& count, unsigned s_id) const
+  {
+    const BM25& bm25 = static_cast<const BM25&>(_filter);
+
+    Eigen::SparseVector<float> pattern_sparse_vec(bm25.get_vocab_size());
+    // for (const unsigned& wid : unique_pattern_wids)
+      // pattern_sparse_vec.coeffRef(wid) += 1.0;
+    for (unsigned i = 0; i < unique_pattern_wids.size(); i++)
+      pattern_sparse_vec.coeffRef(unique_pattern_wids[i]) = (float)count[i];
+
+    Eigen::SparseVector<float> all_coverage = bm25.get_cover(pattern_sparse_vec, s_id);
+
+    std::vector<float> coverage(unique_pattern_wids.size(), 0.f);
+    for (int i = 0; i < coverage.size(); i++)
+      coverage[i] = all_coverage.coeff(unique_pattern_wids[i]);
+
+    return coverage;
   }
 }

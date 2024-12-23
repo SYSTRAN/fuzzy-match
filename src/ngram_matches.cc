@@ -12,13 +12,13 @@ namespace fuzzy
       : FilterMatches(fuzzy, p_length, min_seq_len, suffixArray)
   {}
 
-  std::vector<std::pair<unsigned, unsigned>>
+  std::vector<std::pair<unsigned, int>>
   NGramMatches::get_best_matches() const
   {
-    std::vector<std::pair<unsigned, unsigned>> sorted_matches(_longest_matches.begin(),
+    std::vector<std::pair<unsigned, int>> sorted_matches(_longest_matches.begin(),
                                                               _longest_matches.end());
     std::sort(sorted_matches.begin(), sorted_matches.end(),
-              [](const std::pair<unsigned, unsigned>& a, const std::pair<unsigned, unsigned>& b) {
+              [](const std::pair<unsigned, int>& a, const std::pair<unsigned, int>& b) {
                 return a.second > b.second || (a.second == b.second && a.first < b.first);
               });
     return sorted_matches;

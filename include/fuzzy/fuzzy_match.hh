@@ -6,7 +6,9 @@
 #include <fuzzy/index.hh>
 #include <fuzzy/sentence.hh>
 #include <fuzzy/edit_distance.hh>
+#include <fuzzy/submodular.hh>
 #include <memory>
+#include <numeric>
 
 namespace onmt {
   class Tokenizer;
@@ -15,6 +17,8 @@ namespace onmt {
 namespace fuzzy
 {
   enum class ContrastReduce { MEAN, MAX };
+  enum class SubmodularFunction { NO, BOW, NGRAM, ED };
+  enum class SubmodularNormalization { NO, IDF, BM25 };
 
   class FuzzyMatch
   {
@@ -44,6 +48,7 @@ namespace fuzzy
       int         max_subseq;
       unsigned    s_id;
       std::string id;
+      std::vector<float> cover;
       int length;
       const unsigned* s;
     };
@@ -74,7 +79,10 @@ namespace fuzzy
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
-               float bm25_cutoff=0) const;
+               float bm25_cutoff=0,
+               float shrinking_factor=1.f,
+               SubmodularFunction submod_fun=SubmodularFunction::NO,
+               SubmodularNormalization submod_norm=SubmodularNormalization::NO) const;
     bool match(const Sentence& real,
                const Tokens& pattern,
                float fuzzy,
@@ -90,7 +98,10 @@ namespace fuzzy
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
-               float bm25_cutoff=0) const;
+               float bm25_cutoff=0,
+               float shrinking_factor=1.f,
+               SubmodularFunction submod_fun=SubmodularFunction::NO,
+               SubmodularNormalization submod_norm=SubmodularNormalization::NO) const;
     /* simplified, include tokenization */
     bool match(const std::string &sentence,
                float fuzzy,
@@ -106,7 +117,10 @@ namespace fuzzy
                int contrast_buffer=-1,
                IndexType filter_type=IndexType::SUFFIX,
                int bm25_buffer=10,
-               float bm25_cutoff=0) const;
+               float bm25_cutoff=0,
+               float shrinking_factor=1.f,
+               SubmodularFunction submod_fun=SubmodularFunction::NO,
+               SubmodularNormalization submod_norm=SubmodularNormalization::NO) const;
     bool subsequence(const std::string &sentence,
                unsigned number_of_matches,
                bool no_perfect,
@@ -150,6 +164,9 @@ namespace fuzzy
 
     std::vector<float>
     compute_idf_penalty(const std::vector<unsigned int>& pattern_wids,
+                        float unknown_vocab_word_penalty = 0) const;
+    std::vector<float>
+    compute_idf_penalty(const std::vector<NGram>& pattern_ngrams,
                         float unknown_vocab_word_penalty = 0) const;
 
     /* penalty tokens */

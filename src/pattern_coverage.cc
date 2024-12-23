@@ -27,4 +27,14 @@ namespace fuzzy
     return num_covered_words;
   }
 
+  bool equal_arrays(const size_t s_len, const size_t p_len, const unsigned* s, const unsigned* p)
+  {
+    if (s_len != p_len)
+      return false;
+
+    for (unsigned i = 0; i < p_len; i++)
+      if (p[i] != s[i])
+        return false;
+    return true;
+  }
 }
