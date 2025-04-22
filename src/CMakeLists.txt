@@ -38,6 +38,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME}
   ${OPENNMT_TOKENIZER_LIB}
   ${ICU_LIBRARIES}
-  ${Boost_LIBRARIES}
+  Boost::serialization
+  Boost::iostreams
+  Boost::system
   Threads::Threads
   )
